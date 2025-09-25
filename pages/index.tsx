@@ -1,13 +1,10 @@
 "use client";
 
 import React, { JSX, useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
-//test
 
-// Minimal Navbar Component - Only Calendar & Login with Contact
-const MinimalNavbar = () => {
+// Library-style Navbar Component
+const LibraryNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -23,147 +20,104 @@ const MinimalNavbar = () => {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/90 backdrop-blur-xl border-b border-slate-200/50 shadow-lg"
-          : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+          ? "bg-white shadow-md border-b border-gray-200"
+          : "bg-white/95 backdrop-blur-sm"
+        }`}
     >
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-24"> {/* Increased height */}
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-              <div className="absolute inset-1 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-blue-600 font-black text-lg">T2U</span>
-              </div>
+          <a href="/" className="flex items-center gap-4"> {/* Increased gap */}
+            <div className="w-14 h-14 bg-red-600 rounded-lg flex items-center justify-center shadow-sm">
+              <span className="text-white font-bold text-2xl">T2U</span> {/* Increased size */}
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                TimeToUse
-              </span>
-              <span className="text-xs text-slate-500 -mt-1">
-                Equipment Management
+              <span className="text-3xl font-bold text-gray-800 uppercase tracking-wide"> {/* Increased size */}
+                Time2Use
               </span>
             </div>
-          </Link>
+          </a>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
-            <Link
-              href="/Equipment_Catalog"
-              className="group flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-all duration-300 hover:scale-105"
-            >
-              <div className="w-5 h-5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xs">📅</span>
-              </div>
-              <span className="font-semibold text-slate-700 group-hover:text-slate-900">
-                ดูอุปกรณ์
-              </span>
-            </Link>
-
-            <Link
+          <div className="hidden md:flex items-center gap-12"> {/* Increased gap */}
+            <a
               href="/table"
-              className="group flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-all duration-300 hover:scale-105"
+              className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl" // Increased size
             >
-              <div className="w-5 h-5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xs">📅</span>
-              </div>
-              <span className="font-semibold text-slate-700 group-hover:text-slate-900">
-                ดูปฏิทิน
-              </span>
-            </Link>
-
-            <Link
+              Schedule
+            </a>
+            <a
+              href="/" 
+              className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+            >
+              HOME
+            </a>
+            <a
               href="/contact"
-              className="px-6 py-3 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-all duration-300 hover:scale-105 font-semibold text-slate-700"
+              className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl" // Increased size
             >
-              Contact Us
-            </Link>
-
-            <Link href="/auth">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden group"
-              >
-                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                <span className="relative">เข้าสู่ระบบ</span>
-              </motion.button>
-            </Link>
+              Contact
+            </a>
+            <a href="/auth">
+              <div className="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
+                <span className="text-gray-600 text-3xl">👤</span> {/* Increased size */}
+              </div>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-3">
+          <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-3 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-all duration-300"
+              className="p-2 text-gray-600 hover:text-red-600 transition-colors"
             >
-              <motion.svg
-                animate={{ rotate: isMobileMenuOpen ? 180 : 0 }}
-                className="w-6 h-6 text-slate-700"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"> {/* Increased size */}
                 {isMobileMenuOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 8h16M4 16h16"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 )}
-              </motion.svg>
+              </svg>
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        <motion.div
-          initial={false}
-          animate={{
-            height: isMobileMenuOpen ? "auto" : 0,
-            opacity: isMobileMenuOpen ? 1 : 0,
-          }}
-          className="md:hidden overflow-hidden"
-        >
-          <div className="py-6 space-y-4">
-            <Link
-              href="/table"
-              className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-all group"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
-                <span className="text-white text-sm">📅</span>
-              </div>
-              <span className="font-semibold text-slate-700 group-hover:text-slate-900">
-                ดูปฏิทิน
-              </span>
-            </Link>
-
-            <Link
-              href="/contact"
-              className="block p-4 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-all font-semibold text-slate-700"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Contact Us
-            </Link>
-
-            <Link href="/auth" onClick={() => setIsMobileMenuOpen(false)}>
-              <button className="w-full p-4 rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white font-bold shadow-lg">
-                เข้าสู่ระบบ
-              </button>
-            </Link>
-          </div>
-        </motion.div>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t border-gray-200 py-5" // Increased padding
+          >
+            <div className="space-y-5"> {/* Increased space */}
+              <a
+                href="#"
+                className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl" // Increased size
+              >
+                YOUR LOCATION
+              </a>
+              <a
+                href="#"
+                className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl" // Increased size
+              >
+                HOME
+              </a>
+              <a
+                href="/table"
+                className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl" // Increased size
+              >
+                BOOK
+              </a>
+              <a href="/auth">
+                <button className="w-full p-5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors text-xl"> {/* Increased size & padding */}
+                  เข้าสู่ระบบ
+                </button>
+              </a>
+            </div>
+          </motion.div>
+        )}
       </div>
     </motion.nav>
   );
@@ -192,186 +146,126 @@ export default function Page(): JSX.Element {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 text-slate-900 transition-colors duration-300">
-      {/* Minimal Navbar */}
-      <MinimalNavbar />
-
-      {/* Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-pink-400/20 to-orange-600/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-emerald-400/10 to-cyan-600/10 rounded-full blur-3xl"></div>
-      </div>
+    <main className="min-h-screen bg-gray-50 text-gray-800">
+      {/* Library Navbar */}
+      <LibraryNavbar />
 
       {/* Main Content */}
-      <div className="relative z-10">
-        {/* Hero Section */}
+      <div className="pt-24"> {/* Adjusted padding-top for taller navbar */}
+        {/* Hero Section - Reduced font sizes here */}
         <section
           ref={(el) => setRef(el, 0)}
           data-index={0}
-          className="min-h-screen flex items-center justify-center px-6"
+          className="py-28 bg-white"
         >
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="space-y-8"
-            >
-              <div className="space-y-6">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 border border-blue-200/50"
-                >
-                  <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-semibold text-blue-700">
-                    Smart Equipment Management
-                  </span>
-                </motion.div>
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+              {/* Left Content */}
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8 }}
+                className="space-y-10" // Adjusted space
+              >
+                <div className="space-y-8">
+                  <p className="text-4xl text-gray-600 uppercase tracking-wider font-medium"> {/* Reduced size */}
+                    WELCOME TO
+                  </p>
 
-                <h1 className="text-5xl lg:text-7xl xl:text-8xl font-black leading-tight">
-                  <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    Time
-                  </span>
-                  <br />
-                  <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                    ToUse
-                  </span>
-                </h1>
+                  <h1 className="text-7xl lg:text-7xl font-bold text-gray-900 leading-tight"> {/* Reduced size */}
+                    <span className="text-red-600">EQUIPMENT</span>
+                    <br />
+                    <span className="text-gray-900">System</span>
+                  </h1>
 
-                <p className="text-xl lg:text-2xl text-slate-600 max-w-2xl leading-relaxed">
-                  ระบบยืม-คืนอุปกรณ์อัจฉริยะ
-                  ที่ช่วยให้การจัดการทรัพยากรในองค์กรเป็นเรื่องง่าย
-                  <span className="text-blue-600 font-semibold">
-                    {" "}
-                    ทันสมัย
-                  </span>{" "}
-                  และ
-                  <span className="text-purple-600 font-semibold">
-                    {" "}
-                    มีประสิทธิภาพ
-                  </span>
-                </p>
-              </div>
+                  <div className="space-y-5 text-2xl text-gray-600"> {/* Reduced size */}
+                    <p>Enjoy borrowing the equipment that is available in various options.</p>
+                    <p>Easy communication with your friends.</p>
+                  </div>
+                </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/auth">
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="group px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                    <span className="relative flex items-center gap-2">
-                      🚀 เริ่มใช้งานเลย
-                    </span>
-                  </motion.button>
-                </Link>
+                <div className="pt-6">
+                  <a href="/auth">
+                    <button className="px-14 py-5 bg-red-600 text-white font-bold uppercase tracking-wider rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-lg text-2xl"> {/* Reduced size & padding */}
+                      Borrow now
+                    </button>
+                  </a>
+                </div>
+              </motion.div>
 
-                <Link href="/table">
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="group px-8 py-4 rounded-2xl bg-white/80 backdrop-blur-sm border-2 border-slate-200 text-slate-700 font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:border-blue-300"
-                  >
-                    <span className="flex items-center gap-2">
-                      📅 ดูปฏิทินการใช้งาน
-                    </span>
-                  </motion.button>
-                </Link>
-              </div>
-            </motion.div>
+              {/* Right Visual - Library Illustration (remains the same) */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8 }}
+                className="flex justify-center"
+              >
+                <div className="relative w-full max-w-lg">
+                  <div className="bg-gray-100 rounded-2xl p-8 shadow-lg">
+                    {/* Library Scene */}
+                    <div className="relative">
+                      {/* Bookshelf */}
+                      <div className="grid grid-cols-8 gap-1 mb-8">
+                        {Array.from({ length: 32 }, (_, i) => (
+                          <div
+                            key={i}
+                            className={`h-12 rounded-sm ${Math.random() > 0.5 ? 'bg-red-400' :
+                                Math.random() > 0.5 ? 'bg-gray-600' : 'bg-gray-400'
+                              }`}
+                          />
+                        ))}
+                      </div>
 
-            {/* Right Visual */}
-            <motion.div
-              initial={{ scale: 0.98, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.9 }}
-              className="relative w-[380px] h-[380px]"
-            >
-              <Image
-                src="/img3.png"
-                width={650}
-                height={650}
-                alt="TimeToUse illustration"
-                className="object-contain"
-              />
-            </motion.div>
+                      {/* Table and Person */}
+                      <div className="relative">
+                        {/* Table */}
+                        <div className="w-full h-4 bg-gray-800 rounded-lg mb-4"></div>
+
+                        {/* Person sitting */}
+                        <div className="absolute -bottom-8 left-8 w-16 h-16 bg-red-400 rounded-full"></div>
+                        <div className="absolute -bottom-16 left-6 w-20 h-12 bg-red-300 rounded-lg"></div>
+
+                        {/* Person standing */}
+                        <div className="absolute -bottom-8 right-8 w-12 h-16 bg-gray-600 rounded-full"></div>
+                        <div className="absolute -bottom-20 right-6 w-16 h-16 bg-gray-500 rounded-lg"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </section>
 
-        {/* How to Use Section */}
+        {/* Process Section (remains large) */}
         <section
           ref={(el) => setRef(el, 1)}
           data-index={1}
-          className="min-h-screen flex items-center justify-center px-6 bg-white/50 backdrop-blur-sm"
+          className="py-28 bg-gray-100"
         >
-          <div className="max-w-7xl mx-auto space-y-16">
+          <div className="max-w-7xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-center space-y-6"
+              className="text-center mb-24"
             >
-              <h2 className="text-4xl lg:text-6xl font-black">
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  วิธีการใช้งาน
-                </span>
+              <h2 className="text-6xl font-bold text-gray-900 mb-8 uppercase tracking-wide">
+                ขั้นตอนการใช้งาน
               </h2>
-              <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-                ใช้งานง่ายเพียง 6 ขั้นตอน
-                เริ่มต้นจากการเข้าสู่ระบบจนถึงการรับอุปกรณ์
+              <p className="text-3xl text-gray-600 max-w-4xl mx-auto">
+                กระบวนการยืม-คืนอุปกรณ์ที่เป็นระบบและโปร่งใส
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
               {[
-                {
-                  step: "01",
-                  title: "เข้าสู่ระบบ",
-                  desc: "ลงทะเบียนหรือเข้าสู่ระบบด้วยบัญชีของคุณ",
-                  icon: "🔐",
-                  gradient: "from-blue-500 to-cyan-500",
-                },
-                {
-                  step: "02",
-                  title: "ค้นหาอุปกรณ์",
-                  desc: "เลือกอุปกรณ์ที่ต้องการจากรายการหรือค้นหาตามชื่อ",
-                  icon: "🔍",
-                  gradient: "from-emerald-500 to-teal-500",
-                },
-                {
-                  step: "03",
-                  title: "กรอกข้อมูล",
-                  desc: "ระบุวัตถุประสงค์ ระยะเวลา และข้อมูลที่จำเป็น",
-                  icon: "📝",
-                  gradient: "from-purple-500 to-pink-500",
-                },
-                {
-                  step: "04",
-                  title: "ยื่นคำขอ",
-                  desc: "ส่งคำขอยืมและรอการอนุมัติจากเจ้าหน้าที่",
-                  icon: "📨",
-                  gradient: "from-orange-500 to-red-500",
-                },
-                {
-                  step: "05",
-                  title: "รอการอนุมัติ",
-                  desc: "ติดตามสถานะคำขอผ่านระบบและรอการแจ้งเตือน",
-                  icon: "⏳",
-                  gradient: "from-yellow-500 to-orange-500",
-                },
-                {
-                  step: "06",
-                  title: "รับที่คณะ",
-                  desc: "นำหลักฐานไปรับอุปกรณ์ที่คณะตามเวลาที่กำหนด",
-                  icon: "🎯",
-                  gradient: "from-green-500 to-emerald-500",
-                },
+                { step: "1", title: "เข้าสู่ระบบ", desc: "ลงทะเบียนและเข้าสู่ระบบด้วยบัญชีผู้ใช้งาน" },
+                { step: "2", title: "เลือกอุปกรณ์", desc: "ค้นหาและเลือกอุปกรณ์ที่ต้องการใช้งาน" },
+                { step: "3", title: "กรอกรายละเอียด", desc: "ระบุวัตถุประสงค์และระยะเวลาการใช้งาน" },
+                { step: "4", title: "ส่งคำขอ", desc: "ยื่นคำขอและรอการอนุมัติจากผู้ดูแลระบบ" },
+                { step: "5", title: "รับการอนุมัติ", desc: "ตรวจสอบสถานะและรอการแจ้งเตือน" },
+                { step: "6", title: "รับอุปกรณ์", desc: "รับอุปกรณ์ที่คณะตามเวลาที่กำหนด" },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -379,72 +273,52 @@ export default function Page(): JSX.Element {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -10, scale: 1.02 }}
-                  className="group p-6 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-100"
+                  className="bg-white p-12 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div
-                      className={`w-12 h-12 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform`}
-                    >
-                      {item.icon}
+                  <div className="flex items-center gap-6 mb-10">
+                    <div className="w-20 h-20 bg-red-600 text-white font-bold text-4xl flex items-center justify-center">
+                      {item.step}
                     </div>
-                    <div className="text-sm font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                      STEP {item.step}
+                    <div className="text-lg font-bold text-gray-500 uppercase tracking-wide bg-gray-100 px-5 py-3">
+                      ขั้นตอนที่ {item.step}
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-3">
+                  <h3 className="text-3xl font-bold text-gray-900 mb-6 uppercase tracking-wide">
                     {item.title}
                   </h3>
-                  <p className="text-slate-600 leading-relaxed">{item.desc}</p>
+                  <p className="text-xl text-gray-600 leading-relaxed">{item.desc}</p>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Features Preview */}
+        {/* Features Section (remains large) */}
         <section
           ref={(el) => setRef(el, 2)}
           data-index={2}
-          className="min-h-screen flex items-center justify-center px-6"
+          className="py-28 bg-white"
         >
-          <div className="max-w-7xl mx-auto space-y-16">
+          <div className="max-w-7xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-center space-y-6"
+              className="text-center mb-24"
             >
-              <h2 className="text-4xl lg:text-6xl font-black">
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  ทำไมต้อง TimeToUse?
-                </span>
+              <h2 className="text-6xl font-bold text-gray-900 mb-8 uppercase tracking-wide">
+                ความสามารถของระบบ
               </h2>
-              <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-                เราออกแบบระบบที่ตอบโจทย์ปัญหาจริงของการยืม-คืนอุปกรณ์ในองค์กร
+              <p className="text-3xl text-gray-600 max-w-4xl mx-auto">
+                ระบบที่ครอบคลุมทุกความต้องการในการจัดการอุปกรณ์ขององค์กร
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               {[
-                {
-                  icon: "🎯",
-                  title: "จัดการได้ง่าย",
-                  desc: "ระบบรวมศูนย์ครบจบในที่เดียว ไม่ต้องค้นหาข้อมูลกระจัดกระจาย",
-                  gradient: "from-blue-500 to-cyan-500",
-                },
-                {
-                  icon: "📅",
-                  title: "ไม่มีการจองซ้อน",
-                  desc: "ปฏิทินแบบเรียลไทม์ป้องกันการจองซ้ำและความขัดแย้ง",
-                  gradient: "from-purple-500 to-pink-500",
-                },
-                {
-                  icon: "📊",
-                  title: "ข้อมูลชัดเจน",
-                  desc: "รายงานและสถิติครบถ้วนสำหรับการตัดสินใจจัดซื้ออุปกรณ์",
-                  gradient: "from-emerald-500 to-teal-500",
-                },
+                { title: "จัดการได้อย่างเป็นระบบ", desc: "ระบบรวมศูนย์ที่ช่วยให้การจัดการอุปกรณ์เป็นไปอย่างมีประสิทธิภาพ" },
+                { title: "ปฏิทินแบบเรียลไทม์", desc: "ป้องกันการจองซ้ำด้วยระบบปฏิทินที่อัปเดตทันที" },
+                { title: "รายงานและสถิติ", desc: "ข้อมูลครบถ้วนสำหรับการตัดสินใจและวางแผนการจัดซื้อ" },
               ].map((feature, index) => (
                 <motion.div
                   key={index}
@@ -452,18 +326,15 @@ export default function Page(): JSX.Element {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.2 }}
-                  whileHover={{ y: -10, scale: 1.02 }}
-                  className="group p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-100"
+                  className="text-center p-12 bg-gray-50 border border-gray-200"
                 >
-                  <div
-                    className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform`}
-                  >
-                    {feature.icon}
+                  <div className="w-24 h-24 bg-red-600 text-white text-5xl font-bold flex items-center justify-center mx-auto mb-10">
+                    {index + 1}
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4">
+                  <h3 className="text-3xl font-bold text-gray-900 mb-6 uppercase tracking-wide">
                     {feature.title}
                   </h3>
-                  <p className="text-slate-600 leading-relaxed">
+                  <p className="text-xl text-gray-600 leading-relaxed">
                     {feature.desc}
                   </p>
                 </motion.div>
@@ -472,58 +343,47 @@ export default function Page(): JSX.Element {
           </div>
         </section>
 
-        {/* Final CTA */}
+        {/* CTA Section (remains large) */}
         <section
           ref={(el) => setRef(el, 3)}
           data-index={3}
-          className="min-h-screen flex items-center justify-center px-6"
+          className="py-28 bg-red-600"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="max-w-4xl mx-auto text-center space-y-8 p-12 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-3xl shadow-2xl text-white relative overflow-hidden"
+            className="max-w-5xl mx-auto text-center px-6"
           >
-            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-            <div className="relative z-10 space-y-8">
-              <h2 className="text-4xl lg:text-6xl font-black">
-                พร้อมเริ่มต้นแล้วหรือยัง?
+            <div className="space-y-12 text-white">
+              <h2 className="text-4xl lg:text-8xl font-bold uppercase tracking-wide">
+                เริ่มใช้งานระบบได้ทันที
               </h2>
-              <p className="text-xl lg:text-2xl opacity-90 max-w-2xl mx-auto">
-                เข้าร่วมกับเรา
-                และสัมผัสประสบการณ์การจัดการอุปกรณ์ที่ไม่เหมือนใคร
+              <p className="text-3xl opacity-90 max-w-3xl mx-auto">
+                พร้อมให้บริการระบบจัดการอุปกรณ์ที่มีประสิทธิภาพ เพื่อองค์กรของคุณ
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                <Link href="/auth">
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -3 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-12 py-4 bg-white text-blue-600 font-black text-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group relative overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                    <span className="relative">🚀 เริ่มใช้งานทันที</span>
-                  </motion.button>
-                </Link>
+              <div className="flex flex-col sm:flex-row gap-10 justify-center items-center">
+                <a href="/auth">
+                  <button className="px-16 py-6 bg-white text-red-600 font-bold uppercase tracking-wider hover:bg-gray-100 transition-colors duration-200 shadow-lg text-2xl">
+                    BOOKING HERE
+                  </button>
+                </a>
 
-                <Link href="/table">
-                  <motion.button
-                    whileHover={{ scale: 1.05, y: -3 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-8 py-4 border-2 border-white/30 text-white font-bold text-lg rounded-2xl hover:bg-white/10 transition-all duration-300"
-                  >
-                    📅 ดูปฏิทิน
-                  </motion.button>
-                </Link>
+                <a href="/table">
+                  <button className="px-12 py-6 border-2 border-white text-white font-bold uppercase tracking-wider hover:bg-red-700 transition-colors duration-200 text-2xl">
+                    VIEW SCHEDULE
+                  </button>
+                </a>
               </div>
             </div>
           </motion.div>
         </section>
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Navigation Dots (remains large) */}
       <div className="fixed right-8 top-1/2 -translate-y-1/2 z-40 hidden lg:block">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-5">
           {[0, 1, 2, 3].map((i) => (
             <button
               key={i}
@@ -533,25 +393,21 @@ export default function Page(): JSX.Element {
                   block: "center",
                 });
               }}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                activeIndex === i
-                  ? "bg-gradient-to-r from-blue-600 to-purple-600 scale-125 shadow-lg"
-                  : "bg-slate-300 hover:bg-slate-400"
-              }`}
+              className={`w-5 h-5 rounded-full transition-all duration-300 ${activeIndex === i
+                  ? "bg-red-600 scale-125"
+                  : "bg-gray-300 hover:bg-gray-400"
+                }`}
             />
           ))}
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="relative z-10 py-12 bg-white/80 backdrop-blur-sm border-t border-slate-200/50">
+      {/* Footer (remains large) */}
+      <footer className="py-12 bg-gray-800 text-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-slate-600">
-            © {new Date().getFullYear()} TimeToUse —
-            <span className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              {" "}
-              Built with ❤️ for modern teams
-            </span>
+          <p className="text-xl text-gray-300">
+            © {new Date().getFullYear()} Equipment System
+            <span className="text-red-400"> — Professional Equipment Solutions</span>
           </p>
         </div>
       </footer>
