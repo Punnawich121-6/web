@@ -4,6 +4,7 @@ import React, { JSX, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+//test
 
 // Minimal Navbar Component - Only Calendar & Login with Contact
 const MinimalNavbar = () => {
