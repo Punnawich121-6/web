@@ -35,7 +35,7 @@ const MinimalNavbar = () => {
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
               <div className="absolute inset-1 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-blue-600 font-black text-lg">T</span>
+                <span className="text-blue-600 font-black text-lg">T2U</span>
               </div>
             </div>
             <div className="flex flex-col">
