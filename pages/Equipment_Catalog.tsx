@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Search,
   Calendar,
-  User,
   Package,
   Clock,
   CheckCircle,
@@ -12,8 +14,131 @@ import {
   Zap,
   ChevronLeft,
   ChevronRight,
-  Link,
 } from "lucide-react";
+import { motion } from "framer-motion";
+
+// --- Standardized Navbar Component ---
+const EquipmentNavbar = () => {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+  
+    useEffect(() => {
+      const handleScroll = () => {
+        setScrolled(window.scrollY > 20);
+      };
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+  
+    return (
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "bg-white shadow-md border-b border-gray-200"
+            : "bg-white/95 backdrop-blur-sm"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between h-24">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-red-600 rounded-lg flex items-center justify-center shadow-sm">
+                <span className="text-white font-bold text-2xl">T2U</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-3xl font-bold text-gray-800 uppercase tracking-wide">
+                  Time2Use
+                </span>
+              </div>
+            </Link>
+  
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-12">
+              <Link
+                href="/table"
+                className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+              >
+                Schedule
+              </Link>
+              <Link
+                href="/"
+                className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+              >
+                HOME
+              </Link>
+              <Link
+                href="/contact"
+                className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+              >
+                Contact
+              </Link>
+              <a
+                href="/auth"
+                className="px-6 py-3 bg-red-600 text-white font-medium uppercase tracking-wide rounded-lg hover:bg-red-700 transition-colors duration-300 shadow-sm hover:shadow-md"
+                >
+                เข้าสู่ระบบ
+              </a>
+            </div>
+  
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-gray-600 hover:text-red-600 transition-colors"
+              >
+                <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {isMobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            </div>
+          </div>
+  
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t border-gray-200 py-5"
+            >
+              <div className="space-y-5">
+                <Link
+                  href="/table"
+                  className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+                >
+                  Schedule
+                </Link>
+                <Link
+                  href="/"
+                  className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+                >
+                  HOME
+                </Link>
+                <Link
+                  href="/contact"
+                  className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+                >
+                  Contact
+                </Link>
+                <Link href="/auth">
+                  <button className="w-full p-5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors text-xl">
+                    เข้าสู่ระบบ
+                  </button>
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </motion.nav>
+    );
+  };
+  
 
 interface equipment {
   id: number;
@@ -24,7 +149,7 @@ interface equipment {
   status: "available" | "borrowed" | "maintenance";
   borrower: string | null;
   dueDate: string | null;
-  specifications: string[];
+  specifications?: string[];
   location: string;
   serialNumber: string;
   condition?: string;
@@ -33,11 +158,10 @@ interface equipment {
 export default function Equipment_Catalog() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
 
-  const [equipmentData] = useState([
+  const [equipmentData] = useState<equipment[]>([
     {
       id: 1,
       name: "โปรเจคเตอร์ Epson EB-X41",
@@ -245,13 +369,10 @@ export default function Equipment_Catalog() {
       item.serialNumber.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
       selectedCategory === "all" || item.category === selectedCategory;
-    const matchesStatus =
-      selectedStatus === "all" || item.status === selectedStatus;
 
-    return matchesSearch && matchesCategory && matchesStatus;
+    return matchesSearch && matchesCategory;
   });
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -262,91 +383,48 @@ export default function Equipment_Catalog() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Reset to page 1 when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCategory, selectedStatus]);
+  }, [searchTerm, selectedCategory]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Navbar */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            {/* Logo/Brand */}
-            <div className="text-xl font-bold text-gray-800">
-              ระบบจัดการอุปกรณ์
-            </div>
-
-            {/* Navigation Links */}
-            <div className="flex flex-wrap items-center gap-4">
-              <button className="group flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 transition-all duration-300 hover:scale-105">
-                <div className="w-5 h-5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
-                  <Package className="text-white" size={12} />
-                </div>
-                <span className="font-semibold text-slate-700 group-hover:text-slate-900">
-                  ดูอุปกรณ์
-                </span>
-              </button>
-
-              <button className="group flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 transition-all duration-300 hover:scale-105">
-                <div className="w-5 h-5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
-                  <Calendar className="text-white" size={12} />
-                </div>
-                <span className="font-semibold text-slate-700 group-hover:text-slate-900">
-                  ดูปฏิทิน
-                </span>
-              </button>
-
-              <button className="px-4 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 transition-all duration-300 hover:scale-105 font-semibold text-slate-700">
-                Contact Us
-              </button>
-
-              <button className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                เข้าสู่ระบบ
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gray-50">
+        <EquipmentNavbar />
+        <div className="container mx-auto px-4 py-8 pt-32">
+        
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            แคตตาล็อกอุปกรณ์
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-extrabold text-gray-800 mb-2 tracking-wide uppercase">
+            Equipment <span className="text-red-600">Catalog</span>
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-xl text-gray-600">
             ค้นหาและดูรายละเอียดอุปกรณ์ที่สามารถยืมได้
           </p>
         </div>
 
         {/* Search and Filters */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Search */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="relative">
               <Search
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={20}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={22}
               />
               <input
                 type="text"
                 placeholder="ค้นหาอุปกรณ์, รหัสอุปกรณ์..."
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all text-lg"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-
-            {/* Category Filter */}
             <div className="relative">
               <Filter
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={20}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={22}
               />
               <select
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white transition-all"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none bg-white transition-all text-lg"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
@@ -359,12 +437,9 @@ export default function Equipment_Catalog() {
               </select>
             </div>
           </div>
-
-          {/* Results count */}
-          <div className="mt-4 text-sm text-gray-600 flex justify-between items-center">
+          <div className="mt-6 text-md text-gray-600 flex justify-between items-center">
             <span>
-              พบอุปกรณ์ {filteredEquipment.length} รายการ จากทั้งหมด{" "}
-              {equipmentData.length} รายการ
+              พบอุปกรณ์ {filteredEquipment.length} รายการ
             </span>
             <span>
               หน้า {currentPage} จาก {totalPages}
@@ -372,50 +447,83 @@ export default function Equipment_Catalog() {
           </div>
         </div>
 
+        {/* Statistics - MOVED HERE */}
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center uppercase tracking-wide">
+            <span className="text-red-600">Statistics</span>
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-6 bg-green-50 rounded-xl border-2 border-green-200">
+              <div className="text-4xl font-extrabold text-green-600 mb-2">
+                {
+                  equipmentData.filter((item) => item.status === "available")
+                    .length
+                }
+              </div>
+              <div className="text-lg text-green-800 font-semibold">พร้อมใช้งาน</div>
+            </div>
+            <div className="text-center p-6 bg-red-50 rounded-xl border-2 border-red-200">
+              <div className="text-4xl font-extrabold text-red-600 mb-2">
+                {
+                  equipmentData.filter((item) => item.status === "borrowed")
+                    .length
+                }
+              </div>
+              <div className="text-lg text-red-800 font-semibold">ถูกยืม</div>
+            </div>
+            <div className="text-center p-6 bg-yellow-50 rounded-xl border-2 border-yellow-200">
+              <div className="text-4xl font-extrabold text-yellow-600 mb-2">
+                {
+                  equipmentData.filter((item) => item.status === "maintenance")
+                    .length
+                }
+              </div>
+              <div className="text-lg text-yellow-800 font-semibold">ซ่อมบำรุง</div>
+            </div>
+          </div>
+        </div>
+
         {/* Equipment Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {currentEquipment.map((equipment) => (
             <div
               key={equipment.id}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group"
             >
-              {/* Image */}
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative h-56 overflow-hidden">
                 <img
                   src={equipment.image}
                   alt={equipment.name}
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute top-3 left-3 bg-black bg-opacity-60 text-white px-2 py-1 rounded text-xs">
+                <div className="absolute top-4 left-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm font-semibold">
                   {equipment.serialNumber}
                 </div>
               </div>
 
-              {/* Content */}
-              <div className="p-5">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2 h-14">
                   {equipment.name}
                 </h3>
 
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-                  <span className="bg-gray-100 px-2 py-1 rounded-full">
+                <div className="flex items-center justify-between text-md text-gray-500 mb-4">
+                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full font-medium">
                     {equipment.category}
                   </span>
                   {equipment.condition && (
-                    <span className="flex items-center">
-                      <Zap size={14} className="mr-1" />
+                    <span className="flex items-center font-semibold text-gray-600">
+                      <Zap size={16} className="mr-1 text-yellow-500" />
                       {equipment.condition}
                     </span>
                   )}
                 </div>
 
-                <p className="text-gray-600 mb-4 text-sm leading-relaxed line-clamp-3">
+                <p className="text-gray-600 mb-5 text-md leading-relaxed line-clamp-3 h-20">
                   {equipment.description}
                 </p>
 
-                {/* Location */}
-                <div className="flex items-center text-sm text-gray-600 mb-4">
-                  <MapPin size={14} className="mr-2" />
+                <div className="flex items-center text-md text-gray-600 mb-6 font-medium">
+                  <MapPin size={16} className="mr-2 text-red-500" />
                   {equipment.location}
                 </div>
               </div>
@@ -423,27 +531,25 @@ export default function Equipment_Catalog() {
           ))}
         </div>
 
-        {/* No Results */}
         {filteredEquipment.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-xl shadow-lg mb-8">
-            <Package size={64} className="mx-auto text-gray-400 mb-4" />
-            <h3 className="text-xl font-medium text-gray-600 mb-2">
+          <div className="text-center py-20 bg-white rounded-xl shadow-lg mb-8">
+            <Package size={72} className="mx-auto text-gray-300 mb-4" />
+            <h3 className="text-2xl font-semibold text-gray-600 mb-2">
               ไม่พบอุปกรณ์ที่ค้นหา
             </h3>
-            <p className="text-gray-500">ลองเปลี่ยนคำค้นหาหรือฟิลเตอร์ดู</p>
+            <p className="text-lg text-gray-500">ลองเปลี่ยนคำค้นหาหรือฟิลเตอร์ดู</p>
           </div>
         )}
 
-        {/* Pagination */}
-        {filteredEquipment.length > itemsPerPage && (
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        {totalPages > 1 && (
+          <div className="bg-white rounded-xl shadow-lg p-4 mb-8">
             <div className="flex justify-center items-center space-x-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center px-4 py-2 text-md font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronLeft size={16} className="mr-1" />
+                <ChevronLeft size={18} className="mr-1" />
                 ก่อนหน้า
               </button>
 
@@ -453,27 +559,27 @@ export default function Equipment_Catalog() {
                   if (
                     page === 1 ||
                     page === totalPages ||
-                    (page >= currentPage - 2 && page <= currentPage + 2)
+                    (page >= currentPage - 1 && page <= currentPage + 1)
                   ) {
                     return (
                       <button
                         key={page}
                         onClick={() => handlePageChange(page)}
-                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        className={`w-10 h-10 text-md font-semibold rounded-lg transition-colors ${
                           currentPage === page
-                            ? "bg-blue-600 text-white"
-                            : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                            ? "bg-red-600 text-white shadow-md"
+                            : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-100"
                         }`}
                       >
                         {page}
                       </button>
                     );
                   } else if (
-                    page === currentPage - 3 ||
-                    page === currentPage + 3
+                    page === currentPage - 2 ||
+                    page === currentPage + 2
                   ) {
                     return (
-                      <span key={page} className="px-2 py-2 text-gray-500">
+                      <span key={page} className="px-3 py-2 text-gray-500">
                         ...
                       </span>
                     );
@@ -485,50 +591,14 @@ export default function Equipment_Catalog() {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center px-4 py-2 text-md font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 ถัดไป
-                <ChevronRight size={16} className="ml-1" />
+                <ChevronRight size={18} className="ml-1" />
               </button>
             </div>
           </div>
         )}
-
-        {/* Statistics */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
-            สถิติอุปกรณ์
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-6 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200">
-              <div className="text-3xl font-bold text-green-600 mb-2">
-                {
-                  equipmentData.filter((item) => item.status === "available")
-                    .length
-                }
-              </div>
-              <div className="text-green-700 font-medium">พร้อมใช้งาน</div>
-            </div>
-            <div className="text-center p-6 bg-gradient-to-r from-red-50 to-red-100 rounded-xl border border-red-200">
-              <div className="text-3xl font-bold text-red-600 mb-2">
-                {
-                  equipmentData.filter((item) => item.status === "borrowed")
-                    .length
-                }
-              </div>
-              <div className="text-red-700 font-medium">ถูกยืม</div>
-            </div>
-            <div className="text-center p-6 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200">
-              <div className="text-3xl font-bold text-yellow-600 mb-2">
-                {
-                  equipmentData.filter((item) => item.status === "maintenance")
-                    .length
-                }
-              </div>
-              <div className="text-yellow-700 font-medium">ปรับปรุง</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -21,11 +21,10 @@ const ContactNavbar = () => {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white shadow-md border-b border-gray-200"
-          : "bg-white/95 backdrop-blur-sm"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+        ? "bg-white shadow-md border-b border-gray-200"
+        : "bg-white/95 backdrop-blur-sm"
+        }`}
     >
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-24">
@@ -50,10 +49,10 @@ const ContactNavbar = () => {
               Schedule
             </a>
             <a
-              href="/"
+              href="/Equipment_Catalog"
               className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
             >
-              HOME
+              Catalog
             </a>
             <a
               href="/contact"
@@ -61,12 +60,11 @@ const ContactNavbar = () => {
             >
               Contact
             </a>
-            <a href="/auth">
-              <div className="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
-                <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
-              </div>
+            <a
+              href="/auth"
+              className="px-6 py-3 bg-red-600 text-white font-medium uppercase tracking-wide rounded-lg hover:bg-red-700 transition-colors duration-300 shadow-sm hover:shadow-md"
+            >
+              เข้าสู่ระบบ
             </a>
           </div>
 
@@ -103,10 +101,10 @@ const ContactNavbar = () => {
                 Schedule
               </a>
               <a
-                href="/"
+                href="Equipment_Catalog"
                 className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
               >
-                HOME
+                Equipment_Catalog
               </a>
               <a
                 href="/contact"
@@ -114,10 +112,11 @@ const ContactNavbar = () => {
               >
                 Contact
               </a>
-              <a href="/auth">
-                <button className="w-full p-5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors text-xl">
-                  เข้าสู่ระบบ
-                </button>
+              <a
+                href="/auth"
+                className="px-6 py-3 bg-red-600 text-white font-medium uppercase tracking-wide rounded-lg hover:bg-red-700 transition-colors duration-300 shadow-sm hover:shadow-md"
+              >
+                เข้าสู่ระบบ
               </a>
             </div>
           </motion.div>

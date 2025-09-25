@@ -21,8 +21,8 @@ const LibraryNavbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-          ? "bg-white shadow-md border-b border-gray-200"
-          : "bg-white/95 backdrop-blur-sm"
+        ? "bg-white shadow-md border-b border-gray-200"
+        : "bg-white/95 backdrop-blur-sm"
         }`}
     >
       <div className="max-w-7xl mx-auto px-6">
@@ -48,10 +48,10 @@ const LibraryNavbar = () => {
               Schedule
             </a>
             <a
-              href="/" 
+              href="/Equipment_Catalog"
               className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
             >
-              HOME
+              Catalog
             </a>
             <a
               href="/contact"
@@ -59,10 +59,11 @@ const LibraryNavbar = () => {
             >
               Contact
             </a>
-            <a href="/auth">
-              <div className="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
-                <span className="text-gray-600 text-3xl">👤</span> {/* Increased size */}
-              </div>
+            <a
+              href="/auth"
+              className="px-6 py-3 bg-red-600 text-white font-medium uppercase tracking-wide rounded-lg hover:bg-red-700 transition-colors duration-300 shadow-sm hover:shadow-md"
+            >
+              เข้าสู่ระบบ
             </a>
           </div>
 
@@ -99,10 +100,10 @@ const LibraryNavbar = () => {
                 YOUR LOCATION
               </a>
               <a
-                href="#"
+                href="/Equipment_Catalog"
                 className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl" // Increased size
               >
-                HOME
+                Equipment_Catalog
               </a>
               <a
                 href="/table"
@@ -210,7 +211,7 @@ export default function Page(): JSX.Element {
                           <div
                             key={i}
                             className={`h-12 rounded-sm ${Math.random() > 0.5 ? 'bg-red-400' :
-                                Math.random() > 0.5 ? 'bg-gray-600' : 'bg-gray-400'
+                              Math.random() > 0.5 ? 'bg-gray-600' : 'bg-gray-400'
                               }`}
                           />
                         ))}
@@ -394,8 +395,8 @@ export default function Page(): JSX.Element {
                 });
               }}
               className={`w-5 h-5 rounded-full transition-all duration-300 ${activeIndex === i
-                  ? "bg-red-600 scale-125"
-                  : "bg-gray-300 hover:bg-gray-400"
+                ? "bg-red-600 scale-125"
+                : "bg-gray-300 hover:bg-gray-400"
                 }`}
             />
           ))}
