@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-// Contact Navbar (No changes)
+// --- Standardized Navbar Component ---
 const ContactNavbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -24,46 +24,109 @@ const ContactNavbar = () => {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? "bg-white shadow-md border-b border-gray-200"
-          : "bg-transparent"
+          : "bg-white/95 backdrop-blur-sm"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-24">
-          <Link href="/" className="flex items-center gap-4">
+          {/* Logo */}
+          <a href="/" className="flex items-center gap-4">
             <div className="w-14 h-14 bg-red-600 rounded-lg flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-3xl">T2U</span>
+              <span className="text-white font-bold text-2xl">T2U</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-4xl font-bold text-gray-800 uppercase tracking-wide">
-                TimeToUse
+              <span className="text-3xl font-bold text-gray-800 uppercase tracking-wide">
+                Time2Use
               </span>
             </div>
-          </Link>
+          </a>
 
-          <div className="flex items-center gap-12">
-            <Link
-              href="/"
-              className="text-gray-600 hover:text-red-600 font-medium uppercase tracking-wide text-2xl"
-            >
-              Home
-            </Link>
-            <Link
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-12">
+            <a
               href="/table"
-              className="text-gray-600 hover:text-red-600 font-medium uppercase tracking-wide text-2xl"
+              className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
             >
-              Calendar
-            </Link>
-            <Link href="/auth">
-              <div className="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer">
-                <span className="text-gray-600 text-4xl">👤</span>
+              Schedule
+            </a>
+            <a
+              href="/"
+              className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+            >
+              HOME
+            </a>
+            <a
+              href="/contact"
+              className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+            >
+              Contact
+            </a>
+            <a href="/auth">
+              <div className="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
+                <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
               </div>
-            </Link>
+            </a>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 text-gray-600 hover:text-red-600 transition-colors"
+            >
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t border-gray-200 py-5"
+          >
+            <div className="space-y-5">
+              <a
+                href="/table"
+                className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+              >
+                Schedule
+              </a>
+              <a
+                href="/"
+                className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+              >
+                HOME
+              </a>
+              <a
+                href="/contact"
+                className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
+              >
+                Contact
+              </a>
+              <a href="/auth">
+                <button className="w-full p-5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors text-xl">
+                  เข้าสู่ระบบ
+                </button>
+              </a>
+            </div>
+          </motion.div>
+        )}
       </div>
     </motion.nav>
   );
 };
+
 
 // Developer Card Component (Font sizes increased)
 const DeveloperCard = ({
