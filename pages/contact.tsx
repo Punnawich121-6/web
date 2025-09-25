@@ -154,38 +154,32 @@ export default function ContactPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
             <DeveloperCard
-              name="[Your Name Here]"
-              role="Full Stack Developer"
-              description="ผู้จัดทำหลักของระบบ TimeToUse รับผิดชอบทั้งการออกแบบ Frontend และพัฒนา Backend เพื่อให้ระบบทำงานได้อย่างราบรื่นและมีประสิทธิภาพ"
+              name="Name1"
+              role="Frontend"
+              description="ผู้คิดค้น Time2Use"
               skills={[
-                "React",
-                "TypeScript",
-                "Node.js",
-                "PostgreSQL",
-                "Tailwind CSS",
                 "Next.js",
+                "HTML",
+                "CSS"
+                
               ]}
-              email="developer1@example.com"
+              email="email"
               github="https://github.com/your-username"
               linkedin="https://linkedin.com/in/your-profile"
-              imagePlaceholder="Dev"
+              imagePlaceholder="1"
             />
             <DeveloperCard
-              name="[Partner Name Here]"
-              role="UI/UX Designer & Frontend Developer"
-              description="ผู้ออกแบบประสบการณ์ผู้ใช้และพัฒนา Frontend Interface เพื่อให้ผู้ใช้สามารถใช้งานระบบได้อย่างสะดวกและเข้าใจง่าย"
+              name="Name2"
+              role="Fullstack"
+              description="คนช่วยเขียนเว็บ"
               skills={[
-                "Figma",
-                "React",
-                "CSS",
-                "JavaScript",
-                "User Research",
-                "Prototyping",
+                "Javascript",
+                "Git",
               ]}
-              email="developer2@example.com"
+              email="email"
               github="https://github.com/partner-username"
               linkedin="https://linkedin.com/in/partner-profile"
-              imagePlaceholder="Dev"
+              imagePlaceholder="2"
             />
           </div>
 
@@ -201,8 +195,6 @@ export default function ContactPage() {
             <p className="text-lg text-gray-600 leading-relaxed max-w-4xl mx-auto">
               TimeToUse
               เป็นโปรเจคที่พัฒนาขึ้นเพื่อแก้ไขปัญหาการจัดการอุปกรณ์ในองค์กร
-              ด้วยการใช้เทคโนโลยีที่ทันสมัยและการออกแบบที่เน้นผู้ใช้เป็นศูนย์กลาง
-              เรามุ่งหวังให้ระบบนี้ช่วยให้การยืม-คืนอุปกรณ์เป็นเรื่องง่ายและมีประสิทธิภาพมากยิ่งขึ้น
             </p>
 
             <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -230,12 +222,7 @@ export default function ContactPage() {
             viewport={{ once: true }}
             className="mt-20 text-center space-y-8"
           >
-            <h2 className="text-4xl lg:text-5xl font-bold">
-              <span className="text-red-600">มีคำถามหรือข้อเสนอแนะ?</span>
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              เรายินดีรับฟังความคิดเห็นและข้อเสนอแนะจากผู้ใช้งานเพื่อพัฒนาระบบให้ดีขึ้น
-            </p>
+
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/">
