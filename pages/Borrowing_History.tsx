@@ -234,7 +234,7 @@ const BorrowingHistory = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">กำลังโหลด...</p>
+          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
         </div>
       </div>
     );
@@ -254,24 +254,24 @@ const BorrowingHistory = () => {
           >
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                <h1 className="text-5xl font-bold text-gray-900 mb-2">
                   ประวัติการยืมอุปกรณ์
                 </h1>
-                <p className="text-xl text-gray-600">
+                <p className="text-2xl text-gray-600">
                   ติดตามสถานะและประวัติการยืมอุปกรณ์ทั้งหมดของคุณ
                 </p>
               </div>
               <div className="flex gap-3 mt-4 lg:mt-0">
                 <a
                   href="/dashboard"
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-base"
                 >
                   <Home size={18} />
                   Dashboard
                 </a>
                 <a
                   href="/Equipment_Catalog_User"
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-base"
                 >
                   <Plus size={18} />
                   ยืมอุปกรณ์ใหม่
@@ -303,8 +303,8 @@ const BorrowingHistory = () => {
                 <div className="flex items-center justify-center mb-2">
                   <option.icon size={24} />
                 </div>
-                <div className="text-2xl font-bold mb-1">{option.count}</div>
-                <div className="text-xs font-medium">{option.label}</div>
+                <div className="text-3xl font-bold mb-1">{option.count}</div>
+                <div className="text-sm font-medium">{option.label}</div>
               </motion.button>
             ))}
           </motion.div>
@@ -326,7 +326,7 @@ const BorrowingHistory = () => {
                 placeholder="ค้นหาตามชื่ออุปกรณ์, รหัส, หรือวัตถุประสงค์..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg"
               />
             </div>
           </motion.div>
@@ -341,10 +341,10 @@ const BorrowingHistory = () => {
             {filteredHistory.length === 0 ? (
               <div className="p-12 text-center">
                 <Package className="mx-auto mb-4 text-gray-400" size={48} />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className="text-xl font-medium text-gray-900 mb-2">
                   ไม่พบประวัติการยืม
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-4 text-lg">
                   {selectedStatus === "all"
                     ? "คุณยังไม่เคยยืมอุปกรณ์ หรือลองเปลี่ยนคำค้นหา"
                     : `ไม่พบรายการที่มีสถานะ "${
@@ -354,7 +354,7 @@ const BorrowingHistory = () => {
                 </p>
                 <a
                   href="/Equipment_Catalog_User"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-base"
                 >
                   <Plus size={18} />
                   เริ่มยืมอุปกรณ์
@@ -384,17 +384,17 @@ const BorrowingHistory = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <h3 className="font-semibold text-gray-900 text-lg">
+                              <h3 className="font-semibold text-gray-900 text-xl">
                                 {record.equipmentName}
                               </h3>
-                              <p className="text-sm text-gray-500">
+                              <p className="text-base text-gray-500">
                                 รหัส: {record.equipmentId} | จำนวน:{" "}
                                 {record.quantity} ชิ้น
                               </p>
                             </div>
                             <div className="flex items-center gap-3">
                               <span
-                                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
                                   record.status
                                 )}`}
                               >
@@ -411,7 +411,7 @@ const BorrowingHistory = () => {
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600 mb-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-base text-gray-600 mb-3">
                             <div className="flex items-center gap-2">
                               <Calendar size={16} />
                               <span>ยืม: {record.borrowDate}</span>
@@ -428,7 +428,7 @@ const BorrowingHistory = () => {
                             )}
                           </div>
 
-                          <p className="text-gray-700 text-sm">
+                          <p className="text-gray-700 text-base">
                             <span className="font-medium">วัตถุประสงค์:</span>{" "}
                             {record.purpose}
                           </p>
@@ -458,14 +458,16 @@ const BorrowingHistory = () => {
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-3xl font-bold text-gray-900 mb-2">
                     รายละเอียดการยืม
                   </h3>
-                  <p className="text-gray-600">#{selectedRecord.id}</p>
+                  <p className="text-gray-600 text-lg">
+                    #{selectedRecord.id}
+                  </p>
                 </div>
                 <button
                   onClick={() => setSelectedRecord(null)}
-                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                  className="text-gray-400 hover:text-gray-600 text-3xl"
                 >
                   ×
                 </button>
@@ -482,10 +484,10 @@ const BorrowingHistory = () => {
                   />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-xl font-semibold text-gray-900 mb-2">
+                  <h4 className="text-2xl font-semibold text-gray-900 mb-2">
                     {selectedRecord.equipmentName}
                   </h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-2 gap-4 text-base">
                     <div>
                       <span className="font-medium text-gray-700">
                         รหัสอุปกรณ์:
@@ -506,10 +508,10 @@ const BorrowingHistory = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2">
+                  <h5 className="font-medium text-gray-700 mb-2 text-lg">
                     ข้อมูลการยืม
                   </h5>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-base">
                     <div className="flex justify-between">
                       <span>วันที่ยืม:</span>
                       <span className="font-medium">
@@ -534,9 +536,11 @@ const BorrowingHistory = () => {
                 </div>
 
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2">สถานะ</h5>
+                  <h5 className="font-medium text-gray-700 mb-2 text-lg">
+                    สถานะ
+                  </h5>
                   <span
-                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-base font-medium border ${getStatusColor(
                       selectedRecord.status
                     )}`}
                   >
@@ -549,16 +553,20 @@ const BorrowingHistory = () => {
               </div>
 
               <div>
-                <h5 className="font-medium text-gray-700 mb-2">วัตถุประสงค์</h5>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg">
+                <h5 className="font-medium text-gray-700 mb-2 text-lg">
+                  วัตถุประสงค์
+                </h5>
+                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-lg">
                   {selectedRecord.purpose}
                 </p>
               </div>
 
               {selectedRecord.notes && (
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2">หมายเหตุ</h5>
-                  <p className="text-gray-600 bg-gray-50 p-3 rounded-lg">
+                  <h5 className="font-medium text-gray-700 mb-2 text-lg">
+                    หมายเหตุ
+                  </h5>
+                  <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-lg">
                     {selectedRecord.notes}
                   </p>
                 </div>
@@ -568,7 +576,7 @@ const BorrowingHistory = () => {
             <div className="p-6 border-t border-gray-200 flex justify-end">
               <button
                 onClick={() => setSelectedRecord(null)}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-base"
               >
                 ปิด
               </button>

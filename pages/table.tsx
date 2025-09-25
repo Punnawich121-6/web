@@ -655,7 +655,7 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-6">
+    <div className="w-full max-w-10xl mx-auto p-6">
       {/* Status Summary - moved to top */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

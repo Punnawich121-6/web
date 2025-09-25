@@ -147,7 +147,7 @@ const Dashboard = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">กำลังโหลด...</p>
+          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
         </div>
       </div>
     );
@@ -165,10 +165,10 @@ const Dashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-5xl font-bold text-gray-900 mb-2">
               ยินดีต้อนรับ, {user?.displayName || user?.email?.split("@")[0]}
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-2xl text-gray-600">
               จัดการการยืมอุปกรณ์ของคุณได้อย่างสะดวก
             </p>
           </motion.div>
@@ -192,14 +192,14 @@ const Dashboard = () => {
                   <div className={`p-3 rounded-lg bg-${stat.color}-100`}>
                     <stat.icon className={`w-6 h-6 text-${stat.color}-600`} />
                   </div>
-                  <span className={`text-3xl font-bold text-${stat.color}-600`}>
+                  <span className={`text-4xl font-bold text-${stat.color}-600`}>
                     {stat.count}
                   </span>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">
+                <h3 className="font-semibold text-gray-900 mb-1 text-lg">
                   {stat.title}
                 </h3>
-                <p className="text-sm text-gray-500">{stat.description}</p>
+                <p className="text-base text-gray-500">{stat.description}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -211,7 +211,7 @@ const Dashboard = () => {
             transition={{ delay: 0.2 }}
             className="mb-8"
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">
               การดำเนินการด่วน
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -228,8 +228,10 @@ const Dashboard = () => {
                     <action.icon className="w-8 h-8" />
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2">{action.title}</h3>
-                  <p className="text-white/90 text-sm">{action.description}</p>
+                  <h3 className="text-2xl font-bold mb-2">{action.title}</h3>
+                  <p className="text-white/90 text-base">
+                    {action.description}
+                  </p>
                 </motion.a>
               ))}
             </div>
@@ -243,7 +245,7 @@ const Dashboard = () => {
             className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
           >
             <div className="p-6 border-b border-gray-100">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-3xl font-bold text-gray-900">
                 กิจกรรมล่าสุด
               </h2>
             </div>
@@ -259,19 +261,21 @@ const Dashboard = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-gray-900 text-lg">
                           {activity.action}
                         </h3>
                         <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          className={`px-2 py-1 rounded-full text-sm font-medium ${getStatusColor(
                             activity.status
                           )}`}
                         >
                           {getStatusText(activity.status)}
                         </span>
                       </div>
-                      <p className="text-gray-600 mb-1">{activity.item}</p>
-                      <div className="flex gap-4 text-sm text-gray-500">
+                      <p className="text-gray-600 mb-1 text-lg">
+                        {activity.item}
+                      </p>
+                      <div className="flex gap-4 text-base text-gray-500">
                         <span>วันที่: {activity.date}</span>
                         {activity.returnDate && (
                           <span>กำหนดคืน: {activity.returnDate}</span>
@@ -279,7 +283,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <button className="text-red-600 hover:text-red-700 text-sm font-medium">
+                      <button className="text-red-600 hover:text-red-700 text-base font-medium">
                         ดูรายละเอียด
                       </button>
                     </div>
@@ -290,7 +294,7 @@ const Dashboard = () => {
             <div className="p-4 bg-gray-50 text-center">
               <a
                 href="/Borrowing_History"
-                className="text-red-600 hover:text-red-700 font-medium text-sm"
+                className="text-red-600 hover:text-red-700 font-medium text-base"
               >
                 ดูประวัติทั้งหมด →
               </a>
