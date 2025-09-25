@@ -38,7 +38,7 @@ function AuthForm() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         // User is already logged in, redirect to home
-        router.push("/");
+        router.push("/dashboard");
       }
     });
 

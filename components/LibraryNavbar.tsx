@@ -60,7 +60,7 @@ const LibraryNavbar = () => {
   ];
 
   const userNavItems = [
-    { href: "/Borrow_Equipment", label: "Borrow", icon: "📦" },
+    { href: "/dashboard", label: "Dashboard", icon: "📦" },
     { href: "/Borrowing_History", label: "History", icon: "📊" },
   ];
 

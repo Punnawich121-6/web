@@ -1,0 +1,533 @@
+"use client";
+
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import LibraryNavbar from "../components/LibraryNavbar";
+import {
+  Search,
+  Filter,
+  ShoppingCart,
+  Plus,
+  Minus,
+  Camera,
+  Monitor,
+  Mic,
+  Printer,
+  Laptop,
+  Speaker,
+} from "lucide-react";
+
+interface Equipment {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  image: string;
+  available: number;
+  total: number;
+  status: "available" | "limited" | "unavailable";
+  specifications: string[];
+}
+
+interface CartItem {
+  equipment: Equipment;
+  quantity: number;
+}
+
+const EquipmentCatalogUser = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Mock equipment data
+  const equipment: Equipment[] = [
+    {
+      id: "EP-001",
+      name: "กล้องถ่ายรูป Canon EOS R6",
+      category: "camera",
+      description: "กล้องฟูลเฟรมมิเรอร์เลส เหมาะสำหรับงานถ่ายภาพคุณภาพสูง",
+      image: "/api/placeholder/300/200",
+      available: 3,
+      total: 5,
+      status: "available",
+      specifications: ["24.2 MP", "4K Video", "WiFi", "รองรับเลนส์ RF"],
+    },
+    {
+      id: "EP-002",
+      name: "โปรเจคเตอร์ Epson EB-X41",
+      category: "projector",
+      description: "โปรเจคเตอร์ 3LCD ความสว่าง 3600 Lumens",
+      image: "/api/placeholder/300/200",
+      available: 2,
+      total: 4,
+      status: "limited",
+      specifications: ["3600 Lumens", "XGA (1024x768)", "HDMI", "VGA"],
+    },
+    {
+      id: "EP-003",
+      name: "ไมโครโฟนไร้สาย Shure SM58",
+      category: "audio",
+      description: "ไมโครโฟนแบบไดนามิกคุณภาพสูง",
+      image: "/api/placeholder/300/200",
+      available: 8,
+      total: 10,
+      status: "available",
+      specifications: ["Dynamic", "Wireless", "50Hz-15kHz", "รองรับระยะ 100m"],
+    },
+    {
+      id: "EP-004",
+      name: "เครื่องพิมพ์ HP LaserJet Pro",
+      category: "printer",
+      description: "เครื่องพิมพ์เลเซอร์ขาวดำความเร็วสูง",
+      image: "/api/placeholder/300/200",
+      available: 0,
+      total: 2,
+      status: "unavailable",
+      specifications: ["Laser", "22 ppm", "WiFi", "Duplex"],
+    },
+    {
+      id: "EP-005",
+      name: 'แล็ปท็อป MacBook Pro 16"',
+      category: "computer",
+      description: "แล็ปท็อปสำหรับงานกราฟิกและวิดีโอ",
+      image: "/api/placeholder/300/200",
+      available: 1,
+      total: 3,
+      status: "limited",
+      specifications: ["M2 Pro", "32GB RAM", "1TB SSD", '16" Retina Display'],
+    },
+    {
+      id: "EP-006",
+      name: "ลำโพง JBL EON615",
+      category: "audio",
+      description: "ลำโพงขยายเสียงแบบพกพา",
+      image: "/api/placeholder/300/200",
+      available: 4,
+      total: 6,
+      status: "available",
+      specifications: ["1000W", "Bluetooth", "แบบพกพา", "รองรับไมค์"],
+    },
+  ];
+
+  const categories = [
+    { id: "all", name: "ทั้งหมด", icon: Filter },
+    { id: "camera", name: "กล้องถ่ายรูป", icon: Camera },
+    { id: "projector", name: "โปรเจคเตอร์", icon: Monitor },
+    { id: "audio", name: "อุปกรณ์เสียง", icon: Mic },
+    { id: "printer", name: "เครื่องพิมพ์", icon: Printer },
+    { id: "computer", name: "คอมพิวเตอร์", icon: Laptop },
+  ];
+
+  const filteredEquipment = equipment.filter((item) => {
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "all" || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const addToCart = (equipment: Equipment) => {
+    const existingItem = cart.find(
+      (item) => item.equipment.id === equipment.id
+    );
+    if (existingItem) {
+      if (existingItem.quantity < equipment.available) {
+        setCart((prev) =>
+          prev.map((item) =>
+            item.equipment.id === equipment.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        );
+      }
+    } else {
+      setCart((prev) => [...prev, { equipment, quantity: 1 }]);
+    }
+  };
+
+  const removeFromCart = (equipmentId: string) => {
+    const existingItem = cart.find((item) => item.equipment.id === equipmentId);
+    if (existingItem && existingItem.quantity > 1) {
+      setCart((prev) =>
+        prev.map((item) =>
+          item.equipment.id === equipmentId
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        )
+      );
+    } else {
+      setCart((prev) =>
+        prev.filter((item) => item.equipment.id !== equipmentId)
+      );
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "available":
+        return "text-green-600 bg-green-100";
+      case "limited":
+        return "text-yellow-600 bg-yellow-100";
+      case "unavailable":
+        return "text-red-600 bg-red-100";
+      default:
+        return "text-gray-600 bg-gray-100";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "available":
+        return "พร้อมใช้งาน";
+      case "limited":
+        return "เหลือน้อย";
+      case "unavailable":
+        return "ไม่พร้อมใช้งาน";
+      default:
+        return "ไม่ทราบสถานะ";
+    }
+  };
+
+  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <LibraryNavbar />
+
+      <div className="pt-24 pb-8">
+        <div className="max-w-7xl mx-auto px-6">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8"
+          >
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              เลือกอุปกรณ์ที่ต้องการยืม
+            </h1>
+            <p className="text-xl text-gray-600">
+              เลือกอุปกรณ์จากแคตตาล็อกและเพิ่มลงในตะกร้า
+            </p>
+          </motion.div>
+
+          {/* Search and Filter */}
+          <div className="flex flex-col lg:flex-row gap-6 mb-8">
+            {/* Search */}
+            <div className="flex-1">
+              <div className="relative">
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <input
+                  type="text"
+                  placeholder="ค้นหาอุปกรณ์..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Cart Button */}
+            <motion.button
+              onClick={() => setIsCartOpen(true)}
+              className="relative flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <ShoppingCart size={20} />
+              <span>ตะกร้า ({cartItemCount})</span>
+              {cartItemCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
+                >
+                  {cartItemCount}
+                </motion.span>
+              )}
+            </motion.button>
+          </div>
+
+          {/* Categories */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex flex-wrap gap-3 mb-8"
+          >
+            {categories.map((category, index) => (
+              <motion.button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  selectedCategory === category.id
+                    ? "bg-red-600 text-white"
+                    : "bg-white text-gray-700 hover:bg-red-50 hover:text-red-600"
+                }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <category.icon size={18} />
+                <span>{category.name}</span>
+              </motion.button>
+            ))}
+          </motion.div>
+
+          {/* Equipment Grid */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {filteredEquipment.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200"
+              >
+                <div className="aspect-video bg-gray-100 relative">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div
+                    className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                      item.status
+                    )}`}
+                  >
+                    {getStatusText(item.status)}
+                  </div>
+                </div>
+
+                <div className="p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-gray-900 text-lg">
+                      {item.name}
+                    </h3>
+                    <span className="text-sm text-gray-500">#{item.id}</span>
+                  </div>
+
+                  <p className="text-gray-600 text-sm mb-3">
+                    {item.description}
+                  </p>
+
+                  <div className="mb-3">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>พร้อมใช้งาน:</span>
+                      <span className="font-medium">
+                        {item.available}/{item.total}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full ${
+                          item.status === "available"
+                            ? "bg-green-500"
+                            : item.status === "limited"
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
+                        }`}
+                        style={{
+                          width: `${(item.available / item.total) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <div className="text-sm text-gray-500 mb-1">คุณสมบัติ:</div>
+                    <div className="flex flex-wrap gap-1">
+                      {item.specifications.slice(0, 2).map((spec, i) => (
+                        <span
+                          key={i}
+                          className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
+                        >
+                          {spec}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {cart.find(
+                        (cartItem) => cartItem.equipment.id === item.id
+                      ) && (
+                        <>
+                          <button
+                            onClick={() => removeFromCart(item.id)}
+                            className="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span className="font-medium min-w-[2rem] text-center">
+                            {cart.find(
+                              (cartItem) => cartItem.equipment.id === item.id
+                            )?.quantity || 0}
+                          </span>
+                        </>
+                      )}
+                      <button
+                        onClick={() => addToCart(item)}
+                        disabled={
+                          item.available === 0 ||
+                          (cart.find(
+                            (cartItem) => cartItem.equipment.id === item.id
+                          )?.quantity || 0) >= item.available
+                        }
+                        className="flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                      >
+                        <Plus size={14} />
+                        {cart.find(
+                          (cartItem) => cartItem.equipment.id === item.id
+                        )
+                          ? "เพิ่ม"
+                          : "เพิ่มลงตะกร้า"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {filteredEquipment.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">
+                ไม่พบอุปกรณ์ที่ตรงกับการค้นหา
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Cart Modal */}
+      {isCartOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+          >
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-2xl font-bold text-gray-900">
+                  ตะกร้าของฉัน
+                </h3>
+                <button
+                  onClick={() => setIsCartOpen(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              {cart.length === 0 ? (
+                <div className="text-center py-8">
+                  <ShoppingCart
+                    className="mx-auto mb-4 text-gray-400"
+                    size={48}
+                  />
+                  <p className="text-gray-500">ตะกร้าของคุณยังว่างเปล่า</p>
+                  <button
+                    onClick={() => setIsCartOpen(false)}
+                    className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    เลือกอุปกรณ์
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-4 mb-6">
+                    {cart.map((item) => (
+                      <div
+                        key={item.equipment.id}
+                        className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg"
+                      >
+                        <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0">
+                          <img
+                            src={item.equipment.image}
+                            alt={item.equipment.name}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900">
+                            {item.equipment.name}
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            #{item.equipment.id}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => removeFromCart(item.equipment.id)}
+                            className="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span className="font-medium min-w-[2rem] text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => addToCart(item.equipment)}
+                            disabled={item.quantity >= item.equipment.available}
+                            className="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-lg font-semibold">รวมทั้งหมด:</span>
+                      <span className="text-lg font-bold text-red-600">
+                        {cartItemCount} รายการ
+                      </span>
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setIsCartOpen(false)}
+                        className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        เลือกอุปกรณ์เพิ่ม
+                      </button>
+                      <a
+                        href="/Book_Detail"
+                        className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-center font-medium"
+                      >
+                        ดำเนินการต่อ
+                      </a>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+export default EquipmentCatalogUser;
