@@ -51,6 +51,18 @@ const MinimalNavbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             <Link
+              href="/Equipment_Catalog"
+              className="group flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-all duration-300 hover:scale-105"
+            >
+              <div className="w-5 h-5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">📅</span>
+              </div>
+              <span className="font-semibold text-slate-700 group-hover:text-slate-900">
+                ดูอุปกรณ์
+              </span>
+            </Link>
+
+            <Link
               href="/table"
               className="group flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-50/80 hover:bg-slate-100 transition-all duration-300 hover:scale-105"
             >
