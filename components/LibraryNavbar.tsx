@@ -232,7 +232,7 @@ const LibraryNavbar = () => {
                   whileHover={{ scale: 1.05, y: -1 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  เข้าสู่ระบบ
+                  login / register
                 </motion.a>
               )}
             </div>
