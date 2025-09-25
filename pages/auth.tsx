@@ -170,8 +170,14 @@ function AuthForm() {
       }
     } catch (err) {
       const firebaseError = err as AuthError;
-      console.error("Auth error:", firebaseError);
-      setError(getErrorMessage(firebaseError));
+      console.error("Auth error:", firebaseError.code, firebaseError.message);
+
+      // Set user-friendly error message
+      const errorMessage = getErrorMessage(firebaseError);
+      setError(errorMessage);
+
+      // Also log the exact error for debugging
+      console.log("Displaying error:", errorMessage);
     } finally {
       setIsLoading(false);
     }
