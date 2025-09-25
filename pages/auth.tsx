@@ -33,6 +33,13 @@ function AuthForm() {
   // Initialize Firebase Auth
   const auth = getAuth(app);
 
+  // Email validation helper function
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const trimmedEmail = email.trim();
+    return emailRegex.test(trimmedEmail) && trimmedEmail.length > 0;
+  };
+
   // Check if user is already logged in
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -46,7 +53,15 @@ function AuthForm() {
   }, [auth, router]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let sanitizedValue = value;
+
+    // Sanitize email input by trimming whitespace
+    if (name === 'email') {
+      sanitizedValue = value.trim().toLowerCase();
+    }
+
+    setFormData({ ...formData, [name]: sanitizedValue });
   };
 
   // Function to get Thai error messages
@@ -82,6 +97,13 @@ function AuthForm() {
       return;
     }
 
+    // Validate email format
+    if (!isValidEmail(formData.email)) {
+      setError("รูปแบบอีเมลไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่");
+      setIsLoading(false);
+      return;
+    }
+
     if (!isLogin) {
       if (!formData.name) {
         setError("กรุณากรอกชื่อ-นามสกุล");
@@ -98,6 +120,9 @@ function AuthForm() {
 
     try {
       if (isLogin) {
+        // Debug logging to check email value
+        console.log("Attempting login with email:", formData.email, "Type:", typeof formData.email, "Length:", formData.email.length);
+
         // Login with Firebase
         const userCredential = await signInWithEmailAndPassword(
           auth,
@@ -266,6 +291,7 @@ function AuthForm() {
             onClick={handleSubmit}
             disabled={isLoading}
             className="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-medium py-3 rounded-lg transition-colors duration-200"
+            type = "submit"
           >
             {isLoading
               ? "กำลังดำเนินการ..."
