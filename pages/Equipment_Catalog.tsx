@@ -16,130 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { motion } from "framer-motion";
-
-// --- Standardized Navbar Component ---
-const EquipmentNavbar = () => {
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
-  
-    useEffect(() => {
-      const handleScroll = () => {
-        setScrolled(window.scrollY > 20);
-      };
-      window.addEventListener("scroll", handleScroll);
-      return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
-  
-    return (
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "bg-white shadow-md border-b border-gray-200"
-            : "bg-white/95 backdrop-blur-sm"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between h-24">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-red-600 rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-white font-bold text-2xl">T2U</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-3xl font-bold text-gray-800 uppercase tracking-wide">
-                  Time2Use
-                </span>
-              </div>
-            </Link>
-  
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-12">
-              <Link
-                href="/table"
-                className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
-              >
-                Schedule
-              </Link>
-              <Link
-                href="/"
-                className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
-              >
-                HOME
-              </Link>
-              <Link
-                href="/contact"
-                className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
-              >
-                Contact
-              </Link>
-              <a
-                href="/auth"
-                className="px-6 py-3 bg-red-600 text-white font-medium uppercase tracking-wide rounded-lg hover:bg-red-700 transition-colors duration-300 shadow-sm hover:shadow-md"
-                >
-                เข้าสู่ระบบ
-              </a>
-            </div>
-  
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-gray-600 hover:text-red-600 transition-colors"
-              >
-                <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {isMobileMenuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  )}
-                </svg>
-              </button>
-            </div>
-          </div>
-  
-          {/* Mobile Menu */}
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-gray-200 py-5"
-            >
-              <div className="space-y-5">
-                <Link
-                  href="/table"
-                  className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
-                >
-                  Schedule
-                </Link>
-                <Link
-                  href="/"
-                  className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
-                >
-                  HOME
-                </Link>
-                <Link
-                  href="/contact"
-                  className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
-                >
-                  Contact
-                </Link>
-                <Link href="/auth">
-                  <button className="w-full p-5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors text-xl">
-                    เข้าสู่ระบบ
-                  </button>
-                </Link>
-              </div>
-            </motion.div>
-          )}
-        </div>
-      </motion.nav>
-    );
-  };
-  
-
+import LibraryNavbar from "../components/LibraryNavbar";
 interface equipment {
   id: number;
   name: string;
@@ -389,7 +266,7 @@ export default function Equipment_Catalog() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-        <EquipmentNavbar />
+        <LibraryNavbar />
         <div className="container mx-auto px-4 py-8 pt-32">
         
         {/* Header */}

@@ -2,127 +2,7 @@
 
 import React, { JSX, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-
-// Library-style Navbar Component
-const LibraryNavbar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-        ? "bg-white shadow-md border-b border-gray-200"
-        : "bg-white/95 backdrop-blur-sm"
-        }`}
-    >
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-24"> {/* Increased height */}
-          {/* Logo */}
-          <a href="/" className="flex items-center gap-4"> {/* Increased gap */}
-            <div className="w-14 h-14 bg-red-600 rounded-lg flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-2xl">T2U</span> {/* Increased size */}
-            </div>
-            <div className="flex flex-col">
-              <span className="text-3xl font-bold text-gray-800 uppercase tracking-wide"> {/* Increased size */}
-                Time2Use
-              </span>
-            </div>
-          </a>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-12"> {/* Increased gap */}
-            <a
-              href="/table"
-              className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl" // Increased size
-            >
-              Schedule
-            </a>
-            <a
-              href="/Equipment_Catalog"
-              className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl"
-            >
-              Catalog
-            </a>
-            <a
-              href="/contact"
-              className="text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl" // Increased size
-            >
-              Contact
-            </a>
-            <a
-              href="/auth"
-              className="px-6 py-3 bg-red-600 text-white font-medium uppercase tracking-wide rounded-lg hover:bg-red-700 transition-colors duration-300 shadow-sm hover:shadow-md"
-            >
-              เข้าสู่ระบบ
-            </a>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-gray-600 hover:text-red-600 transition-colors"
-            >
-              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"> {/* Increased size */}
-                {isMobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-gray-200 py-5" // Increased padding
-          >
-            <div className="space-y-5"> {/* Increased space */}
-              <a
-                href="#"
-                className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl" // Increased size
-              >
-                YOUR LOCATION
-              </a>
-              <a
-                href="/Equipment_Catalog"
-                className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl" // Increased size
-              >
-                Equipment_Catalog
-              </a>
-              <a
-                href="/table"
-                className="block p-4 text-gray-600 hover:text-gray-900 font-medium uppercase tracking-wide text-xl" // Increased size
-              >
-                BOOK
-              </a>
-              <a href="/auth">
-                <button className="w-full p-5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors text-xl"> {/* Increased size & padding */}
-                  เข้าสู่ระบบ
-                </button>
-              </a>
-            </div>
-          </motion.div>
-        )}
-      </div>
-    </motion.nav>
-  );
-};
+import LibraryNavbar from "../components/LibraryNavbar";
 
 export default function Page(): JSX.Element {
   const sectionRefs = useRef<Array<HTMLElement | null>>([]);
@@ -152,7 +32,9 @@ export default function Page(): JSX.Element {
       <LibraryNavbar />
 
       {/* Main Content */}
-      <div className="pt-24"> {/* Adjusted padding-top for taller navbar */}
+      <div className="pt-24">
+        {" "}
+        {/* Adjusted padding-top for taller navbar */}
         {/* Hero Section - Reduced font sizes here */}
         <section
           ref={(el) => setRef(el, 0)}
@@ -169,25 +51,36 @@ export default function Page(): JSX.Element {
                 className="space-y-10" // Adjusted space
               >
                 <div className="space-y-8">
-                  <p className="text-4xl text-gray-600 uppercase tracking-wider font-medium"> {/* Reduced size */}
+                  <p className="text-4xl text-gray-600 uppercase tracking-wider font-medium">
+                    {" "}
+                    {/* Reduced size */}
                     WELCOME TO
                   </p>
 
-                  <h1 className="text-7xl lg:text-7xl font-bold text-gray-900 leading-tight"> {/* Reduced size */}
+                  <h1 className="text-7xl lg:text-7xl font-bold text-gray-900 leading-tight">
+                    {" "}
+                    {/* Reduced size */}
                     <span className="text-red-600">EQUIPMENT</span>
                     <br />
                     <span className="text-gray-900">System</span>
                   </h1>
 
-                  <div className="space-y-5 text-2xl text-gray-600"> {/* Reduced size */}
-                    <p>Enjoy borrowing the equipment that is available in various options.</p>
+                  <div className="space-y-5 text-2xl text-gray-600">
+                    {" "}
+                    {/* Reduced size */}
+                    <p>
+                      Enjoy borrowing the equipment that is available in various
+                      options.
+                    </p>
                     <p>Easy communication with your friends.</p>
                   </div>
                 </div>
 
                 <div className="pt-6">
                   <a href="/auth">
-                    <button className="px-14 py-5 bg-red-600 text-white font-bold uppercase tracking-wider rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-lg text-2xl"> {/* Reduced size & padding */}
+                    <button className="px-14 py-5 bg-red-600 text-white font-bold uppercase tracking-wider rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-lg text-2xl">
+                      {" "}
+                      {/* Reduced size & padding */}
                       Borrow now
                     </button>
                   </a>
@@ -210,9 +103,13 @@ export default function Page(): JSX.Element {
                         {Array.from({ length: 32 }, (_, i) => (
                           <div
                             key={i}
-                            className={`h-12 rounded-sm ${Math.random() > 0.5 ? 'bg-red-400' :
-                              Math.random() > 0.5 ? 'bg-gray-600' : 'bg-gray-400'
-                              }`}
+                            className={`h-12 rounded-sm ${
+                              Math.random() > 0.5
+                                ? "bg-red-400"
+                                : Math.random() > 0.5
+                                ? "bg-gray-600"
+                                : "bg-gray-400"
+                            }`}
                           />
                         ))}
                       </div>
@@ -237,7 +134,6 @@ export default function Page(): JSX.Element {
             </div>
           </div>
         </section>
-
         {/* Process Section (remains large) */}
         <section
           ref={(el) => setRef(el, 1)}
@@ -261,12 +157,36 @@ export default function Page(): JSX.Element {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
               {[
-                { step: "1", title: "เข้าสู่ระบบ", desc: "ลงทะเบียนและเข้าสู่ระบบด้วยบัญชีผู้ใช้งาน" },
-                { step: "2", title: "เลือกอุปกรณ์", desc: "ค้นหาและเลือกอุปกรณ์ที่ต้องการใช้งาน" },
-                { step: "3", title: "กรอกรายละเอียด", desc: "ระบุวัตถุประสงค์และระยะเวลาการใช้งาน" },
-                { step: "4", title: "ส่งคำขอ", desc: "ยื่นคำขอและรอการอนุมัติจากผู้ดูแลระบบ" },
-                { step: "5", title: "รับการอนุมัติ", desc: "ตรวจสอบสถานะและรอการแจ้งเตือน" },
-                { step: "6", title: "รับอุปกรณ์", desc: "รับอุปกรณ์ที่คณะตามเวลาที่กำหนด" },
+                {
+                  step: "1",
+                  title: "เข้าสู่ระบบ",
+                  desc: "ลงทะเบียนและเข้าสู่ระบบด้วยบัญชีผู้ใช้งาน",
+                },
+                {
+                  step: "2",
+                  title: "เลือกอุปกรณ์",
+                  desc: "ค้นหาและเลือกอุปกรณ์ที่ต้องการใช้งาน",
+                },
+                {
+                  step: "3",
+                  title: "กรอกรายละเอียด",
+                  desc: "ระบุวัตถุประสงค์และระยะเวลาการใช้งาน",
+                },
+                {
+                  step: "4",
+                  title: "ส่งคำขอ",
+                  desc: "ยื่นคำขอและรอการอนุมัติจากผู้ดูแลระบบ",
+                },
+                {
+                  step: "5",
+                  title: "รับการอนุมัติ",
+                  desc: "ตรวจสอบสถานะและรอการแจ้งเตือน",
+                },
+                {
+                  step: "6",
+                  title: "รับอุปกรณ์",
+                  desc: "รับอุปกรณ์ที่คณะตามเวลาที่กำหนด",
+                },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -287,13 +207,14 @@ export default function Page(): JSX.Element {
                   <h3 className="text-3xl font-bold text-gray-900 mb-6 uppercase tracking-wide">
                     {item.title}
                   </h3>
-                  <p className="text-xl text-gray-600 leading-relaxed">{item.desc}</p>
+                  <p className="text-xl text-gray-600 leading-relaxed">
+                    {item.desc}
+                  </p>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
-
         {/* Features Section (remains large) */}
         <section
           ref={(el) => setRef(el, 2)}
@@ -317,9 +238,18 @@ export default function Page(): JSX.Element {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               {[
-                { title: "จัดการได้อย่างเป็นระบบ", desc: "ระบบรวมศูนย์ที่ช่วยให้การจัดการอุปกรณ์เป็นไปอย่างมีประสิทธิภาพ" },
-                { title: "ปฏิทินแบบเรียลไทม์", desc: "ป้องกันการจองซ้ำด้วยระบบปฏิทินที่อัปเดตทันที" },
-                { title: "รายงานและสถิติ", desc: "ข้อมูลครบถ้วนสำหรับการตัดสินใจและวางแผนการจัดซื้อ" },
+                {
+                  title: "จัดการได้อย่างเป็นระบบ",
+                  desc: "ระบบรวมศูนย์ที่ช่วยให้การจัดการอุปกรณ์เป็นไปอย่างมีประสิทธิภาพ",
+                },
+                {
+                  title: "ปฏิทินแบบเรียลไทม์",
+                  desc: "ป้องกันการจองซ้ำด้วยระบบปฏิทินที่อัปเดตทันที",
+                },
+                {
+                  title: "รายงานและสถิติ",
+                  desc: "ข้อมูลครบถ้วนสำหรับการตัดสินใจและวางแผนการจัดซื้อ",
+                },
               ].map((feature, index) => (
                 <motion.div
                   key={index}
@@ -343,7 +273,6 @@ export default function Page(): JSX.Element {
             </div>
           </div>
         </section>
-
         {/* CTA Section (remains large) */}
         <section
           ref={(el) => setRef(el, 3)}
@@ -361,7 +290,8 @@ export default function Page(): JSX.Element {
                 เริ่มใช้งานระบบได้ทันที
               </h2>
               <p className="text-3xl opacity-90 max-w-3xl mx-auto">
-                พร้อมให้บริการระบบจัดการอุปกรณ์ที่มีประสิทธิภาพ เพื่อองค์กรของคุณ
+                พร้อมให้บริการระบบจัดการอุปกรณ์ที่มีประสิทธิภาพ
+                เพื่อองค์กรของคุณ
               </p>
 
               <div className="flex flex-col sm:flex-row gap-10 justify-center items-center">
@@ -394,10 +324,11 @@ export default function Page(): JSX.Element {
                   block: "center",
                 });
               }}
-              className={`w-5 h-5 rounded-full transition-all duration-300 ${activeIndex === i
-                ? "bg-red-600 scale-125"
-                : "bg-gray-300 hover:bg-gray-400"
-                }`}
+              className={`w-5 h-5 rounded-full transition-all duration-300 ${
+                activeIndex === i
+                  ? "bg-red-600 scale-125"
+                  : "bg-gray-300 hover:bg-gray-400"
+              }`}
             />
           ))}
         </div>
@@ -408,7 +339,10 @@ export default function Page(): JSX.Element {
         <div className="max-w-7xl mx-auto px-6 text-center">
           <p className="text-xl text-gray-300">
             © {new Date().getFullYear()} Equipment System
-            <span className="text-red-400"> — Professional Equipment Solutions</span>
+            <span className="text-red-400">
+              {" "}
+              — Professional Equipment Solutions
+            </span>
           </p>
         </div>
       </footer>

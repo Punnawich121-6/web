@@ -1,4 +1,4 @@
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/LibraryNavbar";
 export default function Borrwing_policies() {
     return (
         <>

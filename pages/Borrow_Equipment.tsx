@@ -12,7 +12,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/LibraryNavbar";
 
 export default function Borrow_Equipment() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
