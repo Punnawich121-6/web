@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Calendar, User, Package, Clock, CheckCircle, XCircle, Filter, MapPin, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
-import Navbar from "@/component/Navbar";
+import Navbar from "@/components/Navbar";
 
 interface equipment {
     id: number;
