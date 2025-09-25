@@ -40,6 +40,12 @@ export default function () {
           >
             Contact Us
           </Link>
+          <Link
+            href="/table"
+            className="hover:text-indigo-600 cursor-pointer transition-all duration-300 hover:scale-105 relative after:absolute after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-indigo-500 after:to-purple-500 after:left-1/2 after:-translate-x-1/2 after:-bottom-1 after:transition-all after:duration-300 hover:after:w-full"
+          >
+            talble
+          </Link>
         </div>
         <Link href="/auth">
           <button className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-8 py-3 rounded-full hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 transition-all duration-300 shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-105 font-semibold tracking-wide">
