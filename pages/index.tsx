@@ -37,10 +37,10 @@ export default function Home() {
 
         {/* Right Image */}
         <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
-          <Image 
-            src="/img3.png" 
-            width={650} 
-            height={650} 
+          <Image
+            src="/img3.png"
+            width={650}
+            height={650}
             alt="TimeToUse illustration"
             className="object-contain"
           />
@@ -51,7 +51,6 @@ export default function Home() {
       <div className="min-h-screen bg-gray-50 flex items-center">
         <div className="container mx-auto px-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            
             {/* Left - Another Image or Content */}
             <div className="order-2 lg:order-1">
               <div className="bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl h-96 flex items-center justify-center">
@@ -64,12 +63,14 @@ export default function Home() {
           </div>
         </div>
       </div>
-      
+
       {/* Third Section - Features */}
       <div className="min-h-screen bg-white flex items-center">
         <div className="container mx-auto px-20">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold text-gray-800 mb-6">Our Features</h2>
+            <h2 className="text-5xl font-bold text-gray-800 mb-6">
+              Our Features
+            </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Everything you need to make your projects successful
             </p>
@@ -77,20 +78,32 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="text-5xl mb-6">⚙️</div>
-              <h3 className="text-2xl font-semibold mb-4 text-gray-800">Professional Tools</h3>
-              <p className="text-gray-600 text-lg">Access high-quality tools and equipment for your projects</p>
+              <h3 className="text-2xl font-semibold mb-4 text-gray-800">
+                Professional Tools
+              </h3>
+              <p className="text-gray-600 text-lg">
+                Access high-quality tools and equipment for your projects
+              </p>
             </div>
 
             <div className="text-center p-8 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="text-5xl mb-6">🤝</div>
-              <h3 className="text-2xl font-semibold mb-4 text-gray-800">Easy Collaboration</h3>
-              <p className="text-gray-600 text-lg">Work together with friends and mentors seamlessly</p>
+              <h3 className="text-2xl font-semibold mb-4 text-gray-800">
+                Easy Collaboration
+              </h3>
+              <p className="text-gray-600 text-lg">
+                Work together with friends and mentors seamlessly
+              </p>
             </div>
 
             <div className="text-center p-8 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="text-5xl mb-6">📅</div>
-              <h3 className="text-2xl font-semibold mb-4 text-gray-800">Simple Booking</h3>
-              <p className="text-gray-600 text-lg">Book equipment and spaces with just a few clicks</p>
+              <h3 className="text-2xl font-semibold mb-4 text-gray-800">
+                Simple Booking
+              </h3>
+              <p className="text-gray-600 text-lg">
+                Book equipment and spaces with just a few clicks
+              </p>
             </div>
           </div>
         </div>
