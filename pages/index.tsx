@@ -72,7 +72,7 @@ export default function Page(): JSX.Element {
                       Enjoy borrowing the equipment that is available in various
                       options.
                     </p>
-                    <p>Easy communication with your friends.</p>
+                    <p>Easy communication with your friends!.</p>
                   </div>
                 </div>
 
