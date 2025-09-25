@@ -151,7 +151,7 @@ export default function Page(): JSX.Element {
                 ขั้นตอนการใช้งาน
               </h2>
               <p className="text-3xl text-gray-600 max-w-4xl mx-auto">
-                กระบวนการยืม-คืนอุปกรณ์ที่เป็นระบบและโปร่งใส
+                กระบวนการยืม-คืนอุปกรณ์ที่เป็นระบบและโปร่งใส!
               </p>
             </motion.div>
 
