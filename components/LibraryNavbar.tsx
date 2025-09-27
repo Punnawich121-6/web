@@ -206,12 +206,6 @@ const LibraryNavbar = () => {
                           >
                             Profile
                           </a>
-                          <a
-                            href="/my-bookings"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                          >
-                            My Bookings
-                          </a>
                         </div>
                         <div className="border-t border-gray-100">
                           <button
@@ -299,6 +293,55 @@ const LibraryNavbar = () => {
                       {item.label}
                     </a>
                   ))}
+
+                {/* Mobile Authentication Section */}
+                <div className="border-t border-gray-200 mt-4 pt-4">
+                  {loading ? (
+                    <div className="flex items-center gap-2 px-4 py-2">
+                      <div className="w-4 h-4 bg-gray-400 rounded-full animate-pulse"></div>
+                      <span className="text-gray-500 text-sm">Loading...</span>
+                    </div>
+                  ) : user ? (
+                    <div className="space-y-2">
+                      <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-red-600 to-red-700 rounded-lg flex items-center justify-center">
+                            <span className="text-white font-bold text-xs">
+                              {user.email?.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {user.displayName || user.email?.split("@")[0]}
+                            </p>
+                            <p className="text-xs text-gray-500">Online</p>
+                          </div>
+                        </div>
+                      </div>
+                      <a
+                        href="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Profile
+                      </a>
+                      <button
+                        onClick={handleSignOut}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="px-4">
+                      <a
+                        href="/auth"
+                        className="block w-full text-center px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white font-medium uppercase tracking-wide rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 text-sm"
+                      >
+                        Login / Register
+                      </a>
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}
