@@ -7,28 +7,46 @@ import app from "../pages/firebase";
 import LibraryNavbar from "../components/LibraryNavbar";
 import {
   Calendar,
-  Clock,
   User as UserIcon,
   Mail,
-  Phone,
   FileText,
-  CheckCircle,
   AlertTriangle,
   ArrowLeft,
   Send,
 } from "lucide-react";
 
 interface CartItem {
+  equipment: {
+    id: string;
+    name: string;
+    serialNumber: string;
+    image?: string;
+    location: string;
+    category: string;
+  };
+  quantity: number;
+}
+
+interface Equipment {
   id: string;
   name: string;
-  quantity: number;
-  image: string;
+  category: string;
+  description: string;
+  image?: string;
+  status: "AVAILABLE" | "BORROWED" | "MAINTENANCE" | "RETIRED";
+  totalQuantity: number;
+  availableQuantity: number;
+  location: string;
+  serialNumber: string;
+  condition?: string;
 }
 
 const BookDetail = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [equipmentData, setEquipmentData] = useState<Equipment[]>([]);
   const [formData, setFormData] = useState({
     borrowDate: "",
     returnDate: "",
@@ -45,26 +63,43 @@ const BookDetail = () => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
+      if (currentUser) {
+        loadCartData();
+        fetchEquipmentData();
+      }
     });
 
     return () => unsubscribe();
   }, [auth]);
 
-  // Mock cart data (ในการใช้งานจริงจะได้จาก context หรือ localStorage)
-  const cartItems: CartItem[] = [
-    {
-      id: "EP-001",
-      name: "กล้องถ่ายรูป Canon EOS R6",
-      quantity: 1,
-      image: "/api/placeholder/100/100",
-    },
-    {
-      id: "EP-002",
-      name: "โปรเจคเตอร์ Epson EB-X41",
-      quantity: 2,
-      image: "/api/placeholder/100/100",
-    },
-  ];
+  const loadCartData = () => {
+    try {
+      const savedCart = localStorage.getItem('equipmentCart');
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        setCartItems(parsedCart);
+      } else {
+        // Redirect back if no cart data
+        window.location.href = '/Equipment_Catalog_User';
+      }
+    } catch (error) {
+      console.error('Error loading cart data:', error);
+      setCartItems([]);
+    }
+  };
+
+  const fetchEquipmentData = async () => {
+    try {
+      const response = await fetch('/api/equipment');
+      const result = await response.json();
+      if (result.success) {
+        setEquipmentData(result.data);
+      }
+    } catch (error) {
+      console.error('Error fetching equipment data:', error);
+    }
+  };
+
 
   const departments = [
     "วิศวกรรมศาสตร์",
@@ -91,13 +126,55 @@ const BookDetail = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      if (!user) {
+        alert('กรุณาเข้าสู่ระบบก่อน');
+        return;
+      }
 
-    setIsSubmitting(false);
+      // Get Firebase auth token
+      const token = await user.getIdToken();
 
-    // Redirect to Borrowing History
-    window.location.href = "/Borrowing_History?status=pending";
+      // Create borrow request for each item in cart
+      for (const item of cartItems) {
+        const borrowData = {
+          equipmentId: item.equipment.id,
+          quantity: item.quantity,
+          borrowDate: formData.borrowDate,
+          returnDate: formData.returnDate,
+          purpose: formData.purpose,
+          notes: formData.additionalNotes,
+          department: formData.department,
+          studentId: formData.studentId,
+          phone: formData.phone
+        };
+
+        const response = await fetch('/api/borrow', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token, borrowData }),
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to submit borrow request');
+        }
+      }
+
+      // Clear cart after successful submission
+      localStorage.removeItem('equipmentCart');
+
+      // Redirect to Borrowing History
+      window.location.href = "/Borrowing_History?status=pending";
+
+    } catch (error) {
+      console.error('เกิดข้อผิดพลาดในการส่งคำขอ:', error);
+      alert('เกิดข้อผิดพลาด กรุณาลองใหม่');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -108,6 +185,33 @@ const BookDetail = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
           <p className="text-gray-600 text-lg">กำลังโหลด...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LibraryNavbar />
+        <div className="pt-24 pb-8">
+          <div className="max-w-4xl mx-auto px-6">
+            <div className="text-center py-12">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">
+                ไม่พบรายการอุปกรณ์ที่เลือก
+              </h1>
+              <p className="text-gray-600 mb-6">
+                กรุณาเลือกอุปกรณ์ที่ต้องการยืมก่อนดำเนินการต่อ
+              </p>
+              <a
+                href="/Equipment_Catalog_User"
+                className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <ArrowLeft className="mr-2" size={20} />
+                กลับไปเลือกอุปกรณ์
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -158,7 +262,7 @@ const BookDetail = () => {
                 <div className="space-y-4 mb-6">
                   {cartItems.map((item, index) => (
                     <motion.div
-                      key={item.id}
+                      key={item.equipment.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 + index * 0.1 }}
@@ -166,16 +270,17 @@ const BookDetail = () => {
                     >
                       <div className="w-12 h-12 bg-gray-200 rounded-lg flex-shrink-0">
                         <img
-                          src={item.image}
-                          alt={item.name}
+                          src={item.equipment.image || 'https://via.placeholder.com/100x100?text=No+Image'}
+                          alt={item.equipment.name}
                           className="w-full h-full object-cover rounded-lg"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-gray-900 text-sm truncate">
-                          {item.name}
+                          {item.equipment.name}
                         </h4>
-                        <p className="text-xs text-gray-500">#{item.id}</p>
+                        <p className="text-xs text-gray-500">#{item.equipment.serialNumber}</p>
+                        <p className="text-xs text-gray-400">{item.equipment.location}</p>
                       </div>
                       <span className="text-sm font-medium text-red-600">
                         ×{item.quantity}

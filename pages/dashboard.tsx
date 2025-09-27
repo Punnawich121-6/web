@@ -17,78 +17,102 @@ import {
   History,
 } from "lucide-react";
 
+interface BorrowRequest {
+  id: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'RETURNED';
+  borrowDate: string;
+  returnDate: string;
+  equipment: {
+    name: string;
+    serialNumber: string;
+  };
+}
+
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [borrowRequests, setBorrowRequests] = useState<BorrowRequest[]>([]);
+  const [statsLoading, setStatsLoading] = useState(true);
   const auth = getAuth(app);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
+      if (currentUser) {
+        fetchUserBorrowRequests();
+      }
     });
 
     return () => unsubscribe();
   }, [auth]);
 
-  // Mock data for dashboard stats
+  const fetchUserBorrowRequests = async () => {
+    try {
+      setStatsLoading(true);
+      // For now, we'll use empty array since borrow API might not be fully implemented
+      // In the future, this would fetch from /api/borrow with user filter
+      setBorrowRequests([]);
+    } catch (error) {
+      console.error('Error fetching borrow requests:', error);
+      setBorrowRequests([]);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  // Calculate stats from real borrow data
   const dashboardStats = [
     {
       icon: Package,
       title: "อุปกรณ์ที่กำลังยืม",
-      count: "3",
+      count: borrowRequests.filter(req => req.status === 'APPROVED').length.toString(),
       color: "blue",
       description: "รายการที่ยืมอยู่",
     },
     {
       icon: Clock,
       title: "รอการอนุมัติ",
-      count: "1",
+      count: borrowRequests.filter(req => req.status === 'PENDING').length.toString(),
       color: "yellow",
       description: "คำขอที่รออนุมัติ",
     },
     {
       icon: CheckCircle,
       title: "ยืมสำเร็จแล้ว",
-      count: "12",
+      count: borrowRequests.filter(req => req.status === 'RETURNED').length.toString(),
       color: "green",
       description: "ครั้งที่ยืมทั้งหมด",
     },
     {
       icon: Calendar,
       title: "ใกล้ครบกำหนดคืน",
-      count: "1",
+      count: borrowRequests.filter(req => {
+        if (req.status !== 'APPROVED') return false;
+        const returnDate = new Date(req.returnDate);
+        const today = new Date();
+        const daysDiff = Math.ceil((returnDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+        return daysDiff <= 3 && daysDiff >= 0;
+      }).length.toString(),
       color: "red",
       description: "อุปกรณ์ที่ต้องคืนเร็วๆ นี้",
     },
   ];
 
-  const recentActivity = [
-    {
-      id: 1,
-      action: "ยืมอุปกรณ์สำเร็จ",
-      item: "โปรเจคเตอร์ Epson EB-X41",
-      date: "2024-01-15",
-      status: "approved",
-      returnDate: "2024-01-20",
-    },
-    {
-      id: 2,
-      action: "ส่งคำขอยืม",
-      item: "กล้องถ่ายรูป Canon EOS R6",
-      date: "2024-01-14",
-      status: "pending",
-      returnDate: "2024-01-18",
-    },
-    {
-      id: 3,
-      action: "คืนอุปกรณ์แล้ว",
-      item: "ไมโครโฟนไร้สาย",
-      date: "2024-01-13",
-      status: "returned",
-      returnDate: "2024-01-13",
-    },
-  ];
+  // Get recent activity from borrow requests
+  const recentActivity = borrowRequests
+    .sort((a, b) => new Date(b.borrowDate).getTime() - new Date(a.borrowDate).getTime())
+    .slice(0, 5)
+    .map(request => ({
+      id: request.id,
+      action: request.status === 'PENDING' ? 'ส่งคำขอยืม' :
+              request.status === 'APPROVED' ? 'ยืมอุปกรณ์สำเร็จ' :
+              request.status === 'RETURNED' ? 'คืนอุปกรณ์แล้ว' : 'คำขอถูกปฏิเสธ',
+      item: request.equipment.name,
+      date: request.borrowDate,
+      status: request.status.toLowerCase(),
+      returnDate: request.returnDate,
+    }));
 
   const quickActions = [
     {
@@ -118,26 +142,30 @@ const Dashboard = () => {
   ];
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case "approved":
         return "bg-green-100 text-green-800";
       case "pending":
         return "bg-yellow-100 text-yellow-800";
       case "returned":
         return "bg-gray-100 text-gray-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
       default:
         return "bg-blue-100 text-blue-800";
     }
   };
 
   const getStatusText = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case "approved":
         return "อนุมัติแล้ว";
       case "pending":
         return "รออนุมัติ";
       case "returned":
         return "คืนแล้ว";
+      case "rejected":
+        return "ปฏิเสธ";
       default:
         return "ไม่ทราบสถานะ";
     }
@@ -188,7 +216,21 @@ const Dashboard = () => {
             transition={{ delay: 0.1 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
           >
-            {dashboardStats.map((stat, index) => (
+            {statsLoading ? (
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <div className="animate-pulse">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                      <div className="w-8 h-8 bg-gray-200 rounded"></div>
+                    </div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              dashboardStats.map((stat, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -209,7 +251,8 @@ const Dashboard = () => {
                 </h3>
                 <p className="text-base text-gray-500">{stat.description}</p>
               </motion.div>
-            ))}
+              ))
+            )}
           </motion.div>
 
           {/* Quick Actions */}

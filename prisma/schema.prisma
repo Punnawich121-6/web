@@ -22,6 +22,11 @@ model User {
   role        UserRole @default(USER)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Relations
+  createdEquipment Equipment[] @relation("CreatedEquipment")
+  borrowRequests   BorrowRequest[]
+  approvedRequests BorrowRequest[] @relation("ApprovedRequests")
 }
 
 enum UserRole {
@@ -30,8 +35,60 @@ enum UserRole {
   MODERATOR
 }
 
-model Items {
-  id     Int    @id @default(autoincrement())
-  name   String
-  status String
+model Equipment {
+  id            String            @id @default(uuid())
+  name          String
+  category      String
+  description   String
+  image         String?
+  serialNumber  String            @unique
+  location      String
+  status        EquipmentStatus   @default(AVAILABLE)
+  totalQuantity Int               @default(1)
+  availableQuantity Int           @default(1)
+  specifications Json?
+  condition     String?
+  purchaseDate  DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  createdBy     String
+  creator       User              @relation("CreatedEquipment", fields: [createdBy], references: [id])
+  borrowings    BorrowRequest[]
+}
+
+model BorrowRequest {
+  id              String              @id @default(uuid())
+  userId          String
+  user            User                @relation(fields: [userId], references: [id])
+  equipmentId     String
+  equipment       Equipment           @relation(fields: [equipmentId], references: [id])
+  quantity        Int                 @default(1)
+  purpose         String
+  startDate       DateTime
+  endDate         DateTime
+  actualReturnDate DateTime?
+  status          BorrowStatus        @default(PENDING)
+  notes           String?
+  approvedBy      String?
+  approver        User?               @relation("ApprovedRequests", fields: [approvedBy], references: [id])
+  approvedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+enum EquipmentStatus {
+  AVAILABLE
+  BORROWED
+  MAINTENANCE
+  RETIRED
+}
+
+enum BorrowStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ACTIVE
+  RETURNED
+  OVERDUE
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import LibraryNavbar from "../components/LibraryNavbar";
 import {
@@ -22,11 +22,19 @@ interface Equipment {
   name: string;
   category: string;
   description: string;
-  image: string;
-  available: number;
-  total: number;
-  status: "available" | "limited" | "unavailable";
-  specifications: string[];
+  image?: string;
+  status: "AVAILABLE" | "BORROWED" | "MAINTENANCE" | "RETIRED";
+  totalQuantity: number;
+  availableQuantity: number;
+  specifications?: any;
+  location: string;
+  serialNumber: string;
+  condition?: string;
+  creator?: {
+    displayName?: string;
+    email: string;
+  };
+  borrowings?: any[];
 }
 
 interface CartItem {
@@ -39,87 +47,56 @@ const EquipmentCatalogUser = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [equipmentData, setEquipmentData] = useState<Equipment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock equipment data
-  const equipment: Equipment[] = [
-    {
-      id: "EP-001",
-      name: "กล้องถ่ายรูป Canon EOS R6",
-      category: "camera",
-      description: "กล้องฟูลเฟรมมิเรอร์เลส เหมาะสำหรับงานถ่ายภาพคุณภาพสูง",
-      image: "/api/placeholder/300/200",
-      available: 3,
-      total: 5,
-      status: "available",
-      specifications: ["24.2 MP", "4K Video", "WiFi", "รองรับเลนส์ RF"],
-    },
-    {
-      id: "EP-002",
-      name: "โปรเจคเตอร์ Epson EB-X41",
-      category: "projector",
-      description: "โปรเจคเตอร์ 3LCD ความสว่าง 3600 Lumens",
-      image: "/api/placeholder/300/200",
-      available: 2,
-      total: 4,
-      status: "limited",
-      specifications: ["3600 Lumens", "XGA (1024x768)", "HDMI", "VGA"],
-    },
-    {
-      id: "EP-003",
-      name: "ไมโครโฟนไร้สาย Shure SM58",
-      category: "audio",
-      description: "ไมโครโฟนแบบไดนามิกคุณภาพสูง",
-      image: "/api/placeholder/300/200",
-      available: 8,
-      total: 10,
-      status: "available",
-      specifications: ["Dynamic", "Wireless", "50Hz-15kHz", "รองรับระยะ 100m"],
-    },
-    {
-      id: "EP-004",
-      name: "เครื่องพิมพ์ HP LaserJet Pro",
-      category: "printer",
-      description: "เครื่องพิมพ์เลเซอร์ขาวดำความเร็วสูง",
-      image: "/api/placeholder/300/200",
-      available: 0,
-      total: 2,
-      status: "unavailable",
-      specifications: ["Laser", "22 ppm", "WiFi", "Duplex"],
-    },
-    {
-      id: "EP-005",
-      name: 'แล็ปท็อป MacBook Pro 16"',
-      category: "computer",
-      description: "แล็ปท็อปสำหรับงานกราฟิกและวิดีโอ",
-      image: "/api/placeholder/300/200",
-      available: 1,
-      total: 3,
-      status: "limited",
-      specifications: ["M2 Pro", "32GB RAM", "1TB SSD", '16" Retina Display'],
-    },
-    {
-      id: "EP-006",
-      name: "ลำโพง JBL EON615",
-      category: "audio",
-      description: "ลำโพงขยายเสียงแบบพกพา",
-      image: "/api/placeholder/300/200",
-      available: 4,
-      total: 6,
-      status: "available",
-      specifications: ["1000W", "Bluetooth", "แบบพกพา", "รองรับไมค์"],
-    },
-  ];
+  useEffect(() => {
+    fetchEquipment();
+    // Load cart from localStorage
+    const savedCart = localStorage.getItem('equipmentCart');
+    if (savedCart) {
+      try {
+        setCart(JSON.parse(savedCart));
+      } catch (error) {
+        console.error('Error loading cart from localStorage:', error);
+      }
+    }
+  }, []);
 
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('equipmentCart', JSON.stringify(cart));
+  }, [cart]);
+
+  const fetchEquipment = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/equipment');
+      const result = await response.json();
+
+      if (result.success) {
+        setEquipmentData(result.data);
+      } else {
+        setError(result.error || 'Failed to fetch equipment');
+      }
+    } catch (err) {
+      setError('Failed to fetch equipment');
+      console.error('Error fetching equipment:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get categories from actual data
   const categories = [
     { id: "all", name: "ทั้งหมด", icon: Filter },
-    { id: "camera", name: "กล้องถ่ายรูป", icon: Camera },
-    { id: "projector", name: "โปรเจคเตอร์", icon: Monitor },
-    { id: "audio", name: "อุปกรณ์เสียง", icon: Mic },
-    { id: "printer", name: "เครื่องพิมพ์", icon: Printer },
-    { id: "computer", name: "คอมพิวเตอร์", icon: Laptop },
+    { id: "อิเล็กทรอนิกส์", name: "อิเล็กทรอนิกส์", icon: Camera },
+    { id: "เครื่องเสียง", name: "เครื่องเสียง", icon: Mic },
+    { id: "เครื่องจักร", name: "เครื่องจักร", icon: Laptop },
   ];
 
-  const filteredEquipment = equipment.filter((item) => {
+  const filteredEquipment = equipmentData.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -133,7 +110,7 @@ const EquipmentCatalogUser = () => {
       (item) => item.equipment.id === equipment.id
     );
     if (existingItem) {
-      if (existingItem.quantity < equipment.available) {
+      if (existingItem.quantity < equipment.availableQuantity) {
         setCart((prev) =>
           prev.map((item) =>
             item.equipment.id === equipment.id
@@ -166,12 +143,14 @@ const EquipmentCatalogUser = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "available":
+      case "AVAILABLE":
         return "text-green-600 bg-green-100";
-      case "limited":
-        return "text-yellow-600 bg-yellow-100";
-      case "unavailable":
+      case "BORROWED":
         return "text-red-600 bg-red-100";
+      case "MAINTENANCE":
+        return "text-yellow-600 bg-yellow-100";
+      case "RETIRED":
+        return "text-gray-600 bg-gray-100";
       default:
         return "text-gray-600 bg-gray-100";
     }
@@ -179,18 +158,69 @@ const EquipmentCatalogUser = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "available":
+      case "AVAILABLE":
         return "พร้อมใช้งาน";
-      case "limited":
-        return "เหลือน้อย";
-      case "unavailable":
-        return "ไม่พร้อมใช้งาน";
+      case "BORROWED":
+        return "ถูกยืม";
+      case "MAINTENANCE":
+        return "ซ่อมบำรุง";
+      case "RETIRED":
+        return "เลิกใช้งาน";
       default:
         return "ไม่ทราบสถานะ";
     }
   };
 
+  const getItemStatus = (item: Equipment) => {
+    if (item.availableQuantity === 0) return "unavailable";
+    if (item.availableQuantity <= item.totalQuantity * 0.3) return "limited";
+    return "available";
+  };
+
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LibraryNavbar />
+        <div className="pt-24 pb-8">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex justify-center items-center min-h-[400px]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+                <p className="text-gray-600 text-xl">กำลังโหลดอุปกรณ์...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LibraryNavbar />
+        <div className="pt-24 pb-8">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex justify-center items-center min-h-[400px]">
+              <div className="text-center">
+                <p className="text-red-600 text-xl mb-4">เกิดข้อผิดพลาด: {error}</p>
+                <button
+                  onClick={fetchEquipment}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                >
+                  ลองใหม่
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -297,7 +327,7 @@ const EquipmentCatalogUser = () => {
               >
                 <div className="aspect-video bg-gray-100 relative">
                   <img
-                    src={item.image}
+                    src={item.image || 'https://via.placeholder.com/400x300?text=No+Image'}
                     alt={item.name}
                     className="w-full h-full object-cover"
                   />
@@ -315,7 +345,7 @@ const EquipmentCatalogUser = () => {
                     <h3 className="font-semibold text-gray-900 text-lg">
                       {item.name}
                     </h3>
-                    <span className="text-sm text-gray-500">#{item.id}</span>
+                    <span className="text-sm text-gray-500">#{item.serialNumber}</span>
                   </div>
 
                   <p className="text-gray-600 text-sm mb-3">
@@ -326,37 +356,43 @@ const EquipmentCatalogUser = () => {
                     <div className="flex justify-between text-sm mb-1">
                       <span>พร้อมใช้งาน:</span>
                       <span className="font-medium">
-                        {item.available}/{item.total}
+                        {item.availableQuantity}/{item.totalQuantity}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full ${
-                          item.status === "available"
+                          getItemStatus(item) === "available"
                             ? "bg-green-500"
-                            : item.status === "limited"
+                            : getItemStatus(item) === "limited"
                             ? "bg-yellow-500"
                             : "bg-red-500"
                         }`}
                         style={{
-                          width: `${(item.available / item.total) * 100}%`,
+                          width: `${(item.availableQuantity / item.totalQuantity) * 100}%`,
                         }}
                       />
                     </div>
                   </div>
 
                   <div className="mb-4">
-                    <div className="text-sm text-gray-500 mb-1">คุณสมบัติ:</div>
-                    <div className="flex flex-wrap gap-1">
-                      {item.specifications.slice(0, 2).map((spec, i) => (
-                        <span
-                          key={i}
-                          className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
-                        >
-                          {spec}
-                        </span>
-                      ))}
-                    </div>
+                    <div className="text-sm text-gray-500 mb-1">สถานที่:</div>
+                    <div className="text-sm text-gray-700 mb-2">{item.location}</div>
+                    {item.specifications && (
+                      <>
+                        <div className="text-sm text-gray-500 mb-1">คุณสมบัติ:</div>
+                        <div className="flex flex-wrap gap-1">
+                          {Object.entries(item.specifications).slice(0, 2).map(([key, value], i) => (
+                            <span
+                              key={i}
+                              className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
+                            >
+                              {typeof value === 'string' ? value : `${key}: ${value}`}
+                            </span>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -381,10 +417,10 @@ const EquipmentCatalogUser = () => {
                       <button
                         onClick={() => addToCart(item)}
                         disabled={
-                          item.available === 0 ||
+                          item.availableQuantity === 0 ||
                           (cart.find(
                             (cartItem) => cartItem.equipment.id === item.id
-                          )?.quantity || 0) >= item.available
+                          )?.quantity || 0) >= item.availableQuantity
                         }
                         className="flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                       >
@@ -488,7 +524,7 @@ const EquipmentCatalogUser = () => {
                           </span>
                           <button
                             onClick={() => addToCart(item.equipment)}
-                            disabled={item.quantity >= item.equipment.available}
+                            disabled={item.quantity >= item.equipment.availableQuantity}
                             className="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
                           >
                             <Plus size={14} />

@@ -37,6 +37,8 @@ interface BorrowRecord {
 const BorrowingHistory = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [borrowHistory, setBorrowHistory] = useState<BorrowRecord[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRecord, setSelectedRecord] = useState<BorrowRecord | null>(
@@ -49,10 +51,52 @@ const BorrowingHistory = () => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
+      if (currentUser) {
+        fetchBorrowHistory();
+      }
     });
 
     return () => unsubscribe();
   }, [auth]);
+
+  const fetchBorrowHistory = async () => {
+    try {
+      setDataLoading(true);
+      if (!user) return;
+
+      const token = await user.getIdToken();
+      const response = await fetch(`/api/borrow?token=${encodeURIComponent(token)}`, {
+        method: 'GET',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Transform API response to match the interface
+        const transformedHistory = data.map((request: any) => ({
+          id: request.id,
+          equipmentName: request.equipment.name,
+          equipmentId: request.equipment.id,
+          quantity: request.quantity,
+          borrowDate: new Date(request.borrowDate).toLocaleDateString('th-TH'),
+          returnDate: new Date(request.returnDate).toLocaleDateString('th-TH'),
+          actualReturnDate: request.actualReturnDate ? new Date(request.actualReturnDate).toLocaleDateString('th-TH') : undefined,
+          status: request.status.toLowerCase(),
+          purpose: request.purpose,
+          notes: request.notes || undefined,
+          image: request.equipment.image || '/placeholder-image.jpg',
+        }));
+        setBorrowHistory(transformedHistory);
+      } else {
+        console.error('Failed to fetch borrow history');
+        setBorrowHistory([]);
+      }
+    } catch (error) {
+      console.error('Error fetching borrow history:', error);
+      setBorrowHistory([]);
+    } finally {
+      setDataLoading(false);
+    }
+  };
 
   // Check for new pending request from URL params
   useEffect(() => {
@@ -65,69 +109,6 @@ const BorrowingHistory = () => {
     }
   }, []);
 
-  // Mock borrowing history data
-  const borrowHistory: BorrowRecord[] = [
-    {
-      id: "BR-2024-001",
-      equipmentName: "กล้องถ่ายรูป Canon EOS R6",
-      equipmentId: "EP-001",
-      quantity: 1,
-      borrowDate: "2024-01-20",
-      returnDate: "2024-01-25",
-      status: "pending",
-      purpose: "การถ่ายทำงานโปรเจคของนักศึกษา",
-      notes: "ต้องการเลนส์เพิ่มเติม",
-      image: "/api/placeholder/80/80",
-    },
-    {
-      id: "BR-2024-002",
-      equipmentName: "โปรเจคเตอร์ Epson EB-X41",
-      equipmentId: "EP-002",
-      quantity: 2,
-      borrowDate: "2024-01-15",
-      returnDate: "2024-01-18",
-      actualReturnDate: "2024-01-18",
-      status: "returned",
-      purpose: "การนำเสนอในชั้นเรียน",
-      image: "/api/placeholder/80/80",
-    },
-    {
-      id: "BR-2024-003",
-      equipmentName: "ไมโครโฟนไร้สาย Shure SM58",
-      equipmentId: "EP-003",
-      quantity: 3,
-      borrowDate: "2024-01-10",
-      returnDate: "2024-01-13",
-      actualReturnDate: "2024-01-13",
-      status: "returned",
-      purpose: "กิจกรรมของสโมสรนักศึกษา",
-      image: "/api/placeholder/80/80",
-    },
-    {
-      id: "BR-2024-004",
-      equipmentName: 'แล็ปท็อป MacBook Pro 16"',
-      equipmentId: "EP-005",
-      quantity: 1,
-      borrowDate: "2024-01-05",
-      returnDate: "2024-01-12",
-      actualReturnDate: "2024-01-14",
-      status: "overdue",
-      purpose: "งานออกแบบกราฟิก",
-      image: "/api/placeholder/80/80",
-    },
-    {
-      id: "BR-2024-005",
-      equipmentName: "เครื่องพิมพ์ HP LaserJet Pro",
-      equipmentId: "EP-004",
-      quantity: 1,
-      borrowDate: "2024-01-01",
-      returnDate: "2024-01-05",
-      status: "rejected",
-      purpose: "พิมพ์เอกสารส่วนตัว",
-      notes: "ไม่เป็นไปตามวัตถุประสงค์การใช้งาน",
-      image: "/api/placeholder/80/80",
-    },
-  ];
 
   const statusOptions = [
     {
@@ -338,7 +319,12 @@ const BorrowingHistory = () => {
             transition={{ delay: 0.3 }}
             className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
           >
-            {filteredHistory.length === 0 ? (
+            {dataLoading ? (
+              <div className="p-12 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+                <p className="text-gray-600 text-xl">กำลังโหลดประวัติการยืม...</p>
+              </div>
+            ) : filteredHistory.length === 0 ? (
               <div className="p-12 text-center">
                 <Package className="mx-auto mb-4 text-gray-400" size={48} />
                 <h3 className="text-xl font-medium text-gray-900 mb-2">

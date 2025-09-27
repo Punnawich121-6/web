@@ -6,10 +6,17 @@ import { onAuthStateChanged, signOut, User, getAuth } from "firebase/auth";
 import app from "../pages/firebase";
 import UserRoleBadge from "./UserRoleBadge";
 
+interface UserData {
+  role: "USER" | "ADMIN" | "MODERATOR" | null;
+  displayName?: string;
+  email?: string;
+}
+
 const LibraryNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -24,13 +31,38 @@ const LibraryNavbar = () => {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        await fetchUserData(currentUser);
+      } else {
+        setUserData(null);
+      }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, [auth]);
+
+  const fetchUserData = async (currentUser: User) => {
+    try {
+      const token = await currentUser.getIdToken();
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setUserData(result.data);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -44,7 +76,7 @@ const LibraryNavbar = () => {
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = () => {
       if (isProfileMenuOpen) {
         setIsProfileMenuOpen(false);
       }
@@ -63,6 +95,10 @@ const LibraryNavbar = () => {
   const userNavItems = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/Borrowing_History", label: "History" },
+  ];
+
+  const adminNavItems = [
+    { href: "/admin/equipment", label: "Admin Panel" },
   ];
 
   return (
@@ -132,6 +168,26 @@ const LibraryNavbar = () => {
                   >
                     <span>{item.label}</span>
                     <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 group-hover:w-full transition-all duration-300"></div>
+                  </motion.a>
+                ))}
+            </AnimatePresence>
+
+            {/* Admin-specific Navigation */}
+            <AnimatePresence>
+              {user && userData?.role === "ADMIN" &&
+                adminNavItems.map((item, index) => (
+                  <motion.a
+                    key={item.href}
+                    href={item.href}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3, delay: (userNavItems.length + index) * 0.1 }}
+                    className="relative group px-3 py-2 text-red-600 hover:text-red-700 font-medium uppercase tracking-wide text-lg transition-colors duration-300 bg-red-50 rounded-lg"
+                    whileHover={{ y: -2 }}
+                  >
+                    <span>{item.label}</span>
+                    <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-700 group-hover:w-full transition-all duration-300"></div>
                   </motion.a>
                 ))}
             </AnimatePresence>
@@ -293,6 +349,16 @@ const LibraryNavbar = () => {
                       key={item.href}
                       href={item.href}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                {user && userData?.role === "ADMIN" &&
+                  adminNavItems.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium"
                     >
                       {item.label}
                     </a>

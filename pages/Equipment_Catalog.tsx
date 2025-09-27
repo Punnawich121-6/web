@@ -17,19 +17,25 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import LibraryNavbar from "../components/LibraryNavbar";
-interface equipment {
-  id: number;
+
+interface Equipment {
+  id: string;
   name: string;
   category: string;
   description: string;
-  image: string;
-  status: "available" | "borrowed" | "maintenance";
-  borrower: string | null;
-  dueDate: string | null;
-  specifications?: string[];
+  image?: string;
+  status: "AVAILABLE" | "BORROWED" | "MAINTENANCE" | "RETIRED";
+  totalQuantity: number;
+  availableQuantity: number;
+  specifications?: any;
   location: string;
   serialNumber: string;
   condition?: string;
+  creator?: {
+    displayName?: string;
+    email: string;
+  };
+  borrowings?: any[];
 }
 
 export default function Equipment_Catalog() {
@@ -37,207 +43,66 @@ export default function Equipment_Catalog() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
+  const [equipmentData, setEquipmentData] = useState<Equipment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [equipmentData] = useState<equipment[]>([
-    {
-      id: 1,
-      name: "โปรเจคเตอร์ Epson EB-X41",
-      category: "อิเล็กทรอนิกส์",
-      description:
-        "โปรเจคเตอร์ความละเอียดสูง เหมาะสำหรับการนำเสนองาน สามารถใช้งานในห้องประชุมขนาดใหญ่ได้",
-      image:
-        "https://www.miapartyhire.com.au/wp-content/uploads/2018/09/Projector-Screen.jpg",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      location: "ห้อง IT-101",
-      serialNumber: "EP-2024-001",
-    },
-    {
-      id: 2,
-      name: "กล้องดิจิตอล Canon EOS 850D",
-      category: "อิเล็กทรอนิกส์",
-      description:
-        "กล้อง DSLR สำหรับถ่ายภาพคุณภาพสูง มีเลนส์ kit 18-55mm พร้อมใช้งาน",
-      image:
-        "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      location: "ห้อง Media-202",
-      serialNumber: "CN-2024-002",
-    },
-    {
-      id: 3,
-      name: "ไมโครโฟนไร้สาย Shure SM58",
-      category: "เครื่องเสียง",
-      description:
-        "ไมโครโฟนไร้สายคุณภาพดี สำหรับงานนำเสนอและการแสดง มีแบตเตอรี่สำรอง",
-      image:
-        "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=300&fit=crop",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      location: "ห้อง Audio-301",
-      serialNumber: "SH-2024-003",
-      condition: "ปรับปรุง",
-    },
-    {
-      id: 4,
-      name: "แท็บเล็ต iPad Air (5th Gen)",
-      category: "อิเล็กทรอนิกส์",
-      description:
-        "แท็บเล็ตสำหรับการนำเสนอและงานกราฟิก มาพร้อม Apple Pencil และ Magic Keyboard",
-      image:
-        "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      location: "ห้อง IT-105",
-      serialNumber: "AP-2024-004",
-      condition: "ดีมาก",
-    },
-    {
-      id: 5,
-      name: "เครื่องพิมพ์ 3D Ender 3 V2",
-      category: "เครื่องจักร",
-      description:
-        "เครื่องพิมพ์ 3D สำหรับสร้างชิ้นงานต้นแบบ พร้อมฟิลาเมนต์ PLA และ ABS",
-      image:
-        "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=300&fit=crop",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      location: "ห้อง Workshop-401",
-      serialNumber: "EN-2024-005",
-    },
-    {
-      id: 6,
-      name: "ลำโพงบลูทูธ JBL Charge 5",
-      category: "เครื่องเสียง",
-      description: "ลำโพงพกพาเสียงดี กันน้ำ เหมาะสำหรับงานกิจกรรมกลางแจ้ง",
-      image:
-        "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      specifications: [
-        "20 Hours Battery",
-        "IP67 Waterproof",
-        "Bluetooth 5.1",
-        "Power Bank Function",
-      ],
-      location: "ห้อง Audio-301",
-      serialNumber: "JB-2024-006",
-    },
-    {
-      id: 7,
-      name: "โน๊ตบุ๊ค MacBook Air M2",
-      category: "อิเล็กทรอนิกส์",
-      description:
-        "โน๊ตบุ๊คสำหรับงานกราฟิกและการพัฒนาโปรแกรม มาพร้อมซอฟต์แวร์พื้นฐาน",
-      image:
-        "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400&h=300&fit=crop",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      specifications: ["M2 Chip", "8GB RAM", "256GB SSD", "13.6-inch Display"],
-      location: "ห้อง IT-103",
-      serialNumber: "MB-2024-007",
-    },
-    {
-      id: 8,
-      name: "เครื่องสแกนเอกสาร Epson V600",
-      category: "อิเล็กทรอนิกส์",
-      description:
-        "เครื่องสแกนเอกสารขนาด A4 ความละเอียดสูง พร้อมซอฟต์แวร์แก้ไขภาพ",
-      image:
-        "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=400&h=300&fit=crop",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      specifications: [
-        "6400 x 9600 DPI",
-        "A4 Size Support",
-        "USB 3.0",
-        "Auto Document Feeder",
-      ],
-      location: "ห้อง Office-201",
-      serialNumber: "EP-2024-008",
-    },
-    {
-      id: 9,
-      name: "กล้องวิดีโอ Sony FX3",
-      category: "อิเล็กทรอนิกส์",
-      description: "กล้องวิดีโอระดับมืออาชีพ สำหรับการถ่ายทำสื่อคุณภาพสูง",
-      image:
-        "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=300&fit=crop",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      specifications: [
-        "4K 120p Recording",
-        "Full-Frame Sensor",
-        "S-Log3",
-        "Dual Base ISO",
-      ],
-      location: "ห้อง Media-203",
-      serialNumber: "SN-2024-009",
-    },
-    {
-      id: 10,
-      name: "เครื่องเชื่อม MIG-200A",
-      category: "เครื่องจักร",
-      description: "เครื่องเชื่อมอาร์กไฟฟ้า สำหรับงานโลหะขนาดกลาง",
-      image:
-        "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=300&fit=crop",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      specifications: [
-        "200A Output",
-        "IGBT Technology",
-        "Arc Force Control",
-        "Hot Start",
-      ],
-      location: "ห้อง Workshop-402",
-      serialNumber: "MG-2024-010",
-    },
-    {
-      id: 11,
-      name: "เครื่องขัดกระดาษทราย Orbital",
-      category: "เครื่องจักร",
-      description: "เครื่องขัดผิวไม้และโลหะ มีระบบดูดฝุ่น",
-      image:
-        "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=300&fit=crop",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      specifications: [
-        "Variable Speed",
-        "Dust Collection",
-        "Hook & Loop Base",
-        "Ergonomic Design",
-      ],
-      location: "ห้อง Workshop-403",
-      serialNumber: "OR-2024-011",
-    },
-    {
-      id: 12,
-      name: "ชุดไฟแสงLED สตูดิโอ",
-      category: "เครื่องเสียง",
-      description: "ชุดไฟสำหรับถ่ายภาพและวิดีโอ ปรับแสงได้",
-      image:
-        "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&h=300&fit=crop",
-      status: "available",
-      borrower: null,
-      dueDate: null,
-      location: "ห้อง Studio-301",
-      serialNumber: "LD-2024-012",
-    },
-  ]);
+  useEffect(() => {
+    fetchEquipment();
+  }, []);
+
+  const fetchEquipment = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/equipment');
+      const result = await response.json();
+
+      if (result.success) {
+        setEquipmentData(result.data);
+      } else {
+        setError(result.error || 'Failed to fetch equipment');
+      }
+    } catch (err) {
+      setError('Failed to fetch equipment');
+      console.error('Error fetching equipment:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const categories = ["all", "อิเล็กทรอนิกส์", "เครื่องเสียง", "เครื่องจักร"];
+
+  // Get status text in Thai
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "AVAILABLE":
+        return "พร้อมใช้งาน";
+      case "BORROWED":
+        return "ถูกยืม";
+      case "MAINTENANCE":
+        return "ซ่อมบำรุง";
+      case "RETIRED":
+        return "เลิกใช้งาน";
+      default:
+        return "ไม่ทราบสถานะ";
+    }
+  };
+
+  // Get status color
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "AVAILABLE":
+        return "text-green-600";
+      case "BORROWED":
+        return "text-red-600";
+      case "MAINTENANCE":
+        return "text-yellow-600";
+      case "RETIRED":
+        return "text-gray-600";
+      default:
+        return "text-gray-600";
+    }
+  };
 
   const filteredEquipment = equipmentData.filter((item) => {
     const matchesSearch =
@@ -264,11 +129,50 @@ export default function Equipment_Catalog() {
     setCurrentPage(1);
   }, [searchTerm, selectedCategory]);
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LibraryNavbar />
+        <div className="container mx-auto px-4 py-8 pt-32">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 text-xl">กำลังโหลดข้อมูลอุปกรณ์...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LibraryNavbar />
+        <div className="container mx-auto px-4 py-8 pt-32">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-center">
+              <p className="text-red-600 text-xl mb-4">เกิดข้อผิดพลาด: {error}</p>
+              <button
+                onClick={fetchEquipment}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                ลองใหม่
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
         <LibraryNavbar />
         <div className="container mx-auto px-4 py-8 pt-32">
-        
+
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-extrabold text-gray-800 mb-2 tracking-wide uppercase">
@@ -333,7 +237,7 @@ export default function Equipment_Catalog() {
             <div className="text-center p-6 bg-green-50 rounded-xl border-2 border-green-200">
               <div className="text-4xl font-extrabold text-green-600 mb-2">
                 {
-                  equipmentData.filter((item) => item.status === "available")
+                  equipmentData.filter((item) => item.status === "AVAILABLE")
                     .length
                 }
               </div>
@@ -342,7 +246,7 @@ export default function Equipment_Catalog() {
             <div className="text-center p-6 bg-red-50 rounded-xl border-2 border-red-200">
               <div className="text-4xl font-extrabold text-red-600 mb-2">
                 {
-                  equipmentData.filter((item) => item.status === "borrowed")
+                  equipmentData.filter((item) => item.status === "BORROWED")
                     .length
                 }
               </div>
@@ -351,7 +255,7 @@ export default function Equipment_Catalog() {
             <div className="text-center p-6 bg-yellow-50 rounded-xl border-2 border-yellow-200">
               <div className="text-4xl font-extrabold text-yellow-600 mb-2">
                 {
-                  equipmentData.filter((item) => item.status === "maintenance")
+                  equipmentData.filter((item) => item.status === "MAINTENANCE")
                     .length
                 }
               </div>
@@ -369,12 +273,15 @@ export default function Equipment_Catalog() {
             >
               <div className="relative h-56 overflow-hidden">
                 <img
-                  src={equipment.image}
+                  src={equipment.image || 'https://via.placeholder.com/400x300?text=No+Image'}
                   alt={equipment.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute top-4 left-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm font-semibold">
                   {equipment.serialNumber}
+                </div>
+                <div className={`absolute top-4 right-4 px-2 py-1 rounded-full text-xs font-medium bg-white ${getStatusColor(equipment.status)}`}>
+                  {getStatusText(equipment.status)}
                 </div>
               </div>
 
@@ -387,22 +294,30 @@ export default function Equipment_Catalog() {
                   <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full font-medium">
                     {equipment.category}
                   </span>
-                  {equipment.condition && (
-                    <span className="flex items-center font-semibold text-gray-600">
-                      <Zap size={16} className="mr-1 text-yellow-500" />
-                      {equipment.condition}
-                    </span>
-                  )}
+                  <div className="text-sm text-gray-600">
+                    พร้อมใช้: {equipment.availableQuantity}/{equipment.totalQuantity}
+                  </div>
                 </div>
 
                 <p className="text-gray-600 mb-5 text-md leading-relaxed line-clamp-3 h-20">
                   {equipment.description}
                 </p>
 
-                <div className="flex items-center text-md text-gray-600 mb-6 font-medium">
+                <div className="flex items-center text-md text-gray-600 mb-4 font-medium">
                   <MapPin size={16} className="mr-2 text-red-500" />
                   {equipment.location}
                 </div>
+                {equipment.condition && (
+                  <div className="flex items-center mb-4">
+                    <Zap size={16} className="mr-1 text-yellow-500" />
+                    <span className="text-sm text-gray-600">สภาพ: {equipment.condition}</span>
+                  </div>
+                )}
+                {equipment.creator && (
+                  <div className="text-xs text-gray-500 mb-2">
+                    เพิ่มโดย: {equipment.creator.displayName || equipment.creator.email}
+                  </div>
+                )}
               </div>
             </div>
           ))}

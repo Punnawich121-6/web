@@ -929,57 +929,27 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
 
 // --- Main App Component ---
 const App: React.FC = () => {
-  const sampleEvents: BookingEvent[] = [
-    {
-      id: "1",
-      date: "2024-12-15",
-      type: "borrowed",
-      equipmentName: "โปรเจคเตอร์ EPSON",
-      borrowerName: "พีรดนย์",
-      details: "ใช้สำหรับประชุมใหญ่",
-      startTime: "09:00",
-      endTime: "17:00",
-      priority: "high",
-    },
-    {
-      id: "2",
-      date: "2024-12-20",
-      type: "requested",
-      equipmentName: "ไมโครโฟน Wireless",
-      borrowerName: "ปัณณวิชญ์",
-      details: "งานสัมมนา",
-      startTime: "13:00",
-      endTime: "16:00",
-      priority: "medium",
-    },
-    {
-      id: "3",
-      date: "2024-12-25",
-      type: "maintenance",
-      equipmentName: "กล้องถ่ายรูป Canon",
-      borrowerName: "ช่างเทคนิค",
-      details: "ตรวจสอบและทำความสะอาดเลนส์",
-    },
-    {
-      id: "4",
-      date: "2024-12-25",
-      type: "reserved",
-      equipmentName: "ลำโพง JBL",
-      borrowerName: "พีรดนย์",
-      details: "งานเลี้ยงสังสรรค์",
-      priority: "low",
-    },
-    {
-      id: "5",
-      date: "2024-12-31",
-      type: "maintenance",
-      equipmentName: "โปรเจคเตอร์ Panasonic",
-      borrowerName: "ทีมบำรุงรักษา",
-      details: "เปลี่ยนหลอดไฟและทำความสะอาด",
-      startTime: "08:00",
-      endTime: "12:00",
-    },
-  ];
+  const [events, setEvents] = useState<BookingEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchBookingEvents();
+  }, []);
+
+  const fetchBookingEvents = async () => {
+    try {
+      setLoading(true);
+      // For now, we'll use empty array since the booking API might not be fully implemented
+      // In the future, this would fetch from /api/bookings or /api/borrow
+      setEvents([]);
+    } catch (err) {
+      setError('Failed to fetch booking events');
+      console.error('Error fetching booking events:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDateClick = (date: string) => {
     console.log("Date clicked:", date);
@@ -993,15 +963,34 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-red-50">
       <LibraryNavbar />
       <div className="max-w-full px-4 pt-32">
-        <AdvancedCalendarTable
-          events={sampleEvents}
-          currentMonth={11} // December (0-based)
-          currentYear={2024}
-          onDateClick={handleDateClick}
-          onEventClick={handleEventClick}
-          showWeekNumbers={true}
-          highlightToday={true}
-        />
+        {loading ? (
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 text-xl">กำลังโหลดตารางการจอง...</p>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-600 text-xl mb-4">เกิดข้อผิดพลาด: {error}</p>
+            <button
+              onClick={fetchBookingEvents}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              ลองใหม่
+            </button>
+          </div>
+        ) : (
+          <AdvancedCalendarTable
+            events={events}
+            currentMonth={new Date().getMonth()}
+            currentYear={new Date().getFullYear()}
+            onDateClick={handleDateClick}
+            onEventClick={handleEventClick}
+            showWeekNumbers={true}
+            highlightToday={true}
+          />
+        )}
       </div>
     </div>
   );
