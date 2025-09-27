@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { onAuthStateChanged, signOut, User, getAuth } from "firebase/auth";
 import app from "../pages/firebase";
+import UserRoleBadge from "./UserRoleBadge";
 
 const LibraryNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -198,6 +199,9 @@ const LibraryNavbar = () => {
                           <p className="text-xs text-gray-500 truncate">
                             {user.email}
                           </p>
+                          <div className="mt-2">
+                            <UserRoleBadge />
+                          </div>
                         </div>
                         <div className="py-1">
                           <a

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { onAuthStateChanged, User, getAuth } from "firebase/auth";
 import app from "../pages/firebase";
 import LibraryNavbar from "../components/LibraryNavbar";
+import UserRoleBadge from "../components/UserRoleBadge";
 import {
   Package,
   Calendar,
@@ -165,12 +166,19 @@ const Dashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <h1 className="text-5xl font-bold text-gray-900 mb-2">
-              ยินดีต้อนรับ, {user?.displayName || user?.email?.split("@")[0]}
-            </h1>
-            <p className="text-2xl text-gray-600">
-              จัดการการยืมอุปกรณ์ของคุณได้อย่างสะดวก
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-5xl font-bold text-gray-900 mb-2">
+                  ยินดีต้อนรับ, {user?.displayName || user?.email?.split("@")[0]}
+                </h1>
+                <p className="text-2xl text-gray-600">
+                  จัดการการยืมอุปกรณ์ของคุณได้อย่างสะดวก
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <UserRoleBadge />
+              </div>
+            </div>
           </motion.div>
 
           {/* Stats Cards */}

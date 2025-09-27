@@ -136,6 +136,23 @@ function AuthForm() {
         // Store token (optional, Firebase handles auth state automatically)
         localStorage.setItem("token", token);
 
+        // Sync user data with database
+        try {
+          const response = await fetch('/api/user', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token }),
+          });
+
+          if (!response.ok) {
+            console.error('Failed to sync user data');
+          }
+        } catch (error) {
+          console.error('Error syncing user data:', error);
+        }
+
         // Show success message
         console.log("Login successful:", userCredential.user);
 
@@ -157,6 +174,28 @@ function AuthForm() {
         // Get the user token
         const token = await userCredential.user.getIdToken();
         localStorage.setItem("token", token);
+
+        // Sync user data with database
+        try {
+          const response = await fetch('/api/user', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              token,
+              userData: {
+                displayName: formData.name
+              }
+            }),
+          });
+
+          if (!response.ok) {
+            console.error('Failed to sync user data');
+          }
+        } catch (error) {
+          console.error('Error syncing user data:', error);
+        }
 
         // Show success message and switch to login
         alert("สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ");
