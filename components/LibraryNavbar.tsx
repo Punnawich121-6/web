@@ -99,6 +99,7 @@ const LibraryNavbar = () => {
 
   const adminNavItems = [
     { href: "/admin/equipment", label: "Admin Panel" },
+    { href: "/Admin_Borrow_Requests", label: "Manage Requests" },
   ];
 
   return (

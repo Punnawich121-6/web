@@ -70,22 +70,26 @@ const BorrowingHistory = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        // Transform API response to match the interface
-        const transformedHistory = data.map((request: any) => ({
+        const result = await response.json();
+        if (result.success && result.data) {
+          // Transform API response to match the interface
+          const transformedHistory = result.data.map((request: any) => ({
           id: request.id,
           equipmentName: request.equipment.name,
           equipmentId: request.equipment.id,
           quantity: request.quantity,
-          borrowDate: new Date(request.borrowDate).toLocaleDateString('th-TH'),
-          returnDate: new Date(request.returnDate).toLocaleDateString('th-TH'),
+          borrowDate: new Date(request.startDate).toLocaleDateString('th-TH'),
+          returnDate: new Date(request.endDate).toLocaleDateString('th-TH'),
           actualReturnDate: request.actualReturnDate ? new Date(request.actualReturnDate).toLocaleDateString('th-TH') : undefined,
           status: request.status.toLowerCase(),
           purpose: request.purpose,
           notes: request.notes || undefined,
           image: request.equipment.image || '/placeholder-image.jpg',
-        }));
-        setBorrowHistory(transformedHistory);
+          }));
+          setBorrowHistory(transformedHistory);
+        } else {
+          setBorrowHistory([]);
+        }
       } else {
         console.error('Failed to fetch borrow history');
         setBorrowHistory([]);

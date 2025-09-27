@@ -140,13 +140,10 @@ const BookDetail = () => {
         const borrowData = {
           equipmentId: item.equipment.id,
           quantity: item.quantity,
-          borrowDate: formData.borrowDate,
-          returnDate: formData.returnDate,
+          startDate: new Date(formData.borrowDate).toISOString(),
+          endDate: new Date(formData.returnDate).toISOString(),
           purpose: formData.purpose,
-          notes: formData.additionalNotes,
-          department: formData.department,
-          studentId: formData.studentId,
-          phone: formData.phone
+          notes: formData.additionalNotes ? `${formData.additionalNotes} | แผนก: ${formData.department} | รหัสนักศึกษา: ${formData.studentId} | โทร: ${formData.phone}` : `แผนก: ${formData.department} | รหัสนักศึกษา: ${formData.studentId} | โทร: ${formData.phone}`
         };
 
         const response = await fetch('/api/borrow', {
