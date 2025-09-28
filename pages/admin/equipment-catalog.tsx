@@ -1,0 +1,397 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  Search,
+  Calendar,
+  Package,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Filter,
+  MapPin,
+  Zap,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import LibraryNavbar from "../../components/LibraryNavbar";
+
+interface Equipment {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  image?: string;
+  status: "AVAILABLE" | "BORROWED" | "MAINTENANCE" | "RETIRED";
+  totalQuantity: number;
+  availableQuantity: number;
+  specifications?: any;
+  location: string;
+  serialNumber: string;
+  condition?: string;
+  creator?: {
+    displayName?: string;
+    email: string;
+  };
+  borrowings?: any[];
+}
+
+export default function Equipment_Catalog() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+  const [equipmentData, setEquipmentData] = useState<Equipment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchEquipment();
+  }, []);
+
+  const fetchEquipment = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/equipment');
+      const result = await response.json();
+
+      if (result.success) {
+        setEquipmentData(result.data);
+      } else {
+        setError(result.error || 'Failed to fetch equipment');
+      }
+    } catch (err) {
+      setError('Failed to fetch equipment');
+      console.error('Error fetching equipment:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const categories = ["all", "อิเล็กทรอนิกส์", "เครื่องเสียง", "เครื่องจักร"];
+
+  // Get status text in Thai
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "AVAILABLE":
+        return "พร้อมใช้งาน";
+      case "BORROWED":
+        return "ถูกยืม";
+      case "MAINTENANCE":
+        return "ซ่อมบำรุง";
+      case "RETIRED":
+        return "เลิกใช้งาน";
+      default:
+        return "ไม่ทราบสถานะ";
+    }
+  };
+
+  // Get status color
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "AVAILABLE":
+        return "text-green-600";
+      case "BORROWED":
+        return "text-red-600";
+      case "MAINTENANCE":
+        return "text-yellow-600";
+      case "RETIRED":
+        return "text-gray-600";
+      default:
+        return "text-gray-600";
+    }
+  };
+
+  const filteredEquipment = equipmentData.filter((item) => {
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.serialNumber.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "all" || item.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentEquipment = filteredEquipment.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LibraryNavbar />
+        <div className="container mx-auto px-4 py-8 pt-32">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 text-xl">กำลังโหลดข้อมูลอุปกรณ์...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LibraryNavbar />
+        <div className="container mx-auto px-4 py-8 pt-32">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-center">
+              <p className="text-red-600 text-xl mb-4">เกิดข้อผิดพลาด: {error}</p>
+              <button
+                onClick={fetchEquipment}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                ลองใหม่
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+        <LibraryNavbar />
+        <div className="container mx-auto px-4 py-8 pt-32">
+
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-extrabold text-gray-800 mb-2 tracking-wide uppercase">
+            Equipment <span className="text-red-600">Catalog</span>
+          </h1>
+          <p className="text-xl text-gray-600">
+            ค้นหาและดูรายละเอียดอุปกรณ์ที่สามารถยืมได้
+          </p>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="relative">
+              <Search
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={22}
+              />
+              <input
+                type="text"
+                placeholder="ค้นหาอุปกรณ์, รหัสอุปกรณ์..."
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all text-lg"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="relative">
+              <Filter
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={22}
+              />
+              <select
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none bg-white transition-all text-lg"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                <option value="all">หมวดหมู่ทั้งหมด</option>
+                {categories.slice(1).map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="mt-6 text-md text-gray-600 flex justify-between items-center">
+            <span>
+              พบอุปกรณ์ {filteredEquipment.length} รายการ
+            </span>
+            <span>
+              หน้า {currentPage} จาก {totalPages}
+            </span>
+          </div>
+        </div>
+
+        {/* Statistics - MOVED HERE */}
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center uppercase tracking-wide">
+            <span className="text-red-600">Statistics</span>
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-6 bg-green-50 rounded-xl border-2 border-green-200">
+              <div className="text-4xl font-extrabold text-green-600 mb-2">
+                {
+                  equipmentData.filter((item) => item.status === "AVAILABLE")
+                    .length
+                }
+              </div>
+              <div className="text-lg text-green-800 font-semibold">พร้อมใช้งาน</div>
+            </div>
+            <div className="text-center p-6 bg-red-50 rounded-xl border-2 border-red-200">
+              <div className="text-4xl font-extrabold text-red-600 mb-2">
+                {
+                  equipmentData.filter((item) => item.status === "BORROWED")
+                    .length
+                }
+              </div>
+              <div className="text-lg text-red-800 font-semibold">ถูกยืม</div>
+            </div>
+            <div className="text-center p-6 bg-yellow-50 rounded-xl border-2 border-yellow-200">
+              <div className="text-4xl font-extrabold text-yellow-600 mb-2">
+                {
+                  equipmentData.filter((item) => item.status === "MAINTENANCE")
+                    .length
+                }
+              </div>
+              <div className="text-lg text-yellow-800 font-semibold">ซ่อมบำรุง</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Equipment Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          {currentEquipment.map((equipment) => (
+            <div
+              key={equipment.id}
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group"
+            >
+              <div className="relative h-56 overflow-hidden">
+                <img
+                  src={equipment.image || 'https://via.placeholder.com/400x300?text=No+Image'}
+                  alt={equipment.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute top-4 left-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  {equipment.serialNumber}
+                </div>
+                <div className={`absolute top-4 right-4 px-2 py-1 rounded-full text-xs font-medium bg-white ${getStatusColor(equipment.status)}`}>
+                  {getStatusText(equipment.status)}
+                </div>
+              </div>
+
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-2 h-14">
+                  {equipment.name}
+                </h3>
+
+                <div className="flex items-center justify-between text-md text-gray-500 mb-4">
+                  <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full font-medium">
+                    {equipment.category}
+                  </span>
+                  <div className="text-sm text-gray-600">
+                    พร้อมใช้: {equipment.availableQuantity}/{equipment.totalQuantity}
+                  </div>
+                </div>
+
+                <p className="text-gray-600 mb-5 text-md leading-relaxed line-clamp-3 h-20">
+                  {equipment.description}
+                </p>
+
+                <div className="flex items-center text-md text-gray-600 mb-4 font-medium">
+                  <MapPin size={16} className="mr-2 text-red-500" />
+                  {equipment.location}
+                </div>
+                {equipment.condition && (
+                  <div className="flex items-center mb-4">
+                    <Zap size={16} className="mr-1 text-yellow-500" />
+                    <span className="text-sm text-gray-600">สภาพ: {equipment.condition}</span>
+                  </div>
+                )}
+                {equipment.creator && (
+                  <div className="text-xs text-gray-500 mb-2">
+                    เพิ่มโดย: {equipment.creator.displayName || equipment.creator.email}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredEquipment.length === 0 && (
+          <div className="text-center py-20 bg-white rounded-xl shadow-lg mb-8">
+            <Package size={72} className="mx-auto text-gray-300 mb-4" />
+            <h3 className="text-2xl font-semibold text-gray-600 mb-2">
+              ไม่พบอุปกรณ์ที่ค้นหา
+            </h3>
+            <p className="text-lg text-gray-500">ลองเปลี่ยนคำค้นหาหรือฟิลเตอร์ดู</p>
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="bg-white rounded-xl shadow-lg p-4 mb-8">
+            <div className="flex justify-center items-center space-x-2">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="flex items-center px-4 py-2 text-md font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft size={18} className="mr-1" />
+                ก่อนหน้า
+              </button>
+
+              <div className="flex space-x-1">
+                {Array.from({ length: totalPages }, (_, index) => {
+                  const page = index + 1;
+                  if (
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`w-10 h-10 text-md font-semibold rounded-lg transition-colors ${
+                          currentPage === page
+                            ? "bg-red-600 text-white shadow-md"
+                            : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-100"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  } else if (
+                    page === currentPage - 2 ||
+                    page === currentPage + 2
+                  ) {
+                    return (
+                      <span key={page} className="px-3 py-2 text-gray-500">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="flex items-center px-4 py-2 text-md font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                ถัดไป
+                <ChevronRight size={18} className="ml-1" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -8,7 +8,7 @@ import {
   AuthError,
   onAuthStateChanged,
 } from "firebase/auth";
-import app from "./firebase"; // Import Firebase app
+import app from "../../lib/firebase"; // Import Firebase app
 
 
 type FormData = {
@@ -253,7 +253,7 @@ function AuthForm() {
             {isLogin ? "เข้าสู่ระบบ" : "สมัครสมาชิก"}
           </h2>
           <p className="text-gray-600">
-            {isLogin ? "ยินดีต้อนรับกลับมา!" : "เริ่มต้นใช้งานกับเรา!"}
+            {isLogin ? "ยินดีต้อนรับกลับมา!" : "เริ่มต้นใช้งานกับเรา"}
           </p>
         </div>
 
