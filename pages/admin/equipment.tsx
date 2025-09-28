@@ -27,7 +27,7 @@ interface Equipment {
   status: "AVAILABLE" | "BORROWED" | "MAINTENANCE" | "RETIRED";
   totalQuantity: number;
   availableQuantity: number;
-  specifications?: any;
+  specifications?: string;
   location: string;
   serialNumber: string;
   condition?: string;
@@ -486,21 +486,17 @@ const EquipmentModal = ({
     totalQuantity: equipment?.totalQuantity || 1,
     availableQuantity: equipment?.availableQuantity || 1,
     status: equipment?.status || 'AVAILABLE',
-    specifications: equipment?.specifications ? JSON.stringify(equipment.specifications, null, 2) : '',
+    specifications: equipment?.specifications || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      const submitData = {
-        ...formData,
-        specifications: formData.specifications ? JSON.parse(formData.specifications) : null,
-      };
-      onSave(submitData);
-    } catch (error) {
-      alert('รูปแบบ JSON ของ specifications ไม่ถูกต้อง');
-    }
+    const submitData = {
+      ...formData,
+      specifications: formData.specifications || null,
+    };
+    onSave(submitData);
   };
 
   return (
@@ -664,14 +660,14 @@ const EquipmentModal = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              คุณสมบัติ (JSON format)
+              คุณสมบัติ
             </label>
             <textarea
               value={formData.specifications}
               onChange={(e) => setFormData({ ...formData, specifications: e.target.value })}
               rows={4}
-              placeholder='{"key": "value", "key2": "value2"}'
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 font-mono text-sm"
+              placeholder="ระบุคุณสมบัติของอุปกรณ์ เช่น ขนาด, น้ำหนัก, สี, แบรนด์ ฯลฯ"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
 

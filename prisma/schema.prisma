@@ -46,7 +46,7 @@ model Equipment {
   status        EquipmentStatus   @default(AVAILABLE)
   totalQuantity Int               @default(1)
   availableQuantity Int           @default(1)
-  specifications Json?
+  specifications String?
   condition     String?
   purchaseDate  DateTime?
   createdAt     DateTime          @default(now())
