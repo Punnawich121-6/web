@@ -1,28 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Equipment Management System
+
+This is a [Next.js](https://nextjs.org) project for managing equipment borrowing with Firebase authentication and PostgreSQL database.
+
+## Prerequisites
+
+Before running this project, make sure you have:
+
+- Node.js (version 16 or later)
+- PostgreSQL database
+- Firebase project with Authentication enabled
+
+## Setup Instructions
+
+### 1. Clone and Install Dependencies
+
+```bash
+git clone <repository-url>
+cd web
+npm install
+```
+
+### 2. Database Setup
+
+1. Install PostgreSQL on your machine
+2. Create a new database (e.g., `ENKKU_Maker-space`)
+3. Make sure PostgreSQL is running on port 5432
+
+### 3. Environment Variables Setup
+
+1. Copy the example environment file:
+```bash
+cp .env.example .env
+```
+
+2. Update `.env` file with your configuration:
+
+**Firebase Configuration:**
+- Go to Firebase Console > Project Settings > General
+- Copy your web app configuration values
+
+**Database Configuration:**
+- Replace the DATABASE_URL with your PostgreSQL connection string:
+```
+DATABASE_URL="postgresql://your_username:your_password@localhost:5432/your_database_name"
+```
+
+**Firebase Admin SDK (for server-side operations):**
+- Go to Firebase Console > Project Settings > Service Accounts
+- Generate a new private key
+- Copy the project ID, client email, and private key to your `.env` file
+
+**Admin Configuration:**
+- Set ADMIN_EMAILS with the email addresses that should have admin privileges
+
+### 4. Database Migration
+
+Run Prisma migrations to set up your database schema:
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### 5. Seed Database (Optional)
+
+If you want to populate the database with sample data:
+
+```bash
+npm run seed
+```
 
 ## Getting Started
 
-First, run the development server:
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Features
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+- **Authentication**: Firebase Authentication with role-based access
+- **Equipment Management**: Add, edit, and manage equipment inventory
+- **Borrowing System**: Request and approve equipment borrowing
+- **Admin Dashboard**: Manage users, equipment, and borrowing requests
+- **User Roles**: USER, ADMIN, MODERATOR permissions
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+## API Routes
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/api/user` - User management
+- `/api/equipment` - Equipment operations
+- `/api/borrow` - Borrowing requests
+- `/api/admin` - Admin operations
 
 ## Learn More
 
