@@ -46,11 +46,7 @@ export default function Schedule() {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push('/auth');
-        return;
-      }
-      setUser(session.user);
+      setUser(session?.user || null);
       await fetchBorrowEvents(session);
       setLoading(false);
     };
@@ -58,31 +54,42 @@ export default function Schedule() {
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        router.push('/auth');
-      } else {
-        setUser(session.user);
-        fetchBorrowEvents(session);
-      }
+      setUser(session?.user || null);
+      fetchBorrowEvents(session);
     });
 
     return () => subscription.unsubscribe();
-  }, [router]);
+  }, []);
 
   const fetchBorrowEvents = async (session: any) => {
     try {
-      const token = session.access_token;
-      const response = await fetch(`/api/borrow?token=${encodeURIComponent(token)}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      // If user is logged in, fetch their specific data
+      if (session) {
+        const token = session.access_token;
+        const response = await fetch(`/api/borrow?token=${encodeURIComponent(token)}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
 
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success && result.data) {
-          setEvents(result.data);
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            setEvents(result.data);
+          }
+        }
+      } else {
+        // If not logged in, fetch public schedule (without user details)
+        const response = await fetch('/api/borrow/public', {
+          method: 'GET',
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            setEvents(result.data);
+          }
         }
       }
     } catch (error) {
@@ -365,10 +372,12 @@ export default function Schedule() {
                             {getStatusIcon(event.status)}
                           </div>
                           <div className="space-y-1 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <UserIcon size={14} />
-                              <span>{event.user.displayName}</span>
-                            </div>
+                            {user && event.user.email && (
+                              <div className="flex items-center gap-2">
+                                <UserIcon size={14} />
+                                <span>{event.user.displayName}</span>
+                              </div>
+                            )}
                             <div className="flex items-center gap-2">
                               <Package size={14} />
                               <span>{event.equipment.category}</span>
@@ -377,7 +386,7 @@ export default function Schedule() {
                               <Clock size={14} />
                               <span>{getStatusText(event.status)}</span>
                             </div>
-                            {event.purpose && (
+                            {user && event.purpose && event.purpose !== 'การยืมอุปกรณ์' && (
                               <div className="mt-2 pt-2 border-t border-gray-200">
                                 <p className="text-xs text-gray-500">
                                   วัตถุประสงค์: {event.purpose}
