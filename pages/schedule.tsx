@@ -163,20 +163,28 @@ export default function Schedule() {
             )}
           </div>
           <div className="space-y-0.5">
-            {dayEvents.slice(0, 2).map((event, idx) => (
-              <div
-                key={idx}
-                className={`text-xs p-1 rounded truncate ${
-                  event.status === "APPROVED" || event.status === "ACTIVE"
-                    ? "bg-green-100 text-green-700"
-                    : event.status === "PENDING"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-gray-100 text-gray-700"
-                }`}
-              >
-                {event.equipment.name}
-              </div>
-            ))}
+            {dayEvents.slice(0, 2).map((event, idx) => {
+              const isReturned = event.status === "RETURNED";
+              const isActive = event.status === "APPROVED" || event.status === "ACTIVE";
+              const isPending = event.status === "PENDING";
+
+              return (
+                <div
+                  key={idx}
+                  className={`text-xs p-1 rounded truncate font-medium ${
+                    isReturned
+                      ? "bg-blue-100 text-blue-800 border border-blue-300"
+                      : isActive
+                      ? "bg-green-100 text-green-800 border border-green-300"
+                      : isPending
+                      ? "bg-amber-100 text-amber-800 border border-amber-300"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  {event.equipment.name}
+                </div>
+              );
+            })}
             {dayEvents.length > 2 && (
               <div className="text-xs text-gray-500">+{dayEvents.length - 2} more</div>
             )}
@@ -313,40 +321,61 @@ export default function Schedule() {
                 </div>
               </div>
 
-              {/* Quick Links */}
-              <div className="grid grid-cols-2 gap-4 mt-6">
-                <motion.a
-                  href="/dashboard"
-                  whileHover={{ scale: 1.02 }}
-                  className="p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-600 rounded-lg">
-                      <CalendarIcon className="text-white" size={20} />
-                    </div>
-                    <div>
-                      <div className="font-medium text-blue-900">Dashboard</div>
-                      <div className="text-sm text-blue-700">ภาพรวมการยืม</div>
-                    </div>
+              {/* Color Legend */}
+              <div className="bg-gray-50 rounded-lg p-4 mt-6">
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">สถานะการยืม</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
+                    <span className="text-sm text-gray-700">กำลังยืม</span>
                   </div>
-                </motion.a>
-
-                <motion.a
-                  href="/Borrowing_History"
-                  whileHover={{ scale: 1.02 }}
-                  className="p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-600 rounded-lg">
-                      <Package className="text-white" size={20} />
-                    </div>
-                    <div>
-                      <div className="font-medium text-green-900">History</div>
-                      <div className="text-sm text-green-700">ประวัติการยืม</div>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
+                    <span className="text-sm text-gray-700">คืนแล้ว</span>
                   </div>
-                </motion.a>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-amber-100 border border-amber-300 rounded"></div>
+                    <span className="text-sm text-gray-700">รออนุมัติ</span>
+                  </div>
+                </div>
               </div>
+
+              {/* Quick Links - Only show for logged in users */}
+              {user && (
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  <motion.a
+                    href="/dashboard"
+                    whileHover={{ scale: 1.02 }}
+                    className="p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-600 rounded-lg">
+                        <CalendarIcon className="text-white" size={20} />
+                      </div>
+                      <div>
+                        <div className="font-medium text-blue-900">Dashboard</div>
+                        <div className="text-sm text-blue-700">ภาพรวมการยืม</div>
+                      </div>
+                    </div>
+                  </motion.a>
+
+                  <motion.a
+                    href="/Borrowing_History"
+                    whileHover={{ scale: 1.02 }}
+                    className="p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-600 rounded-lg">
+                        <Package className="text-white" size={20} />
+                      </div>
+                      <div>
+                        <div className="font-medium text-green-900">History</div>
+                        <div className="text-sm text-green-700">ประวัติการยืม</div>
+                      </div>
+                    </div>
+                  </motion.a>
+                </div>
+              )}
             </div>
 
             {/* Sidebar - Selected Date Events */}
