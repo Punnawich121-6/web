@@ -31,7 +31,7 @@ interface Statistics {
     pending: number;
     approved: number;
     returned: number;
-    rejected: number;
+    rejected: number; // Added rejected count
   };
   topEquipment?: Array<{
     name: string;
@@ -61,9 +61,9 @@ const Dashboard = () => {
       setUser(session?.user || null);
       if (session?.user) {
         await fetchUserData(session);
-        await fetchStatistics(session);
+        await fetchStatistics(session); // Fetch stats only if logged in
       }
-      setLoading(false);
+      setLoading(false); // Set main loading false after checking session
     };
 
     checkSession();
@@ -73,9 +73,13 @@ const Dashboard = () => {
         setUser(session?.user || null);
         if (session?.user) {
           await fetchUserData(session);
-          await fetchStatistics(session);
+          await fetchStatistics(session); // Fetch stats on auth change
+        } else {
+          setUserData(null);
+          setStatistics(null); // Clear stats if logged out
+          setStatsLoading(false); // No stats to load if logged out
         }
-        setLoading(false);
+        setLoading(false); // Set main loading false after auth change
       }
     );
 
@@ -103,6 +107,12 @@ const Dashboard = () => {
   };
 
   const fetchStatistics = async (session: any) => {
+    // Only attempt to fetch stats if there's a valid session and user token
+    if (!session || !session.access_token) {
+        setStatsLoading(false); // No session, no stats to load
+        setStatistics(null);
+        return;
+    }
     try {
       setStatsLoading(true);
       const token = session.access_token;
@@ -117,41 +127,61 @@ const Dashboard = () => {
         const result = await response.json();
         if (result.success && result.data) {
           setStatistics(result.data);
+        } else {
+            console.error("Failed to fetch statistics:", result.error);
+            setStatistics(null); // Set to null on failure
         }
+      } else {
+         console.error("HTTP Error fetching statistics:", response.status);
+         setStatistics(null); // Set to null on HTTP error
       }
     } catch (error) {
       console.error('Error fetching statistics:', error);
+      setStatistics(null); // Set to null on exception
     } finally {
       setStatsLoading(false);
     }
   };
 
-  const quickActions = [
-    {
-      title: "เริ่มจองอุปกรณ์",
-      description: "เลือกอุปกรณ์ที่ต้องการยืมจากแคตตาล็อก",
-      icon: ShoppingCart,
-      href: "/equipment/catalog",
-      color: "bg-gradient-to-r from-red-600 to-red-700",
-      hoverColor: "hover:from-red-700 hover:to-red-800",
-    },
-    {
-      title: "ประวัติการยืม",
-      description: "ดูประวัติและสถานะการยืมอุปกรณ์ทั้งหมด",
-      icon: History,
-      href: "/Borrowing_History",
-      color: "bg-gradient-to-r from-blue-600 to-blue-700",
-      hoverColor: "hover:from-blue-700 hover:to-blue-800",
-    },
-    {
-      title: "ปฏิทินการยืม",
-      description: "ดูปฏิทินและกำหนดการยืมอุปกรณ์",
-      icon: Calendar,
-      href: "/schedule",
-      color: "bg-gradient-to-r from-purple-600 to-purple-700",
-      hoverColor: "hover:from-purple-700 hover:to-purple-800",
-    },
-  ];
+
+ const quickActions = [
+  {
+    title: "เริ่มจองอุปกรณ์",
+    description: "เลือกอุปกรณ์ที่ต้องการยืมจากแคตตาล็อก",
+    icon: ShoppingCart,
+    href: "/equipment/catalog",
+    // สีแดง (สีหลัก)
+    color: "bg-gradient-to-r from-red-600 to-red-700",
+    hoverColor: "hover:from-red-700 hover:to-red-800",
+    textColor: "text-white", // สีข้อความสำหรับพื้นหลังเข้ม
+    iconBgColor: "bg-red-700", // สีพื้นหลังไอคอนที่เข้มกว่าเล็กน้อย
+    descriptionColor: "text-red-100", // สีข้อความรองที่อ่อนลง
+  },
+  {
+    title: "ประวัติการยืม",
+    description: "ดูประวัติและสถานะการยืมทั้งหมด",
+    icon: History,
+    href: "/Borrowing_History",
+    // เปลี่ยนเป็นสีเทาเข้ม
+    color: "bg-gradient-to-r from-gray-700 to-gray-800",
+    hoverColor: "hover:from-gray-800 hover:to-gray-900",
+    textColor: "text-white", // สีข้อความสำหรับพื้นหลังเข้ม
+    iconBgColor: "bg-gray-800", // สีพื้นหลังไอคอนที่เข้มกว่าเล็กน้อย
+    descriptionColor: "text-gray-300", // สีข้อความรองที่อ่อนลง
+  },
+  {
+    title: "ปฏิทินการยืม",
+    description: "ดูปฏิทินและกำหนดการยืมอุปกรณ์",
+    icon: Calendar,
+    href: "/schedule",
+    // เปลี่ยนเป็นสีเทากลาง
+    color: "bg-gradient-to-r from-gray-500 to-gray-600",
+    hoverColor: "hover:from-gray-600 hover:to-gray-700",
+    textColor: "text-white", // สีข้อความสำหรับพื้นหลังเข้ม
+    iconBgColor: "bg-gray-600", // สีพื้นหลังไอคอนที่เข้มกว่าเล็กน้อย
+    descriptionColor: "text-gray-200", // สีข้อความรองที่อ่อนลง
+  },
+];
 
   if (loading) {
     return (
@@ -164,6 +194,7 @@ const Dashboard = () => {
     );
   }
 
+  // Determine if the user is an admin based on fetched userData
   const isAdmin = userData?.role === 'ADMIN' || userData?.role === 'MODERATOR';
 
   return (
@@ -179,23 +210,35 @@ const Dashboard = () => {
             className="mb-8"
           >
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              {/* Display appropriate header based on admin status */}
               {isAdmin ? 'Admin Dashboard' : 'Dashboard'}
             </h1>
             <p className="text-xl text-gray-600">
+              {/* Display appropriate subtitle based on admin status */}
               {isAdmin
                 ? 'ภาพรวมและสถิติการยืมอุปกรณ์ทั้งหมด'
-                : `ยินดีต้อนรับ, ${userData?.displayName || user?.email}`}
+                : `ยินดีต้อนรับ, ${userData?.displayName || user?.email?.split('@')[0] || 'ผู้ใช้งาน'}`}
             </p>
           </motion.div>
 
-          {/* Statistics Overview */}
-          {statistics && (
-            <motion.div
+          {/* Statistics Overview - Only render if stats are loaded */}
+          {statsLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 animate-pulse">
+                {[...Array(isAdmin ? 5 : 4)].map((_, i) => (
+                    <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-28">
+                       <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                       <div className="h-6 bg-gray-300 rounded w-1/2"></div>
+                    </div>
+                ))}
+            </div>
+          ) : statistics ? (
+             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
               className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8"
             >
+              {/* Card: ทั้งหมด */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-gray-100 rounded-lg">
@@ -205,11 +248,12 @@ const Dashboard = () => {
                     <p className="text-3xl font-bold text-gray-900">
                       {statistics.overview.total}
                     </p>
-                    <p className="text-sm text-gray-600">ทั้งหมด</p>
+                    <p className="text-base text-gray-600">ทั้งหมด</p> {/* Increased size */}
                   </div>
                 </div>
               </div>
 
+              {/* Card: รออนุมัติ */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-yellow-100 rounded-lg">
@@ -219,11 +263,12 @@ const Dashboard = () => {
                     <p className="text-3xl font-bold text-yellow-600">
                       {statistics.overview.pending}
                     </p>
-                    <p className="text-sm text-gray-600">รออนุมัติ</p>
+                    <p className="text-base text-gray-600">รออนุมัติ</p> {/* Increased size */}
                   </div>
                 </div>
               </div>
 
+              {/* Card: อนุมัติแล้ว */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-green-100 rounded-lg">
@@ -233,25 +278,28 @@ const Dashboard = () => {
                     <p className="text-3xl font-bold text-green-600">
                       {statistics.overview.approved}
                     </p>
-                    <p className="text-sm text-gray-600">อนุมัติแล้ว</p>
+                    <p className="text-base text-gray-600">อนุมัติแล้ว</p> {/* Increased size */}
                   </div>
                 </div>
               </div>
 
+              {/* Card: คืนแล้ว */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2 bg-blue-100 rounded-lg">
+                    {/* Assuming CheckCircle is okay for returned, or use another icon */}
                     <CheckCircle className="text-blue-600" size={20} />
                   </div>
                   <div>
                     <p className="text-3xl font-bold text-blue-600">
                       {statistics.overview.returned}
                     </p>
-                    <p className="text-sm text-gray-600">คืนแล้ว</p>
+                    <p className="text-base text-gray-600">คืนแล้ว</p> {/* Increased size */}
                   </div>
                 </div>
               </div>
 
+              {/* Card: ปฏิเสธ (แสดงเฉพาะ Admin) */}
               {isAdmin && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <div className="flex items-center gap-3 mb-2">
@@ -262,19 +310,22 @@ const Dashboard = () => {
                       <p className="text-3xl font-bold text-red-600">
                         {statistics.overview.rejected}
                       </p>
-                      <p className="text-sm text-gray-600">ปฏิเสธ</p>
+                      <p className="text-base text-gray-600">ปฏิเสธ</p> {/* Increased size */}
                     </div>
                   </div>
                 </div>
               )}
             </motion.div>
+          ) : (
+              // Optional: Show a message if stats failed to load or user isn't logged in
+              !statsLoading && <p className="text-gray-500 mb-8">ไม่สามารถโหลดข้อมูลสถิติได้</p>
           )}
 
-          {/* Admin Analytics */}
+          {/* Admin Analytics - Only render if admin and stats are loaded */}
           {isAdmin && statistics && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {/* Monthly Trends */}
-              {statistics.monthlyTrends && statistics.monthlyTrends.length > 0 && (
+              {statistics.monthlyTrends && statistics.monthlyTrends.length > 0 ? (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -289,8 +340,8 @@ const Dashboard = () => {
                   </div>
                   <div className="space-y-3">
                     {statistics.monthlyTrends.map((item, index) => {
-                      const maxCount = Math.max(...statistics.monthlyTrends!.map(i => i.count));
-                      const percentage = (item.count / maxCount) * 100;
+                      const maxCount = Math.max(1, ...statistics.monthlyTrends!.map(i => i.count)); // Ensure maxCount is at least 1
+                      const percentage = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
 
                       return (
                         <div key={index}>
@@ -309,10 +360,14 @@ const Dashboard = () => {
                     })}
                   </div>
                 </motion.div>
+              ) : (
+                   <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-center text-gray-500">
+                       ไม่มีข้อมูลแนวโน้มการยืม
+                   </div>
               )}
 
               {/* Top Equipment */}
-              {statistics.topEquipment && statistics.topEquipment.length > 0 && (
+              {statistics.topEquipment && statistics.topEquipment.length > 0 ? (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -332,7 +387,7 @@ const Dashboard = () => {
                         className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-lg flex items-center justify-center font-bold">
+                          <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-lg flex items-center justify-center font-bold text-sm"> {/* Adjusted font size */}
                             {index + 1}
                           </div>
                           <div>
@@ -348,41 +403,50 @@ const Dashboard = () => {
                     ))}
                   </div>
                 </motion.div>
-              )}
+                ) : (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-center text-gray-500">
+                        ไม่มีข้อมูลอุปกรณ์ยอดนิยม
+                    </div>
+                )}
             </div>
           )}
 
-          {/* Quick Actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">การดำเนินการด่วน</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {quickActions.map((action, index) => (
-                <motion.a
-                  key={index}
-                  href={action.href}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`${action.color} ${action.hoverColor} rounded-xl shadow-lg p-6 text-white transition-all duration-300 group`}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="p-3 bg-white/20 rounded-lg">
-                      <action.icon size={28} />
+          {/* Quick Actions - Always visible if user is logged in */}
+          {user && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: isAdmin && statistics ? 0.4 : 0.2 }} // Adjust delay based on whether admin sections are shown
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">การดำเนินการด่วน</h2>
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {quickActions.map((action, index) => (
+                  <motion.a
+                    key={index}
+                    href={action.href}
+                    whileHover={{ scale: 1.02 }} // Slightly reduced hover scale
+                    whileTap={{ scale: 0.98 }}
+                    // Use defined colors from the array
+                    className={`block p-6 rounded-xl shadow-lg ${action.color} ${action.hoverColor} ${action.textColor} transition-all duration-300 group`}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      {/* Use icon background color */}
+                      <div className={`p-3 ${action.iconBgColor} rounded-lg bg-opacity-80`}> {/* Added slight opacity */}
+                        <action.icon size={28} />
+                      </div>
+                      <ArrowRight
+                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:translate-x-1" // Added transition and transform
+                        size={24}
+                      />
                     </div>
-                    <ArrowRight
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      size={24}
-                    />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{action.title}</h3>
-                  <p className="text-white/90">{action.description}</p>
-                </motion.a>
-              ))}
-            </div>
-          </motion.div>
+                    <h3 className="text-xl font-bold mb-2">{action.title}</h3>
+                    {/* Use description color */}
+                    <p className={`${action.descriptionColor}`}>{action.description}</p>
+                  </motion.a>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>

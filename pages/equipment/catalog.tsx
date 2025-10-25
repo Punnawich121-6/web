@@ -342,18 +342,22 @@ const EquipmentCatalogUser = () => {
 
                 <div className="p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-gray-900 text-lg">
+                    {/* ===== 1. เพิ่มขนาดชื่อ (lg -> xl) ===== */}
+                    <h3 className="font-semibold text-gray-900 text-xl">
                       {item.name}
                     </h3>
-                    <span className="text-sm text-gray-500">#{item.serialNumber}</span>
+                    {/* ===== 2. เพิ่มขนาด Serial (sm -> base) ===== */}
+                    <span className="text-base text-gray-500">#{item.serialNumber}</span>
                   </div>
 
-                  <p className="text-gray-600 text-sm mb-3">
+                  {/* ===== 3. เพิ่มขนาด Description (sm -> base) ===== */}
+                  <p className="text-gray-600 text-base mb-3">
                     {item.description}
                   </p>
 
                   <div className="mb-3">
-                    <div className="flex justify-between text-sm mb-1">
+                    {/* ===== 4. เพิ่มขนาด "พร้อมใช้งาน" และ จำนวน (sm -> base) ===== */}
+                    <div className="flex justify-between text-base mb-1">
                       <span>พร้อมใช้งาน:</span>
                       <span className="font-medium">
                         {item.availableQuantity}/{item.totalQuantity}
@@ -376,16 +380,19 @@ const EquipmentCatalogUser = () => {
                   </div>
 
                   <div className="mb-4">
-                    <div className="text-sm text-gray-500 mb-1">สถานที่:</div>
-                    <div className="text-sm text-gray-700 mb-2">{item.location}</div>
+                    {/* ===== 5. เพิ่มขนาด "สถานที่" และ ชื่อสถานที่ (sm -> base) ===== */}
+                    <div className="text-base text-gray-500 mb-1">สถานที่:</div>
+                    <div className="text-base text-gray-700 mb-2">{item.location}</div>
                     {item.specifications && (
                       <>
-                        <div className="text-sm text-gray-500 mb-1">คุณสมบัติ:</div>
+                        {/* ===== 6. เพิ่มขนาด "คุณสมบัติ" (sm -> base) ===== */}
+                        <div className="text-base text-gray-500 mb-1">คุณสมบัติ:</div>
                         <div className="flex flex-wrap gap-1">
                           {Object.entries(item.specifications).slice(0, 2).map(([key, value], i) => (
+                            // {/* ===== 7. เพิ่มขนาด ป้ายคุณสมบัติ (xs -> sm) ===== */}
                             <span
                               key={i}
-                              className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
+                              className="bg-gray-100 text-gray-700 text-sm px-2 py-1 rounded"
                             >
                               {typeof value === 'string' ? value : `${key}: ${value}`}
                             </span>
@@ -407,7 +414,8 @@ const EquipmentCatalogUser = () => {
                           >
                             <Minus size={14} />
                           </button>
-                          <span className="font-medium min-w-[2rem] text-center">
+                          {/* ===== 8. เพิ่มขนาดตัวเลขจำนวน (default -> lg) ===== */}
+                          <span className="font-medium min-w-[2rem] text-center text-lg">
                             {cart.find(
                               (cartItem) => cartItem.equipment.id === item.id
                             )?.quantity || 0}
@@ -422,7 +430,8 @@ const EquipmentCatalogUser = () => {
                             (cartItem) => cartItem.equipment.id === item.id
                           )?.quantity || 0) >= item.availableQuantity
                         }
-                        className="flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                        // {/* ===== 9. เพิ่มขนาดปุ่ม (sm -> base) ===== */}
+                        className="flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-base font-medium"
                       >
                         <Plus size={14} />
                         {cart.find(

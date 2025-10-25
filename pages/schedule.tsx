@@ -150,14 +150,14 @@ export default function Schedule() {
         >
           <div className="flex justify-between items-start mb-1">
             <span
-              className={`text-sm font-medium ${
+              className={`text-base font-medium ${
                 isToday ? "text-red-600" : "text-gray-700"
               }`}
             >
               {day}
             </span>
             {dayEvents.length > 0 && (
-              <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">
+              <span className="text-sm bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">
                 {dayEvents.length}
               </span>
             )}
@@ -171,7 +171,7 @@ export default function Schedule() {
               return (
                 <div
                   key={idx}
-                  className={`text-xs p-1 rounded truncate font-medium ${
+                  className={`text-sm p-1 rounded truncate font-medium ${
                     isReturned
                       ? "bg-blue-100 text-blue-800 border border-blue-300"
                       : isActive
@@ -186,7 +186,7 @@ export default function Schedule() {
               );
             })}
             {dayEvents.length > 2 && (
-              <div className="text-xs text-gray-500">+{dayEvents.length - 2} more</div>
+              <div className="text-sm text-gray-500">+{dayEvents.length - 2} more</div>
             )}
           </div>
         </motion.div>
@@ -309,7 +309,7 @@ export default function Schedule() {
                 {/* Days of Week */}
                 <div className="grid grid-cols-7 gap-2 mb-2">
                   {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map((day) => (
-                    <div key={day} className="text-center text-sm font-medium text-gray-600 py-2">
+                    <div key={day} className="text-center text-base font-medium text-gray-600 py-2">
                       {day}
                     </div>
                   ))}
@@ -323,19 +323,22 @@ export default function Schedule() {
 
               {/* Color Legend */}
               <div className="bg-gray-50 rounded-lg p-4 mt-6">
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">สถานะการยืม</h4>
+                <h4 className="text-base font-semibold text-gray-900 mb-3">สถานะการยืม</h4>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-                    <span className="text-sm text-gray-700">กำลังยืม</span>
+                    {/* ===== 1. เพิ่มขนาดเป็น text-lg ===== */}
+                    <span className="text-lg text-gray-700">กำลังยืม</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
-                    <span className="text-sm text-gray-700">คืนแล้ว</span>
+                    {/* ===== 2. เพิ่มขนาดเป็น text-lg ===== */}
+                    <span className="text-lg text-gray-700">คืนแล้ว</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 bg-amber-100 border border-amber-300 rounded"></div>
-                    <span className="text-sm text-gray-700">รออนุมัติ</span>
+                    {/* ===== 3. เพิ่มขนาดเป็น text-lg ===== */}
+                    <span className="text-lg text-gray-700">รออนุมัติ</span>
                   </div>
                 </div>
               </div>
@@ -346,15 +349,15 @@ export default function Schedule() {
                   <motion.a
                     href="/dashboard"
                     whileHover={{ scale: 1.02 }}
-                    className="p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                    className="p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-600 rounded-lg">
+                      <div className="p-2 bg-red-600 rounded-lg">
                         <CalendarIcon className="text-white" size={20} />
                       </div>
                       <div>
-                        <div className="font-medium text-blue-900">Dashboard</div>
-                        <div className="text-sm text-blue-700">ภาพรวมการยืม</div>
+                        <div className="text-lg font-medium text-red-900">Dashboard</div>
+                        <div className="text-base text-red-700">ภาพรวมการยืม</div>
                       </div>
                     </div>
                   </motion.a>
@@ -362,15 +365,15 @@ export default function Schedule() {
                   <motion.a
                     href="/Borrowing_History"
                     whileHover={{ scale: 1.02 }}
-                    className="p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+                    className="p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-green-600 rounded-lg">
+                      <div className="p-2 bg-red-600 rounded-lg">
                         <Package className="text-white" size={20} />
                       </div>
                       <div>
-                        <div className="font-medium text-green-900">History</div>
-                        <div className="text-sm text-green-700">ประวัติการยืม</div>
+                        <div className="text-lg font-medium text-red-900">History</div>
+                        <div className="text-base text-red-700">ประวัติการยืม</div>
                       </div>
                     </div>
                   </motion.a>
@@ -400,7 +403,7 @@ export default function Schedule() {
                             <h4 className="font-medium text-gray-900">{event.equipment.name}</h4>
                             {getStatusIcon(event.status)}
                           </div>
-                          <div className="space-y-1 text-sm text-gray-600">
+                          <div className="space-y-1 text-base text-gray-600">
                             {user && event.user.email && (
                               <div className="flex items-center gap-2">
                                 <UserIcon size={14} />
@@ -417,7 +420,7 @@ export default function Schedule() {
                             </div>
                             {user && event.purpose && event.purpose !== 'การยืมอุปกรณ์' && (
                               <div className="mt-2 pt-2 border-t border-gray-200">
-                                <p className="text-xs text-gray-500">
+                                <p className="text-sm text-gray-500">
                                   วัตถุประสงค์: {event.purpose}
                                 </p>
                               </div>
@@ -428,14 +431,14 @@ export default function Schedule() {
                     ) : (
                       <div className="text-center py-8">
                         <CalendarIcon className="mx-auto mb-3 text-gray-400" size={48} />
-                        <p className="text-gray-500">ไม่มีกิจกรรมในวันนี้</p>
+                        <p className="text-base text-gray-500">ไม่มีกิจกรรมในวันนี้</p>
                       </div>
                     )}
                   </div>
                 ) : (
                   <div className="text-center py-12">
                     <CalendarIcon className="mx-auto mb-3 text-gray-400" size={48} />
-                    <p className="text-gray-500">เลือกวันที่เพื่อดูรายละเอียด</p>
+                    <p className="text-base text-gray-500">เลือกวันที่เพื่อดูรายละเอียด</p>
                   </div>
                 )}
               </div>

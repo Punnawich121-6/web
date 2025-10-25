@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import UserRoleBadge from "./UserRoleBadge";
+import { usePathname } from "next/navigation";
 
 interface UserData {
   role: "USER" | "ADMIN" | "MODERATOR" | null;
@@ -20,6 +21,8 @@ const LibraryNavbar = () => {
   const [loading, setLoading] = useState(true);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
+  const pathname = usePathname();
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -31,7 +34,9 @@ const LibraryNavbar = () => {
   useEffect(() => {
     // Check current session
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setUser(session?.user || null);
       if (session?.user) {
         await fetchUserData(session.user);
@@ -42,31 +47,33 @@ const LibraryNavbar = () => {
     checkSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setUser(session?.user || null);
-        if (session?.user) {
-          await fetchUserData(session.user);
-        } else {
-          setUserData(null);
-        }
-        setLoading(false);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setUser(session?.user || null);
+      if (session?.user) {
+        await fetchUserData(session.user);
+      } else {
+        setUserData(null);
       }
-    );
+      setLoading(false);
+    });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const fetchUserData = async (currentUser: User) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) return;
 
-      const response = await fetch('/api/user', {
-        method: 'POST',
+      const response = await fetch("/api/user", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ token: session.access_token }),
       });
@@ -76,7 +83,7 @@ const LibraryNavbar = () => {
         setUserData(result.data);
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error("Error fetching user data:", error);
     }
   };
 
@@ -111,7 +118,6 @@ const LibraryNavbar = () => {
   const userNavItems = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/Borrowing_History", label: "History" },
-    { href: "/schedule", label: "Schedule" },
   ];
 
   const adminNavItems = [
@@ -131,46 +137,56 @@ const LibraryNavbar = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Logo Section */}
           <motion.a
             href="/"
-            className="flex items-center gap-4 group"
+            className="flex items-center gap-3 group"
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}
           >
             <div className="relative">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
-                <span className="text-white font-bold text-lg">T2U</span>
+              <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-red-700 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
+                <span className="text-white font-bold text-base">T2U</span>
               </div>
             </div>
             <div className="flex flex-col">
-              <span className="text-3xl font-bold text-gray-800 uppercase tracking-wide">
+              <span className="text-2xl font-bold text-gray-800 uppercase tracking-wide">
                 Time2Use
               </span>
-              <span className="text-2xs text-gray-500 uppercase tracking-wider">
+              <span className="text-xs text-gray-500 uppercase tracking-wider">
                 Equipment System
               </span>
             </div>
           </motion.a>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             {/* Main Navigation */}
             {navItems.map((item) => (
               <motion.a
                 key={item.href}
                 href={item.href}
-                className="relative group px-3 py-2 text-gray-600 hover:text-red-600 font-medium uppercase tracking-wide text-lg transition-colors duration-300"
+                className={`relative group px-3 py-2 font-medium uppercase tracking-wide text-sm transition-colors duration-300 ${
+                  pathname.startsWith(item.href)
+                    ? "text-red-600"
+                    : "text-gray-600 hover:text-red-600"
+                }`}
                 whileHover={{ y: -2 }}
                 transition={{ duration: 0.2 }}
               >
                 <span>{item.label}</span>
-                <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 group-hover:w-full transition-all duration-300"></div>
+                <div
+                  className={`absolute bottom-0 left-0 h-0.5 bg-red-600 transition-all duration-300 ${
+                    pathname.startsWith(item.href)
+                      ? "w-full"
+                      : "w-0 group-hover:w-full"
+                  }`}
+                ></div>
               </motion.a>
             ))}
 
-            {/* User-specific Navigation */}
+            {/* User Navigation (Dashboard/History) */}
             <AnimatePresence>
               {user &&
                 userNavItems.map((item, index) => (
@@ -181,18 +197,33 @@ const LibraryNavbar = () => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
-                    className="relative group px-3 py-2 text-gray-600 hover:text-red-600 font-medium uppercase tracking-wide text-lg transition-colors duration-300"
+                    // ===== START: 1. เปลี่ยนสีเริ่มต้นเป็นสีเทา (text-gray-600) =====
+                    className={`relative group px-3 py-2 font-medium uppercase tracking-wide text-sm transition-colors duration-300 ${
+                      pathname.startsWith(item.href)
+                        ? "text-red-600"
+                        : "text-gray-600 hover:text-red-600"
+                    }`}
+                    // ===== END: 1. =====
                     whileHover={{ y: -2 }}
                   >
                     <span>{item.label}</span>
-                    <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-600 group-hover:w-full transition-all duration-300"></div>
+                    <div
+                      // ===== 2. เปลี่ยนสีขีดเส้นใต้เป็น bg-red-600 ให้เหมือนกัน =====
+                      className={`absolute bottom-0 left-0 h-0.5 bg-red-600 transition-all duration-300 ${
+                        pathname.startsWith(item.href)
+                          ? "w-full"
+                          : "w-0 group-hover:w-full"
+                      }`}
+                      // ===== END: 2. =====
+                    ></div>
                   </motion.a>
                 ))}
             </AnimatePresence>
 
             {/* Admin-specific Navigation */}
             <AnimatePresence>
-              {user && userData?.role === "ADMIN" &&
+              {user &&
+                userData?.role === "ADMIN" &&
                 adminNavItems.map((item, index) => (
                   <motion.a
                     key={item.href}
@@ -200,12 +231,26 @@ const LibraryNavbar = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3, delay: (userNavItems.length + index) * 0.1 }}
-                    className="relative group px-3 py-2 text-red-600 hover:text-red-700 font-medium uppercase tracking-wide text-lg transition-colors duration-300 bg-red-50 rounded-lg"
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    // ===== START: 3. เปลี่ยนสีเริ่มต้นเป็นสีเทา (text-gray-600) =====
+                    className={`relative group px-3 py-2 font-medium uppercase tracking-wide text-sm transition-colors duration-300 ${
+                      pathname.startsWith(item.href)
+                        ? "text-red-600"
+                        : "text-gray-600 hover:text-red-600"
+                    }`}
+                    // ===== END: 3. =====
                     whileHover={{ y: -2 }}
                   >
                     <span>{item.label}</span>
-                    <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-red-700 group-hover:w-full transition-all duration-300"></div>
+                    <div
+                      // ===== 4. เปลี่ยนสีขีดเส้นใต้เป็น bg-red-600 ให้เหมือนกัน =====
+                      className={`absolute bottom-0 left-0 h-0.5 bg-red-600 transition-all duration-300 ${
+                        pathname.startsWith(item.href)
+                          ? "w-full"
+                          : "w-0 group-hover:w-full"
+                      }`}
+                      // ===== END: 4. =====
+                    ></div>
                   </motion.a>
                 ))}
             </AnimatePresence>
@@ -235,7 +280,8 @@ const LibraryNavbar = () => {
                     </div>
                     <div className="hidden lg:block text-left">
                       <p className="text-sm font-medium text-gray-900">
-                        {user.user_metadata?.display_name || user.email?.split("@")[0]}
+                        {user.user_metadata?.display_name ||
+                          user.email?.split("@")[0]}
                       </p>
                       <p className="text-xs text-gray-500">Online</p>
                     </div>
@@ -268,7 +314,8 @@ const LibraryNavbar = () => {
                       >
                         <div className="px-4 py-3 border-b border-gray-100">
                           <p className="text-sm font-medium text-gray-900">
-                            {user.user_metadata?.display_name || user.email?.split("@")[0]}
+                            {user.user_metadata?.display_name ||
+                              user.email?.split("@")[0]}
                           </p>
                           <p className="text-xs text-gray-500 truncate">
                             {user.email}
@@ -277,6 +324,7 @@ const LibraryNavbar = () => {
                             <UserRoleBadge />
                           </div>
                         </div>
+
                         <div className="py-1">
                           <a
                             href="/profile"
@@ -285,6 +333,7 @@ const LibraryNavbar = () => {
                             Profile
                           </a>
                         </div>
+
                         <div className="border-t border-gray-100">
                           <button
                             onClick={handleSignOut}
@@ -300,7 +349,7 @@ const LibraryNavbar = () => {
               ) : (
                 <motion.a
                   href="/auth"
-                  className="inline-flex items-center px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white font-medium uppercase tracking-wide rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-md hover:shadow-lg text-sm"
+                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white font-medium uppercase tracking-wide rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-md hover:shadow-lg text-sm"
                   whileHover={{ scale: 1.05, y: -1 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -356,31 +405,50 @@ const LibraryNavbar = () => {
                   <a
                     key={item.href}
                     href={item.href}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className={`block px-4 py-2 text-sm hover:bg-gray-100 ${
+                      pathname.startsWith(item.href)
+                        ? "text-red-600 font-medium"
+                        : "text-gray-700"
+                    }`}
                   >
                     {item.label}
                   </a>
                 ))}
+
+                {/* Mobile User Navigation */}
                 {user &&
                   userNavItems.map((item) => (
                     <a
                       key={item.href}
                       href={item.href}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className={`block px-4 py-2 text-sm hover:bg-gray-100 ${
+                        pathname.startsWith(item.href)
+                          ? "text-red-600 font-medium"
+                          : "text-gray-700"
+                      }`}
                     >
                       {item.label}
                     </a>
                   ))}
-                {user && userData?.role === "ADMIN" &&
+                  
+                {/* ===== START: 5. แก้ไข Mobile Admin Menu ให้เป็นสีเทา ===== */}
+                {/* Mobile Admin Navigation */}
+                {user &&
+                  userData?.role === "ADMIN" &&
                   adminNavItems.map((item) => (
                     <a
                       key={item.href}
                       href={item.href}
-                      className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium"
+                      className={`block px-4 py-2 text-sm hover:bg-gray-100 ${
+                        pathname.startsWith(item.href)
+                          ? "text-red-600 font-medium"
+                          : "text-gray-700"
+                      }`}
                     >
                       {item.label}
                     </a>
                   ))}
+                {/* ===== END: 5. ===== */}
 
                 {/* Mobile Authentication Section */}
                 <div className="border-t border-gray-200 mt-4 pt-4">
@@ -400,7 +468,8 @@ const LibraryNavbar = () => {
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-900">
-                              {user.user_metadata?.display_name || user.email?.split("@")[0]}
+                              {user.user_metadata?.display_name ||
+                                user.email?.split("@")[0]}
                             </p>
                             <p className="text-xs text-gray-500">Online</p>
                           </div>
