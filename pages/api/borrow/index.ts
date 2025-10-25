@@ -1,19 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '../../../generated/prisma';
-import { getAuth } from 'firebase-admin/auth';
-import admin from 'firebase-admin';
-
-if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'login-b5d42',
-    });
-  } catch (error) {
-    console.log('Firebase admin already initialized or error:', error);
-  }
-}
-
-const prisma = new PrismaClient();
+import { supabaseAdmin, getUserFromToken, getUserProfile } from '../../../lib/supabase-server';
 
 type ApiResponse = {
   success: boolean;
@@ -34,51 +20,55 @@ export default async function handler(
         return res.status(400).json({ success: false, error: 'Token is required' });
       }
 
-      // Verify Firebase token
-      const decodedToken = await getAuth().verifyIdToken(token);
+      // Verify token and get user
+      const authUser = await getUserFromToken(token);
+      if (!authUser) {
+        return res.status(401).json({ success: false, error: 'Invalid token' });
+      }
 
-      // Get user
-      const user = await prisma.user.findUnique({
-        where: { firebaseUid: decodedToken.uid }
-      });
-
-      if (!user) {
+      const userProfile = await getUserProfile(authUser.id);
+      if (!userProfile) {
         return res.status(404).json({ success: false, error: 'User not found' });
       }
 
+      // Type assertion for user profile
+      const user = userProfile as { id: string; role: 'USER' | 'ADMIN' | 'MODERATOR' };
+
       // Build query based on user role
-      const whereClause = user.role === 'ADMIN' ? {} : { userId: user.id };
+      let borrowRequestsQuery = supabaseAdmin
+        .from('borrow_requests')
+        .select(`
+          *,
+          user:users!borrow_requests_user_id_fkey (
+            display_name,
+            email
+          ),
+          equipment:equipment!borrow_requests_equipment_id_fkey (
+            name,
+            category,
+            serial_number,
+            image
+          ),
+          approver:users!borrow_requests_approved_by_fkey (
+            display_name,
+            email
+          )
+        `)
+        .order('created_at', { ascending: false });
 
-      const borrowRequests = await prisma.borrowRequest.findMany({
-        where: whereClause,
-        include: {
-          user: {
-            select: {
-              displayName: true,
-              email: true,
-            }
-          },
-          equipment: {
-            select: {
-              name: true,
-              category: true,
-              serialNumber: true,
-              image: true,
-            }
-          },
-          approver: {
-            select: {
-              displayName: true,
-              email: true,
-            }
-          }
-        },
-        orderBy: {
-          createdAt: 'desc'
-        }
-      });
+      // Filter by user if not admin
+      if (user.role !== 'ADMIN') {
+        borrowRequestsQuery = borrowRequestsQuery.eq('user_id', user.id);
+      }
 
-      res.status(200).json({ success: true, data: borrowRequests });
+      const { data: borrowRequests, error } = await borrowRequestsQuery;
+
+      if (error) {
+        console.error('Error fetching borrow requests:', error);
+        return res.status(500).json({ success: false, error: error.message });
+      }
+
+      res.status(200).json({ success: true, data: borrowRequests || [] });
     } else if (req.method === 'POST') {
       // Create new borrow request
       const { token, borrowData } = req.body;
@@ -88,31 +78,19 @@ export default async function handler(
         return res.status(400).json({ success: false, error: 'Token is required' });
       }
 
-      // For development: Skip Firebase token verification if no proper config
-      let user;
-
-      try {
-        // Try to verify Firebase token
-        const decodedToken = await getAuth().verifyIdToken(token);
-        user = await prisma.user.findUnique({
-          where: { firebaseUid: decodedToken.uid }
-        });
-      } catch (error) {
-        console.log('Firebase token verification failed, using fallback for development');
-        // Fallback: use the first available user for development
-        user = await prisma.user.findFirst({
-          where: { role: 'USER' }
-        });
-
-        if (!user) {
-          // If no regular user, use any user
-          user = await prisma.user.findFirst();
-        }
+      // Verify token and get user
+      const authUser = await getUserFromToken(token);
+      if (!authUser) {
+        return res.status(401).json({ success: false, error: 'Invalid token' });
       }
 
-      if (!user) {
+      const userProfile = await getUserProfile(authUser.id);
+      if (!userProfile) {
         return res.status(404).json({ success: false, error: 'User not found' });
       }
+
+      // Type assertion for user profile
+      const user = userProfile as { id: string; role: 'USER' | 'ADMIN' | 'MODERATOR' };
 
       if (!borrowData) {
         return res.status(400).json({
@@ -122,44 +100,58 @@ export default async function handler(
       }
 
       // Check equipment availability
-      const equipment = await prisma.equipment.findUnique({
-        where: { id: borrowData.equipmentId }
-      });
+      const { data: equipment, error: equipmentError } = await supabaseAdmin
+        .from('equipment')
+        .select('*')
+        .eq('id', borrowData.equipmentId)
+        .single<any>();
 
-      if (!equipment) {
+      if (equipmentError || !equipment) {
         return res.status(404).json({ success: false, error: 'Equipment not found' });
       }
 
-      if (equipment.availableQuantity < borrowData.quantity) {
+      if (equipment.available_quantity < borrowData.quantity) {
         return res.status(400).json({
           success: false,
           error: 'Insufficient equipment quantity available'
         });
       }
 
+      // Convert camelCase to snake_case for database
+      const dbBorrowData = {
+        equipment_id: borrowData.equipmentId,
+        user_id: user.id,
+        quantity: borrowData.quantity,
+        purpose: borrowData.purpose,
+        start_date: borrowData.startDate,
+        end_date: borrowData.endDate,
+        status: borrowData.status || 'PENDING',
+      };
+
       // Create borrow request
-      const borrowRequest = await prisma.borrowRequest.create({
-        data: {
-          ...borrowData,
-          userId: user.id,
-        },
-        include: {
-          user: {
-            select: {
-              displayName: true,
-              email: true,
-            }
-          },
-          equipment: {
-            select: {
-              name: true,
-              category: true,
-              serialNumber: true,
-              image: true,
-            }
-          }
-        }
-      });
+      const { data: borrowRequest, error: createError } = await supabaseAdmin
+        .from('borrow_requests')
+        // @ts-ignore
+        .insert(dbBorrowData)
+        .select(`
+          *,
+          user:users!borrow_requests_user_id_fkey (
+            display_name,
+            email
+          ),
+          equipment:equipment!borrow_requests_equipment_id_fkey (
+            name,
+            category,
+            serial_number,
+            image
+          )
+        `)
+        .single<any>();
+
+      if (createError) {
+        console.error('Error creating borrow request:', createError);
+        return res.status(500).json({ success: false, error: createError.message });
+      }
 
       res.status(201).json({ success: true, data: borrowRequest });
     } else {

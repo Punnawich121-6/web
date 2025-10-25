@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { onAuthStateChanged, signOut, User, getAuth } from "firebase/auth";
-import app from "../pages/firebase";
+import { supabase } from "../lib/supabase";
+import type { User } from "@supabase/supabase-js";
 import UserRoleBadge from "./UserRoleBadge";
 
 interface UserData {
@@ -20,8 +20,6 @@ const LibraryNavbar = () => {
   const [loading, setLoading] = useState(true);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-  const auth = getAuth(app);
-
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -31,28 +29,46 @@ const LibraryNavbar = () => {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        await fetchUserData(currentUser);
-      } else {
-        setUserData(null);
+    // Check current session
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      if (session?.user) {
+        await fetchUserData(session.user);
       }
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
-  }, [auth]);
+    checkSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        setUser(session?.user || null);
+        if (session?.user) {
+          await fetchUserData(session.user);
+        } else {
+          setUserData(null);
+        }
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fetchUserData = async (currentUser: User) => {
     try {
-      const token = await currentUser.getIdToken();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
       const response = await fetch('/api/user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token: session.access_token }),
       });
 
       if (response.ok) {
@@ -66,7 +82,7 @@ const LibraryNavbar = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      await supabase.auth.signOut();
       setIsProfileMenuOpen(false);
       localStorage.removeItem("token");
       window.location.href = "/";
@@ -115,7 +131,7 @@ const LibraryNavbar = () => {
     >
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-20">
-          {/* Logo Section (Added back) */}
+          {/* Logo Section */}
           <motion.a
             href="/"
             className="flex items-center gap-4 group"
@@ -218,7 +234,7 @@ const LibraryNavbar = () => {
                     </div>
                     <div className="hidden lg:block text-left">
                       <p className="text-sm font-medium text-gray-900">
-                        {user.displayName || user.email?.split("@")[0]}
+                        {user.user_metadata?.display_name || user.email?.split("@")[0]}
                       </p>
                       <p className="text-xs text-gray-500">Online</p>
                     </div>
@@ -251,7 +267,7 @@ const LibraryNavbar = () => {
                       >
                         <div className="px-4 py-3 border-b border-gray-100">
                           <p className="text-sm font-medium text-gray-900">
-                            {user.displayName || user.email?.split("@")[0]}
+                            {user.user_metadata?.display_name || user.email?.split("@")[0]}
                           </p>
                           <p className="text-xs text-gray-500 truncate">
                             {user.email}
@@ -293,7 +309,7 @@ const LibraryNavbar = () => {
             </div>
           </div>
 
-          {/* Mobile Menu Button (Added back) */}
+          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -325,7 +341,7 @@ const LibraryNavbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu Panel (Added back) */}
+        {/* Mobile Menu Panel */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -383,7 +399,7 @@ const LibraryNavbar = () => {
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-900">
-                              {user.displayName || user.email?.split("@")[0]}
+                              {user.user_metadata?.display_name || user.email?.split("@")[0]}
                             </p>
                             <p className="text-xs text-gray-500">Online</p>
                           </div>

@@ -128,7 +128,7 @@ export default function Borrow_Equipment() {
     </nav>
   );
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -136,7 +136,7 @@ export default function Borrow_Equipment() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Simulate form submission
     alert("ส่งคำขอยืมสำเร็จ! เจ้าหน้าที่จะติดต่อกลับภายใน 24 ชั่วโมง");
@@ -383,7 +383,7 @@ export default function Borrow_Equipment() {
                       name="purpose"
                       value={formData.purpose}
                       onChange={handleInputChange}
-                      rows="3"
+                      rows={3}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
                       placeholder="เช่น ใช้สำหรับการนำเสนอโปรเจคในชั้นเรียน, การจัดกิจกรรม, ฯลฯ"
                       required
@@ -397,7 +397,7 @@ export default function Borrow_Equipment() {
                       name="additionalNotes"
                       value={formData.additionalNotes}
                       onChange={handleInputChange}
-                      rows="2"
+                      rows={2}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
                       placeholder="ข้อมูลเพิ่มเติมหรือความต้องการพิเศษ (ถ้ามี)"
                     ></textarea>

@@ -1,21 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '../../generated/prisma';
-import { getAuth } from 'firebase-admin/auth';
-import admin from 'firebase-admin';
-
-// Initialize Firebase Admin (simplified for development)
-if (!admin.apps.length) {
-  try {
-    // For development, you can use a simpler approach without service account
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'login-b5d42',
-    });
-  } catch (error) {
-    console.log('Firebase admin already initialized or error:', error);
-  }
-}
-
-const prisma = new PrismaClient();
+import { supabaseAdmin } from '../../lib/supabase-server';
 
 type ApiResponse = {
   success: boolean;
@@ -27,49 +11,56 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ApiResponse>
 ) {
-  if (req.method !== 'POST') {
+  if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
   try {
-    const { token, userData } = req.body;
+    const token = req.headers.authorization?.replace('Bearer ', '') || req.body?.token;
 
     if (!token) {
-      return res.status(400).json({ success: false, error: 'Token is required' });
+      return res.status(401).json({ success: false, error: 'Token is required' });
     }
 
-    // Verify Firebase token
-    const decodedToken = await getAuth().verifyIdToken(token);
-    const { uid, email, name } = decodedToken;
+    // Verify Supabase token and get user
+    const { data: { user: authUser }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
-    // Check if user already exists
-    let user = await prisma.user.findUnique({
-      where: { firebaseUid: uid }
-    });
+    if (authError || !authUser) {
+      return res.status(401).json({ success: false, error: 'Invalid token' });
+    }
 
-    // Check if email is in admin list
-    const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()) || [];
-    const isAdmin = adminEmails.includes(email || '');
+    // Check if user exists in database
+    let { data: user, error: queryError } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('auth_id', authUser.id)
+      .single();
 
-    if (!user) {
-      // Create new user with appropriate role
-      user = await prisma.user.create({
-        data: {
-          firebaseUid: uid,
-          email: email || '',
-          displayName: name || userData?.displayName || '',
+    // If user doesn't exist, create one
+    if (queryError && queryError.code === 'PGRST116') {
+      // Check if email is in admin list
+      const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()) || [];
+      const isAdmin = adminEmails.includes(authUser.email || '');
+
+      const { data: newUser, error: createError } = await supabaseAdmin
+        .from('users')
+        // @ts-ignore
+        .insert({
+          auth_id: authUser.id,
+          email: authUser.email || '',
+          display_name: authUser.user_metadata?.display_name || authUser.email || '',
           role: isAdmin ? 'ADMIN' : 'USER',
-        }
-      });
-    } else {
-      // Update existing user
-      user = await prisma.user.update({
-        where: { firebaseUid: uid },
-        data: {
-          displayName: name || userData?.displayName || user.displayName,
-          email: email || user.email,
-        }
-      });
+        })
+        .select()
+        .single();
+
+      if (createError) {
+        throw createError;
+      }
+
+      user = newUser;
+    } else if (queryError) {
+      throw queryError;
     }
 
     res.status(200).json({ success: true, data: user });

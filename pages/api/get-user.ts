@@ -1,20 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '../../generated/prisma';
-import { getAuth } from 'firebase-admin/auth';
-import admin from 'firebase-admin';
-
-// Initialize Firebase Admin (simplified for development)
-if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'login-b5d42',
-    });
-  } catch (error) {
-    console.log('Firebase admin already initialized or error:', error);
-  }
-}
-
-const prisma = new PrismaClient();
+import { supabaseAdmin } from '../../lib/supabase-server';
 
 type ApiResponse = {
   success: boolean;
@@ -37,24 +22,25 @@ export default async function handler(
       return res.status(401).json({ success: false, error: 'Token is required' });
     }
 
-    // Verify Firebase token
-    const decodedToken = await getAuth().verifyIdToken(token);
-    const { uid } = decodedToken;
+    // Verify Supabase token
+    const { data: { user: authUser }, error: authError } = await supabaseAdmin.auth.getUser(token);
+
+    if (authError || !authUser) {
+      return res.status(401).json({ success: false, error: 'Invalid token' });
+    }
 
     // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { firebaseUid: uid },
-      select: {
-        id: true,
-        email: true,
-        displayName: true,
-        role: true,
-        createdAt: true,
-      }
-    });
+    const { data: user, error: queryError } = await supabaseAdmin
+      .from('users')
+      .select('id, email, display_name, role, created_at')
+      .eq('auth_id', authUser.id)
+      .single();
 
-    if (!user) {
-      return res.status(404).json({ success: false, error: 'User not found' });
+    if (queryError) {
+      if (queryError.code === 'PGRST116') {
+        return res.status(404).json({ success: false, error: 'User not found' });
+      }
+      throw queryError;
     }
 
     res.status(200).json({ success: true, data: user });

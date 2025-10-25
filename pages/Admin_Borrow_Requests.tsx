@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { onAuthStateChanged, User, getAuth } from "firebase/auth";
-import app from "../pages/firebase";
+import { supabase } from "../lib/supabase";
+import type { User } from "@supabase/supabase-js";
 import LibraryNavbar from "../components/LibraryNavbar";
 import {
   Calendar,
@@ -62,28 +62,45 @@ const AdminBorrowRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState<BorrowRequest | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const auth = getAuth(app);
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
       setLoading(false);
-      if (currentUser) {
+      if (session?.user) {
         fetchBorrowRequests();
       }
-    });
+    };
 
-    return () => unsubscribe();
-  }, [auth]);
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        setUser(session?.user || null);
+        setLoading(false);
+        if (session?.user) {
+          fetchBorrowRequests();
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fetchBorrowRequests = async () => {
     try {
       setDataLoading(true);
       if (!user) return;
 
-      const token = await user.getIdToken();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const token = session.access_token;
       const response = await fetch(`/api/borrow?token=${encodeURIComponent(token)}`, {
         method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
@@ -110,11 +127,15 @@ const AdminBorrowRequests = () => {
       setActionLoading(requestId);
       if (!user) return;
 
-      const token = await user.getIdToken();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const token = session.access_token;
       const response = await fetch('/api/borrow/manage', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           token,

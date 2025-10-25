@@ -1,19 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '../../../generated/prisma';
-import { getAuth } from 'firebase-admin/auth';
-import admin from 'firebase-admin';
-
-if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'login-b5d42',
-    });
-  } catch (error) {
-    console.log('Firebase admin already initialized or error:', error);
-  }
-}
-
-const prisma = new PrismaClient();
+import { supabaseAdmin, getUserFromToken, getUserProfile } from '../../../lib/supabase-server';
 
 type ApiResponse = {
   success: boolean;
@@ -28,36 +14,40 @@ export default async function handler(
   try {
     if (req.method === 'GET') {
       // Get all equipment
-      const equipment = await prisma.equipment.findMany({
-        include: {
-          creator: {
-            select: {
-              displayName: true,
-              email: true,
-            }
-          },
-          borrowings: {
-            where: {
-              status: {
-                in: ['ACTIVE', 'APPROVED']
-              }
-            },
-            include: {
-              user: {
-                select: {
-                  displayName: true,
-                  email: true,
-                }
-              }
-            }
-          }
-        },
-        orderBy: {
-          createdAt: 'desc'
-        }
-      });
+      // Note: Supabase doesn't support filtering nested relations in the select query the same way Prisma does
+      // We fetch all equipment and all their borrowings, then the client can filter if needed
+      const { data: equipment, error } = await supabaseAdmin
+        .from('equipment')
+        .select(`
+          *,
+          creator:users!equipment_created_by_fkey (
+            display_name,
+            email
+          ),
+          borrowings:borrow_requests!borrow_requests_equipment_id_fkey (
+            *,
+            user:users!borrow_requests_user_id_fkey (
+              display_name,
+              email
+            )
+          )
+        `)
+        .order('created_at', { ascending: false });
 
-      res.status(200).json({ success: true, data: equipment });
+      if (error) {
+        console.error('Error fetching equipment:', error);
+        return res.status(500).json({ success: false, error: error.message });
+      }
+
+      // Filter borrowings to only include ACTIVE and APPROVED statuses
+      const filteredEquipment = equipment?.map((item: any) => ({
+        ...item,
+        borrowings: item.borrowings?.filter((b: any) =>
+          ['ACTIVE', 'APPROVED'].includes(b.status)
+        ) || []
+      }));
+
+      res.status(200).json({ success: true, data: filteredEquipment || [] });
     } else if (req.method === 'POST') {
       // Create new equipment (Admin only)
       const { token, equipmentData } = req.body;
@@ -66,14 +56,14 @@ export default async function handler(
         return res.status(400).json({ success: false, error: 'Token is required' });
       }
 
-      // Verify Firebase token
-      const decodedToken = await getAuth().verifyIdToken(token);
+      // Verify token and get user
+      const authUser = await getUserFromToken(token);
+      if (!authUser) {
+        return res.status(401).json({ success: false, error: 'Invalid token' });
+      }
 
-      // Check if user exists and is admin
-      const user = await prisma.user.findUnique({
-        where: { firebaseUid: decodedToken.uid }
-      });
-
+      const userProfile = await getUserProfile(authUser.id);
+      const user = userProfile as { id: string; role: 'USER' | 'ADMIN' | 'MODERATOR' } | null;
       if (!user || user.role !== 'ADMIN') {
         return res.status(403).json({
           success: false,
@@ -88,21 +78,37 @@ export default async function handler(
         });
       }
 
+      // Convert camelCase to snake_case for database
+      const dbEquipmentData = {
+        name: equipmentData.name,
+        category: equipmentData.category,
+        description: equipmentData.description,
+        serial_number: equipmentData.serialNumber,
+        image: equipmentData.image,
+        available_quantity: equipmentData.availableQuantity,
+        total_quantity: equipmentData.totalQuantity,
+        status: equipmentData.status || 'AVAILABLE',
+        created_by: user.id,
+      };
+
       // Create equipment
-      const equipment = await prisma.equipment.create({
-        data: {
-          ...equipmentData,
-          createdBy: user.id,
-        },
-        include: {
-          creator: {
-            select: {
-              displayName: true,
-              email: true,
-            }
-          }
-        }
-      });
+      const { data: equipment, error } = await supabaseAdmin
+        .from('equipment')
+        // @ts-ignore
+        .insert(dbEquipmentData)
+        .select(`
+          *,
+          creator:users!equipment_created_by_fkey (
+            display_name,
+            email
+          )
+        `)
+        .single<any>();
+
+      if (error) {
+        console.error('Error creating equipment:', error);
+        return res.status(500).json({ success: false, error: error.message });
+      }
 
       res.status(201).json({ success: true, data: equipment });
     } else {

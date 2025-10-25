@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { onAuthStateChanged, User, getAuth } from "firebase/auth";
-import app from "../firebase";
+import { supabase } from "../../lib/supabase";
+import type { User } from "@supabase/supabase-js";
 import LibraryNavbar from "../../components/LibraryNavbar";
 import {
   Plus,
@@ -56,19 +56,31 @@ const AdminEquipmentPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const auth = getAuth(app);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        await fetchUserData(currentUser);
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      if (session?.user) {
+        await fetchUserData(session.user);
       }
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
-  }, [auth]);
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        setUser(session?.user || null);
+        if (session?.user) {
+          await fetchUserData(session.user);
+        }
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (userData?.role === "ADMIN") {
@@ -78,11 +90,15 @@ const AdminEquipmentPage = () => {
 
   const fetchUserData = async (currentUser: User) => {
     try {
-      const token = await currentUser.getIdToken();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const token = session.access_token;
       const response = await fetch('/api/user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ token }),
       });
@@ -116,11 +132,15 @@ const AdminEquipmentPage = () => {
     try {
       if (!user) return;
 
-      const token = await user.getIdToken();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const token = session.access_token;
       const response = await fetch('/api/equipment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ token, equipmentData }),
       });
@@ -143,11 +163,15 @@ const AdminEquipmentPage = () => {
     try {
       if (!user) return;
 
-      const token = await user.getIdToken();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const token = session.access_token;
       const response = await fetch(`/api/equipment/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ token, equipmentData }),
       });
@@ -173,11 +197,15 @@ const AdminEquipmentPage = () => {
       if (!user) return;
       if (!confirm('คุณแน่ใจหรือไม่ที่จะลบอุปกรณ์นี้?')) return;
 
-      const token = await user.getIdToken();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const token = session.access_token;
       const response = await fetch(`/api/equipment/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ token }),
       });

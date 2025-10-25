@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { onAuthStateChanged, User, getAuth } from "firebase/auth";
-import app from "../pages/firebase";
+import { supabase } from "../lib/supabase";
+import type { User } from "@supabase/supabase-js";
 import LibraryNavbar from "../components/LibraryNavbar";
 import {
   Calendar,
@@ -45,26 +45,40 @@ const BorrowingHistory = () => {
     null
   );
 
-  const auth = getAuth(app);
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
       setLoading(false);
-      if (currentUser) {
-        fetchBorrowHistory();
+      if (session?.user) {
+        fetchBorrowHistory(session.user);
       }
-    });
+    };
 
-    return () => unsubscribe();
-  }, [auth]);
+    checkSession();
 
-  const fetchBorrowHistory = async () => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        setUser(session?.user || null);
+        if (session?.user) {
+          fetchBorrowHistory(session.user);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchBorrowHistory = async (currentUser?: User) => {
     try {
       setDataLoading(true);
-      if (!user) return;
+      const userToUse = currentUser || user;
+      if (!userToUse) return;
 
-      const token = await user.getIdToken();
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) return;
+
       const response = await fetch(`/api/borrow?token=${encodeURIComponent(token)}`, {
         method: 'GET',
       });

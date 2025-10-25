@@ -1,20 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '../../../generated/prisma';
-import { getAuth } from 'firebase-admin/auth';
-import admin from 'firebase-admin';
-
-// Initialize Firebase Admin (simplified for development)
-if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'login-b5d42',
-    });
-  } catch (error) {
-    console.log('Firebase admin already initialized or error:', error);
-  }
-}
-
-const prisma = new PrismaClient();
+import { supabaseAdmin, isAdmin } from '../../../lib/supabase-server';
 
 type ApiResponse = {
   success: boolean;
@@ -31,7 +16,8 @@ export default async function handler(
   }
 
   try {
-    const { token, userId, newRole } = req.body;
+    const token = req.headers.authorization?.replace('Bearer ', '') || req.body?.token;
+    const { userId, newRole } = req.body;
 
     if (!token || !userId || !newRole) {
       return res.status(400).json({
@@ -40,15 +26,17 @@ export default async function handler(
       });
     }
 
-    // Verify Firebase token
-    const decodedToken = await getAuth().verifyIdToken(token);
+    // Verify Supabase token
+    const { data: { user: authUser }, error: authError } = await supabaseAdmin.auth.getUser(token);
+
+    if (authError || !authUser) {
+      return res.status(401).json({ success: false, error: 'Invalid token' });
+    }
 
     // Check if current user is admin
-    const currentUser = await prisma.user.findUnique({
-      where: { firebaseUid: decodedToken.uid }
-    });
+    const userIsAdmin = await isAdmin(authUser.id);
 
-    if (!currentUser || currentUser.role !== 'ADMIN') {
+    if (!userIsAdmin) {
       return res.status(403).json({
         success: false,
         error: 'Unauthorized: Admin access required'
@@ -65,10 +53,17 @@ export default async function handler(
     }
 
     // Update user role
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { role: newRole }
-    });
+    const { data: updatedUser, error: updateError } = await supabaseAdmin
+      .from('users')
+      // @ts-ignore - TypeScript has trouble inferring the update type
+      .update({ role: newRole })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (updateError) {
+      throw updateError;
+    }
 
     res.status(200).json({ success: true, data: updatedUser });
   } catch (error) {

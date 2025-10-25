@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { onAuthStateChanged, User, getAuth } from "firebase/auth";
-import app from "../pages/firebase";
+import { supabase } from "../lib/supabase";
+import type { User } from "@supabase/supabase-js";
 import LibraryNavbar from "../components/LibraryNavbar";
 import UserRoleBadge from "../components/UserRoleBadge";
 import {
@@ -33,19 +33,31 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [borrowRequests, setBorrowRequests] = useState<BorrowRequest[]>([]);
   const [statsLoading, setStatsLoading] = useState(true);
-  const auth = getAuth(app);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
       setLoading(false);
-      if (currentUser) {
+      if (session?.user) {
         fetchUserBorrowRequests();
       }
-    });
+    };
 
-    return () => unsubscribe();
-  }, [auth]);
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        setUser(session?.user || null);
+        setLoading(false);
+        if (session?.user) {
+          fetchUserBorrowRequests();
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fetchUserBorrowRequests = async () => {
     try {
@@ -197,7 +209,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-5xl font-bold text-gray-900 mb-2">
-                  ยินดีต้อนรับ, {user?.displayName || user?.email?.split("@")[0]}
+                  ยินดีต้อนรับ, {user?.user_metadata?.display_name || user?.email?.split("@")[0]}
                 </h1>
                 <p className="text-2xl text-gray-600">
                   จัดการการยืมอุปกรณ์ของคุณได้อย่างสะดวก
@@ -301,46 +313,54 @@ const Dashboard = () => {
               </h2>
             </div>
             <div className="divide-y divide-gray-100">
-              {recentActivity.map((activity, index) => (
-                <motion.div
-                  key={activity.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
-                  className="p-6 hover:bg-gray-50 transition-colors duration-150"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-gray-900 text-lg">
-                          {activity.action}
-                        </h3>
-                        <span
-                          className={`px-2 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                            activity.status
-                          )}`}
-                        >
-                          {getStatusText(activity.status)}
-                        </span>
+              {recentActivity.length > 0 ? (
+                recentActivity.map((activity, index) => (
+                  <motion.div
+                    key={activity.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 + index * 0.1 }}
+                    className="p-6 hover:bg-gray-50 transition-colors duration-150"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-semibold text-gray-900 text-lg">
+                            {activity.action}
+                          </h3>
+                          <span
+                            className={`px-2 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                              activity.status
+                            )}`}
+                          >
+                            {getStatusText(activity.status)}
+                          </span>
+                        </div>
+                        <p className="text-gray-600 mb-1 text-lg">
+                          {activity.item}
+                        </p>
+                        <div className="flex gap-4 text-base text-gray-500">
+                          <span>วันที่: {activity.date}</span>
+                          {activity.returnDate && (
+                            <span>กำหนดคืน: {activity.returnDate}</span>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-gray-600 mb-1 text-lg">
-                        {activity.item}
-                      </p>
-                      <div className="flex gap-4 text-base text-gray-500">
-                        <span>วันที่: {activity.date}</span>
-                        {activity.returnDate && (
-                          <span>กำหนดคืน: {activity.returnDate}</span>
-                        )}
+                      <div className="text-right">
+                        <button className="text-red-600 hover:text-red-700 text-base font-medium">
+                          ดูรายละเอียด
+                        </button>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <button className="text-red-600 hover:text-red-700 text-base font-medium">
-                        ดูรายละเอียด
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))
+              ) : (
+                <div className="p-12 text-center text-gray-500">
+                  <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <p className="text-lg">ยังไม่มีกิจกรรม</p>
+                  <p className="text-base mt-2">เริ่มยืมอุปกรณ์เพื่อดูประวัติการใช้งาน</p>
+                </div>
+              )}
             </div>
             <div className="p-4 bg-gray-50 text-center">
               <a

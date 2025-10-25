@@ -1,15 +1,7 @@
 import { useState, ChangeEvent, KeyboardEvent, useEffect } from "react";
 import { useRouter } from "next/router";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  updateProfile,
-  AuthError,
-  onAuthStateChanged,
-} from "firebase/auth";
-import app from "./firebase"; // Import Firebase app
-
+import { supabase } from "../lib/supabase";
+import type { AuthError } from "@supabase/supabase-js";
 
 type FormData = {
   email: string;
@@ -30,9 +22,6 @@ function AuthForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  // Initialize Firebase Auth
-  const auth = getAuth(app);
-
   // Email validation helper function
   const isValidEmail = (email: string): boolean => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -42,15 +31,24 @@ function AuthForm() {
 
   // Check if user is already logged in
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is already logged in, redirect to home
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.push("/dashboard");
+      }
+    };
+
+    checkUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
         router.push("/dashboard");
       }
     });
 
-    return () => unsubscribe();
-  }, [auth, router]);
+    return () => subscription.unsubscribe();
+  }, [router]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -65,25 +63,26 @@ function AuthForm() {
   };
 
   // Function to get Thai error messages
-  const getErrorMessage = (error: AuthError): string => {
-    switch (error.code) {
-      case "auth/user-not-found":
-        return "ไม่พบผู้ใช้นี้ในระบบ";
-      case "auth/wrong-password":
-        return "รหัสผ่านไม่ถูกต้อง";
-      case "auth/email-already-in-use":
-        return "อีเมลนี้มีผู้ใช้แล้ว";
-      case "auth/weak-password":
-        return "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
-      case "auth/invalid-email":
-        return "รูปแบบอีเมลไม่ถูกต้อง";
-      case "auth/too-many-requests":
-        return "มีการพยายามเข้าสู่ระบบมากเกินไป กรุณาลองใหม่ภายหลัง";
-      case "auth/invalid-credential":
-        return "ข้อมูลการเข้าสู่ระบบไม่ถูกต้อง";
-      default:
-        return "เกิดข้อผิดพลาด กรุณาลองใหม่";
+  const getErrorMessage = (error: AuthError | Error): string => {
+    const message = error.message.toLowerCase();
+
+    if (message.includes('invalid login credentials') || message.includes('invalid email or password')) {
+      return "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
     }
+    if (message.includes('user already registered') || message.includes('already registered')) {
+      return "อีเมลนี้มีผู้ใช้แล้ว";
+    }
+    if (message.includes('password') && message.includes('least')) {
+      return "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
+    }
+    if (message.includes('invalid email')) {
+      return "รูปแบบอีเมลไม่ถูกต้อง";
+    }
+    if (message.includes('too many requests')) {
+      return "มีการพยายามเข้าสู่ระบบมากเกินไป กรุณาลองใหม่ภายหลัง";
+    }
+
+    return "เกิดข้อผิดพลาด กรุณาลองใหม่";
   };
 
   const handleSubmit = async () => {
@@ -120,82 +119,31 @@ function AuthForm() {
 
     try {
       if (isLogin) {
-        // Debug logging to check email value
-        console.log("Attempting login with email:", formData.email, "Type:", typeof formData.email, "Length:", formData.email.length);
+        // Login with Supabase
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
 
-        // Login with Firebase
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          formData.email,
-          formData.password
-        );
+        if (error) throw error;
 
-        // Get the user token
-        const token = await userCredential.user.getIdToken();
-
-        // Store token (optional, Firebase handles auth state automatically)
-        localStorage.setItem("token", token);
-
-        // Sync user data with database
-        try {
-          const response = await fetch('/api/user', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ token }),
-          });
-
-          if (!response.ok) {
-            console.error('Failed to sync user data');
-          }
-        } catch (error) {
-          console.error('Error syncing user data:', error);
-        }
-
-        // Show success message
-        console.log("Login successful:", userCredential.user);
+        console.log("Login successful:", data.user);
 
         // Redirect to home page after login
         router.push("/");
       } else {
-        // Register with Firebase
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          formData.email,
-          formData.password
-        );
-
-        // Update user profile with name
-        await updateProfile(userCredential.user, {
-          displayName: formData.name,
+        // Register with Supabase
+        const { data, error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: {
+              display_name: formData.name,
+            }
+          }
         });
 
-        // Get the user token
-        const token = await userCredential.user.getIdToken();
-        localStorage.setItem("token", token);
-
-        // Sync user data with database
-        try {
-          const response = await fetch('/api/user', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              token,
-              userData: {
-                displayName: formData.name
-              }
-            }),
-          });
-
-          if (!response.ok) {
-            console.error('Failed to sync user data');
-          }
-        } catch (error) {
-          console.error('Error syncing user data:', error);
-        }
+        if (error) throw error;
 
         // Show success message and switch to login
         alert("สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ");
@@ -208,11 +156,11 @@ function AuthForm() {
         });
       }
     } catch (err) {
-      const firebaseError = err as AuthError;
-      console.error("Auth error:", firebaseError.code, firebaseError.message);
+      const authError = err as AuthError;
+      console.error("Auth error:", authError);
 
       // Set user-friendly error message
-      const errorMessage = getErrorMessage(firebaseError);
+      const errorMessage = getErrorMessage(authError);
       setError(errorMessage);
 
       // Also log the exact error for debugging

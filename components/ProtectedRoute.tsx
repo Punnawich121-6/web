@@ -2,9 +2,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { onAuthStateChanged, User, getAuth } from "firebase/auth";
-import app from "../pages/firebase"; // ใช้ Firebase config ของคุณ
 import { useRouter } from "next/navigation";
+import { supabase } from "../lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -18,20 +18,35 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const auth = getAuth(app); // Initialize auth
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    // Check current session
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
       setLoading(false);
 
       // Redirect to login if not authenticated
-      if (!currentUser) {
+      if (!session) {
         router.push(redirectTo);
       }
-    });
+    };
 
-    return () => unsubscribe();
+    checkSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        setUser(session?.user || null);
+
+        // Redirect to login if not authenticated
+        if (!session) {
+          router.push(redirectTo);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, [router, redirectTo]);
 
   // Show loading spinner while checking authentication

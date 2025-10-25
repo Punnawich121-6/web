@@ -3,32 +3,23 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
-import { onAuthStateChanged, User, getAuth } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "./firebase";
-import app from "./firebase";
+import { supabase } from "../lib/supabase";
+import type { User } from "@supabase/supabase-js";
 import LibraryNavbar from "../components/LibraryNavbar";
 import {
   User as UserIcon,
   Mail,
-  Phone,
-  BookOpen,
-  Building,
-  Calendar,
-  GraduationCap,
   Save,
   ArrowRight,
+  Shield,
 } from "lucide-react";
 
 interface UserProfile {
-  studentId: string;
-  faculty: string;
-  major: string;
-  phoneNumber: string;
-  displayName: string;
+  id: string;
   email: string;
-  createdAt: any;
-  profileCompleted: boolean;
+  display_name: string | null;
+  role: 'USER' | 'ADMIN' | 'MODERATOR';
+  created_at: string;
 }
 
 const Profile = () => {
@@ -37,142 +28,94 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isNewUser, setIsNewUser] = useState(false);
   const [formData, setFormData] = useState({
-    studentId: "",
-    faculty: "",
-    major: "",
-    phoneNumber: "",
+    displayName: "",
   });
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  const auth = getAuth(app);
-
-  const faculties = [
-    "คณะวิศวกรรมศาสตร์",
-    "คณะวิทยาศาสตร์",
-    "คณะเทคโนโลยีสารสนเทศ",
-    "คณะบริหารธุรกิจ",
-    "คณะศิลปศาสตร์",
-    "คณะสถาปัตยกรรมศาสตร์",
-    "คณะแพทยศาสตร์",
-    "คณะพยาบาลศาสตร์",
-  ];
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        await checkUserProfile(currentUser);
-      } else {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
         router.push("/auth");
+        return;
       }
+
+      setUser(session.user);
+      await loadUserProfile(session.user.id);
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
-  }, [auth, router]);
+    checkSession();
 
-  const checkUserProfile = async (currentUser: User) => {
-    try {
-      const userDocRef = doc(db, "users", currentUser.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (userDoc.exists()) {
-        const profileData = userDoc.data() as UserProfile;
-        setUserProfile(profileData);
-        setIsNewUser(!profileData.profileCompleted);
-
-        if (profileData.profileCompleted) {
-          setFormData({
-            studentId: profileData.studentId || "",
-            faculty: profileData.faculty || "",
-            major: profileData.major || "",
-            phoneNumber: profileData.phoneNumber || "",
-          });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (!session) {
+          router.push("/auth");
+          return;
         }
-      } else {
-        setIsNewUser(true);
+
+        setUser(session.user);
+        await loadUserProfile(session.user.id);
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [router]);
+
+  const loadUserProfile = async (authId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ token: session.access_token }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setUserProfile(result.data);
+        setFormData({
+          displayName: result.data.display_name || '',
+        });
       }
     } catch (error) {
-      console.error("Error checking user profile:", error);
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
-
-    if (!formData.studentId.trim()) {
-      newErrors.studentId = "กรุณากรอกรหัสนักศึกษา";
-    } else if (!/^\d{8,10}$/.test(formData.studentId)) {
-      newErrors.studentId = "รหัสนักศึกษาต้องเป็นตัวเลข 8-10 หลัก";
-    }
-
-    if (!formData.faculty) {
-      newErrors.faculty = "กรุณาเลือกคณะ";
-    }
-
-    if (!formData.major.trim()) {
-      newErrors.major = "กรุณากรอกสาขา";
-    }
-
-    if (!formData.phoneNumber.trim()) {
-      newErrors.phoneNumber = "กรุณากรอกเบอร์โทรศัพท์";
-    } else if (!/^0\d{9}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = "เบอร์โทรศัพท์ต้องขึ้นต้นด้วย 0 และมี 10 หลัก";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
+      console.error('Error loading profile:', error);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm() || !user) return;
-
     setSaving(true);
+    setSuccess(false);
+
     try {
-      const userDocRef = doc(db, "users", user.uid);
-      const profileData: UserProfile = {
-        studentId: formData.studentId,
-        faculty: formData.faculty,
-        major: formData.major,
-        phoneNumber: formData.phoneNumber,
-        displayName: user.displayName || "",
-        email: user.email || "",
-        createdAt: serverTimestamp(),
-        profileCompleted: true,
-      };
+      // Update Supabase auth metadata
+      const { error: authError } = await supabase.auth.updateUser({
+        data: {
+          display_name: formData.displayName,
+        }
+      });
 
-      await setDoc(userDocRef, profileData, { merge: true });
-      setUserProfile(profileData);
-      setIsNewUser(false);
+      if (authError) throw authError;
 
-      // Redirect to dashboard if this is first time setup
-      if (isNewUser) {
-        router.push("/dashboard");
+      // Reload profile
+      if (user) {
+        await loadUserProfile(user.id);
       }
+
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
-      console.error("Error saving profile:", error);
+      console.error('Error saving profile:', error);
+      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
     } finally {
       setSaving(false);
     }
@@ -180,260 +123,193 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">กำลังโหลด...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
         </div>
       </div>
     );
   }
 
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case 'ADMIN':
+        return 'ผู้ดูแลระบบ';
+      case 'MODERATOR':
+        return 'ผู้ช่วยดูแลระบบ';
+      default:
+        return 'ผู้ใช้งานทั่วไป';
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'ADMIN':
+        return 'bg-red-100 text-red-800';
+      case 'MODERATOR':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-green-100 text-green-800';
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <LibraryNavbar />
 
       <div className="pt-24 pb-12">
         <div className="max-w-4xl mx-auto px-6">
-          {isNewUser ? (
-            // Profile Setup Form for New Users
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden"
-            >
-              <div className="bg-gradient-to-r from-red-600 to-red-700 p-8 text-white text-center">
-                <GraduationCap className="w-16 h-16 mx-auto mb-4" />
-                <h1 className="text-3xl font-bold mb-2">ยินดีต้อนรับ!</h1>
-                <p className="text-red-100">
-                  กรุณากรอกข้อมูลเพิ่มเติมเพื่อใช้งานระบบ
-                </p>
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              โปรไฟล์ของฉัน
+            </h1>
+            <p className="text-xl text-gray-600">
+              จัดการข้อมูลส่วนตัวของคุณ
+            </p>
+          </motion.div>
+
+          {/* Profile Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6"
+          >
+            {/* Profile Header */}
+            <div className="bg-gradient-to-r from-red-600 to-red-700 px-8 py-12">
+              <div className="flex items-center gap-6">
+                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-red-600 font-bold text-4xl">
+                    {user?.email?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="text-white">
+                  <h2 className="text-3xl font-bold mb-2">
+                    {formData.displayName || user?.email?.split("@")[0]}
+                  </h2>
+                  <p className="text-red-100 text-lg flex items-center gap-2">
+                    <Mail className="w-5 h-5" />
+                    {user?.email}
+                  </p>
+                  {userProfile && (
+                    <div className="mt-3">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getRoleColor(userProfile.role)}`}>
+                        <Shield className="w-4 h-4 mr-1" />
+                        {getRoleBadge(userProfile.role)}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
+            </div>
 
-              <form onSubmit={handleSubmit} className="p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Student ID */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      รหัสนักศึกษา *
-                    </label>
-                    <div className="relative">
-                      <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        name="studentId"
-                        value={formData.studentId}
-                        onChange={handleInputChange}
-                        placeholder="เช่น 12345678"
-                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                          errors.studentId ? "border-red-500" : "border-gray-300"
-                        }`}
-                      />
-                    </div>
-                    {errors.studentId && (
-                      <p className="mt-1 text-sm text-red-600">{errors.studentId}</p>
-                    )}
-                  </div>
+            {/* Profile Form */}
+            <form onSubmit={handleSubmit} className="p-8">
+              {success && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg"
+                >
+                  บันทึกข้อมูลสำเร็จ!
+                </motion.div>
+              )}
 
-                  {/* Faculty */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      คณะ *
-                    </label>
-                    <div className="relative">
-                      <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <select
-                        name="faculty"
-                        value={formData.faculty}
-                        onChange={handleInputChange}
-                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none ${
-                          errors.faculty ? "border-red-500" : "border-gray-300"
-                        }`}
-                      >
-                        <option value="">เลือกคณะ</option>
-                        {faculties.map((faculty) => (
-                          <option key={faculty} value={faculty}>
-                            {faculty}
-                          </option>
-                        ))}
-                      </select>
+              <div className="space-y-6">
+                {/* Display Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="flex items-center gap-2">
+                      <UserIcon className="w-4 h-4" />
+                      ชื่อที่แสดง
                     </div>
-                    {errors.faculty && (
-                      <p className="mt-1 text-sm text-red-600">{errors.faculty}</p>
-                    )}
-                  </div>
-
-                  {/* Major */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      สาขา *
-                    </label>
-                    <div className="relative">
-                      <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="text"
-                        name="major"
-                        value={formData.major}
-                        onChange={handleInputChange}
-                        placeholder="เช่น วิศวกรรมคอมพิวเตอร์"
-                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                          errors.major ? "border-red-500" : "border-gray-300"
-                        }`}
-                      />
-                    </div>
-                    {errors.major && (
-                      <p className="mt-1 text-sm text-red-600">{errors.major}</p>
-                    )}
-                  </div>
-
-                  {/* Phone Number */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      เบอร์โทรศัพท์ *
-                    </label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <input
-                        type="tel"
-                        name="phoneNumber"
-                        value={formData.phoneNumber}
-                        onChange={handleInputChange}
-                        placeholder="เช่น 0812345678"
-                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
-                          errors.phoneNumber ? "border-red-500" : "border-gray-300"
-                        }`}
-                      />
-                    </div>
-                    {errors.phoneNumber && (
-                      <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>
-                    )}
-                  </div>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.displayName}
+                    onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+                    className="text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+                    placeholder="กรอกชื่อที่ต้องการแสดง"
+                  />
                 </div>
 
-                <div className="mt-8 flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="flex items-center gap-2 px-8 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
-                  >
-                    {saving ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        บันทึก...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-5 h-5" />
-                        เสร็จสิ้น
-                        <ArrowRight className="w-5 h-5" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          ) : (
-            // Profile Display for Existing Users
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
-            >
-              {/* Header */}
-              <div className="text-center">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">ข้อมูลส่วนตัว</h1>
-                <p className="text-gray-600">จัดการและดูข้อมูลส่วนตัวของคุณ</p>
-              </div>
-
-              {/* Profile Cards */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Personal Information */}
-                <div className="bg-white rounded-2xl shadow-lg p-8">
-                  <h2 className="text-xl font-bold text-gray-900 mb-6">ข้อมูลส่วนตัว</h2>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <UserIcon className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-500">ชื่อ</p>
-                        <p className="font-medium">{user?.displayName || "ไม่ระบุ"}</p>
-                      </div>
+                {/* Email (Read-only) */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      อีเมล
                     </div>
-
-                    <div className="flex items-center gap-3">
-                      <GraduationCap className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-500">รหัสนักศึกษา</p>
-                        <p className="font-medium">{userProfile?.studentId || "ไม่ระบุ"}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <Mail className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-500">อีเมล</p>
-                        <p className="font-medium">{user?.email}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <Phone className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-500">เบอร์โทรศัพท์</p>
-                        <p className="font-medium">{userProfile?.phoneNumber || "ไม่ระบุ"}</p>
-                      </div>
-                    </div>
-                  </div>
+                  </label>
+                  <input
+                    type="email"
+                    value={user?.email || ''}
+                    disabled
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    อีเมลไม่สามารถเปลี่ยนแปลงได้
+                  </p>
                 </div>
 
-                {/* Academic Information */}
-                <div className="bg-white rounded-2xl shadow-lg p-8">
-                  <h2 className="text-xl font-bold text-gray-900 mb-6">ข้อมูลการศึกษา</h2>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Building className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-500">คณะ</p>
-                        <p className="font-medium">{userProfile?.faculty || "ไม่ระบุ"}</p>
+                {/* Account Info */}
+                {userProfile && (
+                  <div className="pt-6 border-t border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      ข้อมูลบัญชี
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-600 mb-1">บทบาท</p>
+                        <p className="text-base font-medium text-gray-900">
+                          {getRoleBadge(userProfile.role)}
+                        </p>
                       </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <BookOpen className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-500">สาขา</p>
-                        <p className="font-medium">{userProfile?.major || "ไม่ระบุ"}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <Calendar className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-500">วันที่เข้าร่วม</p>
-                        <p className="font-medium">
-                          {userProfile?.createdAt
-                            ? new Date(userProfile.createdAt.toDate()).toLocaleDateString('th-TH')
-                            : "ไม่ระบุ"}
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-600 mb-1">สมัครสมาชิกเมื่อ</p>
+                        <p className="text-base font-medium text-gray-900">
+                          {new Date(userProfile.created_at).toLocaleDateString('th-TH', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
                         </p>
                       </div>
                     </div>
                   </div>
+                )}
+
+                {/* Submit Button */}
+                <div className="flex gap-4 pt-6">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-medium py-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                  >
+                    <Save className="w-5 h-5" />
+                    {saving ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push('/dashboard')}
+                    className="px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-lg transition-colors duration-200 flex items-center gap-2"
+                  >
+                    กลับ
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
-
-              {/* Edit Button */}
-              <div className="text-center">
-                <button
-                  onClick={() => setIsNewUser(true)}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200"
-                >
-                  แก้ไขข้อมูล
-                </button>
-              </div>
-            </motion.div>
-          )}
+            </form>
+          </motion.div>
         </div>
       </div>
-    </main>
+    </div>
   );
 };
 

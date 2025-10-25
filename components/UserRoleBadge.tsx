@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../pages/firebase';
+import { supabase } from '../lib/supabase';
 
 type UserRole = 'USER' | 'ADMIN' | 'MODERATOR' | null;
 
@@ -15,14 +14,16 @@ export default function UserRoleBadge() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
         try {
-          const token = await user.getIdToken();
+          const token = session.access_token;
           const response = await fetch('/api/user', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
             },
             body: JSON.stringify({ token }),
           });
@@ -38,9 +39,39 @@ export default function UserRoleBadge() {
         setUserData(null);
       }
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (session) {
+          try {
+            const token = session.access_token;
+            const response = await fetch('/api/user', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({ token }),
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              setUserData(result.data);
+            }
+          } catch (error) {
+            console.error('Error fetching user data:', error);
+          }
+        } else {
+          setUserData(null);
+        }
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   if (loading) {

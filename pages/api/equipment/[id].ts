@@ -1,19 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '../../../generated/prisma';
-import { getAuth } from 'firebase-admin/auth';
-import admin from 'firebase-admin';
-
-if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'login-b5d42',
-    });
-  } catch (error) {
-    console.log('Firebase admin already initialized or error:', error);
-  }
-}
-
-const prisma = new PrismaClient();
+import { supabaseAdmin, getUserFromToken, getUserProfile } from '../../../lib/supabase-server';
 
 type ApiResponse = {
   success: boolean;
@@ -34,32 +20,27 @@ export default async function handler(
   try {
     if (req.method === 'GET') {
       // Get single equipment
-      const equipment = await prisma.equipment.findUnique({
-        where: { id },
-        include: {
-          creator: {
-            select: {
-              displayName: true,
-              email: true,
-            }
-          },
-          borrowings: {
-            include: {
-              user: {
-                select: {
-                  displayName: true,
-                  email: true,
-                }
-              }
-            },
-            orderBy: {
-              createdAt: 'desc'
-            }
-          }
-        }
-      });
+      const { data: equipment, error } = await supabaseAdmin
+        .from('equipment')
+        .select(`
+          *,
+          creator:users!equipment_created_by_fkey (
+            display_name,
+            email
+          ),
+          borrowings:borrow_requests!borrow_requests_equipment_id_fkey (
+            *,
+            user:users!borrow_requests_user_id_fkey (
+              display_name,
+              email
+            )
+          )
+        `)
+        .eq('id', id)
+        .order('created_at', { ascending: false, foreignTable: 'borrow_requests' })
+        .single<any>();
 
-      if (!equipment) {
+      if (error || !equipment) {
         return res.status(404).json({ success: false, error: 'Equipment not found' });
       }
 
@@ -72,14 +53,14 @@ export default async function handler(
         return res.status(400).json({ success: false, error: 'Token is required' });
       }
 
-      // Verify Firebase token
-      const decodedToken = await getAuth().verifyIdToken(token);
+      // Verify token and get user
+      const authUser = await getUserFromToken(token);
+      if (!authUser) {
+        return res.status(401).json({ success: false, error: 'Invalid token' });
+      }
 
-      // Check if user exists and is admin
-      const user = await prisma.user.findUnique({
-        where: { firebaseUid: decodedToken.uid }
-      });
-
+      const userProfile = await getUserProfile(authUser.id);
+      const user = userProfile as { id: string; role: 'USER' | 'ADMIN' | 'MODERATOR' } | null;
       if (!user || user.role !== 'ADMIN') {
         return res.status(403).json({
           success: false,
@@ -87,19 +68,36 @@ export default async function handler(
         });
       }
 
+      // Convert camelCase to snake_case for database
+      const dbEquipmentData: any = {};
+      if (equipmentData.name !== undefined) dbEquipmentData.name = equipmentData.name;
+      if (equipmentData.category !== undefined) dbEquipmentData.category = equipmentData.category;
+      if (equipmentData.description !== undefined) dbEquipmentData.description = equipmentData.description;
+      if (equipmentData.serialNumber !== undefined) dbEquipmentData.serial_number = equipmentData.serialNumber;
+      if (equipmentData.image !== undefined) dbEquipmentData.image = equipmentData.image;
+      if (equipmentData.availableQuantity !== undefined) dbEquipmentData.available_quantity = equipmentData.availableQuantity;
+      if (equipmentData.totalQuantity !== undefined) dbEquipmentData.total_quantity = equipmentData.totalQuantity;
+      if (equipmentData.status !== undefined) dbEquipmentData.status = equipmentData.status;
+
       // Update equipment
-      const equipment = await prisma.equipment.update({
-        where: { id },
-        data: equipmentData,
-        include: {
-          creator: {
-            select: {
-              displayName: true,
-              email: true,
-            }
-          }
-        }
-      });
+      const { data: equipment, error } = await supabaseAdmin
+        .from('equipment')
+        // @ts-ignore
+        .update(dbEquipmentData)
+        .eq('id', id)
+        .select(`
+          *,
+          creator:users!equipment_created_by_fkey (
+            display_name,
+            email
+          )
+        `)
+        .single<any>();
+
+      if (error) {
+        console.error('Error updating equipment:', error);
+        return res.status(500).json({ success: false, error: error.message });
+      }
 
       res.status(200).json({ success: true, data: equipment });
     } else if (req.method === 'DELETE') {
@@ -110,14 +108,14 @@ export default async function handler(
         return res.status(400).json({ success: false, error: 'Token is required' });
       }
 
-      // Verify Firebase token
-      const decodedToken = await getAuth().verifyIdToken(token);
+      // Verify token and get user
+      const authUser = await getUserFromToken(token);
+      if (!authUser) {
+        return res.status(401).json({ success: false, error: 'Invalid token' });
+      }
 
-      // Check if user exists and is admin
-      const user = await prisma.user.findUnique({
-        where: { firebaseUid: decodedToken.uid }
-      });
-
+      const userProfile = await getUserProfile(authUser.id);
+      const user = userProfile as { id: string; role: 'USER' | 'ADMIN' | 'MODERATOR' } | null;
       if (!user || user.role !== 'ADMIN') {
         return res.status(403).json({
           success: false,
@@ -126,16 +124,18 @@ export default async function handler(
       }
 
       // Check if equipment has active borrowings
-      const activeBorrowings = await prisma.borrowRequest.findMany({
-        where: {
-          equipmentId: id,
-          status: {
-            in: ['PENDING', 'APPROVED', 'ACTIVE']
-          }
-        }
-      });
+      const { data: activeBorrowings, error: borrowingsError } = await supabaseAdmin
+        .from('borrow_requests')
+        .select('id')
+        .eq('equipment_id', id)
+        .in('status', ['PENDING', 'APPROVED', 'ACTIVE']);
 
-      if (activeBorrowings.length > 0) {
+      if (borrowingsError) {
+        console.error('Error checking borrowings:', borrowingsError);
+        return res.status(500).json({ success: false, error: borrowingsError.message });
+      }
+
+      if (activeBorrowings && activeBorrowings.length > 0) {
         return res.status(400).json({
           success: false,
           error: 'Cannot delete equipment with active borrowings'
@@ -143,9 +143,15 @@ export default async function handler(
       }
 
       // Delete equipment
-      await prisma.equipment.delete({
-        where: { id }
-      });
+      const { error } = await supabaseAdmin
+        .from('equipment')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting equipment:', error);
+        return res.status(500).json({ success: false, error: error.message });
+      }
 
       res.status(200).json({ success: true, data: { message: 'Equipment deleted successfully' } });
     } else {
