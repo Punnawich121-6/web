@@ -269,7 +269,14 @@ const BorrowingHistory = () => {
                   Dashboard
                 </a>
                 <a
-                  href="/Equipment_Catalog_User"
+                  href="/schedule"
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-base"
+                >
+                  <Calendar size={18} />
+                  Schedule
+                </a>
+                <a
+                  href="/equipment/catalog"
                   className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-base"
                 >
                   <Plus size={18} />

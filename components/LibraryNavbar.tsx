@@ -103,14 +103,15 @@ const LibraryNavbar = () => {
   }, [isProfileMenuOpen]);
 
   const navItems = [
-    { href: "/table", label: "Schedule" },
-    { href: "/Equipment_Catalog", label: "Catalog" },
+    { href: "/schedule", label: "Schedule" },
+    { href: "/equipment/catalog", label: "Catalog" },
     { href: "/contact", label: "Contact" },
   ];
 
   const userNavItems = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/Borrowing_History", label: "History" },
+    { href: "/schedule", label: "Schedule" },
   ];
 
   const adminNavItems = [

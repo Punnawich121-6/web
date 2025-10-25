@@ -62,9 +62,42 @@ const Dashboard = () => {
   const fetchUserBorrowRequests = async () => {
     try {
       setStatsLoading(true);
-      // For now, we'll use empty array since borrow API might not be fully implemented
-      // In the future, this would fetch from /api/borrow with user filter
-      setBorrowRequests([]);
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setBorrowRequests([]);
+        return;
+      }
+
+      const token = session.access_token;
+      const response = await fetch(`/api/borrow?token=${encodeURIComponent(token)}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          // Transform data to match interface
+          const transformed = result.data.map((req: any) => ({
+            id: req.id,
+            status: req.status,
+            borrowDate: req.startDate,
+            returnDate: req.endDate,
+            equipment: {
+              name: req.equipment.name,
+              serialNumber: req.equipment.serialNumber,
+            },
+          }));
+          setBorrowRequests(transformed);
+        } else {
+          setBorrowRequests([]);
+        }
+      } else {
+        setBorrowRequests([]);
+      }
     } catch (error) {
       console.error('Error fetching borrow requests:', error);
       setBorrowRequests([]);
@@ -131,7 +164,7 @@ const Dashboard = () => {
       title: "เริ่มจองอุปกรณ์",
       description: "เลือกอุปกรณ์ที่ต้องการยืมจากแคตตาล็อก",
       icon: ShoppingCart,
-      href: "/Equipment_Catalog_User",
+      href: "/equipment/catalog",
       color: "bg-gradient-to-r from-red-600 to-red-700",
       hoverColor: "hover:from-red-700 hover:to-red-800",
     },
@@ -144,12 +177,12 @@ const Dashboard = () => {
       hoverColor: "hover:from-blue-700 hover:to-blue-800",
     },
     {
-      title: "รายงานสถิติ",
-      description: "ดูสถิติการใช้งานและรายงานต่างๆ",
-      icon: BarChart3,
-      href: "/statistics",
-      color: "bg-gradient-to-r from-green-600 to-green-700",
-      hoverColor: "hover:from-green-700 hover:to-green-800",
+      title: "ปฏิทินการยืม",
+      description: "ดูปฏิทินและกำหนดการยืมอุปกรณ์",
+      icon: Calendar,
+      href: "/schedule",
+      color: "bg-gradient-to-r from-purple-600 to-purple-700",
+      hoverColor: "hover:from-purple-700 hover:to-purple-800",
     },
   ];
 
