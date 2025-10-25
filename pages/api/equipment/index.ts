@@ -84,10 +84,14 @@ export default async function handler(
         category: equipmentData.category,
         description: equipmentData.description,
         serial_number: equipmentData.serialNumber,
+        location: equipmentData.location || 'ไม่ระบุ',
         image: equipmentData.image,
         available_quantity: equipmentData.availableQuantity,
         total_quantity: equipmentData.totalQuantity,
         status: equipmentData.status || 'AVAILABLE',
+        specifications: equipmentData.specifications,
+        condition: equipmentData.condition,
+        purchase_date: equipmentData.purchaseDate,
         created_by: user.id,
       };
 

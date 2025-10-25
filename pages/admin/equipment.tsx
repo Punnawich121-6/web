@@ -128,12 +128,18 @@ const AdminEquipmentPage = () => {
     }
   };
 
-  const handleAddEquipment = async (equipmentData: any) => {
+  const handleAddEquipment = async (equipmentData: any): Promise<void> => {
     try {
-      if (!user) return;
+      if (!user) {
+        setError('กรุณาเข้าสู่ระบบก่อน');
+        return;
+      }
 
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      if (!session) {
+        setError('Session หมดอายุ กรุณาเข้าสู่ระบบใหม่');
+        return;
+      }
 
       const token = session.access_token;
       const response = await fetch('/api/equipment', {
@@ -150,21 +156,32 @@ const AdminEquipmentPage = () => {
       if (result.success) {
         setEquipment([result.data, ...equipment]);
         setShowAddModal(false);
+        // Clear any previous errors
+        setError(null);
       } else {
-        setError(result.error || 'Failed to add equipment');
+        setError(result.error || 'ไม่สามารถเพิ่มอุปกรณ์ได้');
+        throw new Error(result.error);
       }
     } catch (err) {
-      setError('Failed to add equipment');
+      const errorMessage = err instanceof Error ? err.message : 'ไม่สามารถเพิ่มอุปกรณ์ได้';
+      setError(errorMessage);
       console.error('Error adding equipment:', err);
+      throw err; // Re-throw to handle in modal
     }
   };
 
-  const handleUpdateEquipment = async (id: string, equipmentData: any) => {
+  const handleUpdateEquipment = async (id: string, equipmentData: any): Promise<void> => {
     try {
-      if (!user) return;
+      if (!user) {
+        setError('กรุณาเข้าสู่ระบบก่อน');
+        return;
+      }
 
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      if (!session) {
+        setError('Session หมดอายุ กรุณาเข้าสู่ระบบใหม่');
+        return;
+      }
 
       const token = session.access_token;
       const response = await fetch(`/api/equipment/${id}`, {
@@ -183,12 +200,17 @@ const AdminEquipmentPage = () => {
           item.id === id ? result.data : item
         ));
         setEditingEquipment(null);
+        // Clear any previous errors
+        setError(null);
       } else {
-        setError(result.error || 'Failed to update equipment');
+        setError(result.error || 'ไม่สามารถแก้ไขอุปกรณ์ได้');
+        throw new Error(result.error);
       }
     } catch (err) {
-      setError('Failed to update equipment');
+      const errorMessage = err instanceof Error ? err.message : 'ไม่สามารถแก้ไขอุปกรณ์ได้';
+      setError(errorMessage);
       console.error('Error updating equipment:', err);
+      throw err; // Re-throw to handle in modal
     }
   };
 
@@ -500,7 +522,7 @@ const EquipmentModal = ({
   onClose
 }: {
   equipment?: Equipment | null;
-  onSave: (data: any) => void;
+  onSave: (data: any) => Promise<void>;
   onClose: () => void;
 }) => {
   const [formData, setFormData] = useState({
@@ -516,15 +538,26 @@ const EquipmentModal = ({
     status: equipment?.status || 'AVAILABLE',
     specifications: equipment?.specifications || '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const submitData = {
-      ...formData,
-      specifications: formData.specifications || null,
-    };
-    onSave(submitData);
+    // Prevent double submission
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const submitData = {
+        ...formData,
+        specifications: formData.specifications || null,
+      };
+      await onSave(submitData);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -703,15 +736,24 @@ const EquipmentModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ยกเลิก
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {equipment ? 'บันทึกการแก้ไข' : 'เพิ่มอุปกรณ์'}
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <span>กำลังบันทึก...</span>
+                </>
+              ) : (
+                equipment ? 'บันทึกการแก้ไข' : 'เพิ่มอุปกรณ์'
+              )}
             </button>
           </div>
         </form>
