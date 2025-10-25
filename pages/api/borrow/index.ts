@@ -68,7 +68,37 @@ export default async function handler(
         return res.status(500).json({ success: false, error: error.message });
       }
 
-      res.status(200).json({ success: true, data: borrowRequests || [] });
+      // Transform snake_case to camelCase for frontend
+      const transformedRequests = borrowRequests?.map((request: any) => ({
+        id: request.id,
+        user: {
+          displayName: request.user?.display_name || 'Unknown',
+          email: request.user?.email || '',
+        },
+        equipment: {
+          name: request.equipment?.name || '',
+          category: request.equipment?.category || '',
+          serialNumber: request.equipment?.serial_number || '',
+          image: request.equipment?.image,
+        },
+        quantity: request.quantity,
+        startDate: request.start_date,
+        endDate: request.end_date,
+        actualReturnDate: request.actual_return_date,
+        status: request.status,
+        purpose: request.purpose,
+        notes: request.notes,
+        createdAt: request.created_at,
+        approver: request.approver ? {
+          displayName: request.approver.display_name,
+          email: request.approver.email,
+        } : undefined,
+        approvedAt: request.approved_at,
+        rejectionReason: request.rejection_reason,
+      })) || [];
+
+      console.log(`Returning ${transformedRequests.length} borrow requests for user role: ${user.role}`);
+      res.status(200).json({ success: true, data: transformedRequests });
     } else if (req.method === 'POST') {
       // Create new borrow request
       const { token, borrowData } = req.body;
@@ -125,6 +155,7 @@ export default async function handler(
         purpose: borrowData.purpose,
         start_date: borrowData.startDate,
         end_date: borrowData.endDate,
+        notes: borrowData.notes || null,
         status: borrowData.status || 'PENDING',
       };
 

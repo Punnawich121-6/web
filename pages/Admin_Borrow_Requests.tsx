@@ -68,7 +68,7 @@ const AdminBorrowRequests = () => {
       setUser(session?.user || null);
       setLoading(false);
       if (session?.user) {
-        fetchBorrowRequests();
+        await fetchBorrowRequests(session);
       }
     };
 
@@ -79,7 +79,7 @@ const AdminBorrowRequests = () => {
         setUser(session?.user || null);
         setLoading(false);
         if (session?.user) {
-          fetchBorrowRequests();
+          await fetchBorrowRequests(session);
         }
       }
     );
@@ -87,15 +87,26 @@ const AdminBorrowRequests = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchBorrowRequests = async () => {
+  const fetchBorrowRequests = async (sessionParam?: any) => {
     try {
       setDataLoading(true);
-      if (!user) return;
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      // Use provided session or get current session
+      let currentSession = sessionParam;
+      if (!currentSession) {
+        const { data: { session } } = await supabase.auth.getSession();
+        currentSession = session;
+      }
 
-      const token = session.access_token;
+      if (!currentSession) {
+        console.log('No session found');
+        setBorrowRequests([]);
+        return;
+      }
+
+      const token = currentSession.access_token;
+      console.log('Fetching borrow requests with token');
+
       const response = await fetch(`/api/borrow?token=${encodeURIComponent(token)}`, {
         method: 'GET',
         headers: {
@@ -103,15 +114,20 @@ const AdminBorrowRequests = () => {
         },
       });
 
+      console.log('Response status:', response.status);
+
       if (response.ok) {
         const result = await response.json();
+        console.log('Borrow requests result:', result);
         if (result.success && result.data) {
           setBorrowRequests(result.data);
         } else {
+          console.error('No data in response:', result);
           setBorrowRequests([]);
         }
       } else {
-        console.error('Failed to fetch borrow requests');
+        const errorText = await response.text();
+        console.error('Failed to fetch borrow requests:', response.status, errorText);
         setBorrowRequests([]);
       }
     } catch (error) {
