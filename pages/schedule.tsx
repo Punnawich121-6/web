@@ -42,6 +42,7 @@ export default function Schedule() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<"month" | "week">("month");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -110,12 +111,33 @@ export default function Schedule() {
 
   const getEventsForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return events.filter(event => {
+    let filteredEvents = events.filter(event => {
       const start = event.startDate.split('T')[0];
       const end = event.endDate.split('T')[0];
       return dateStr >= start && dateStr <= end;
     });
+
+    // Apply status filter
+    if (statusFilter !== "ALL") {
+      filteredEvents = filteredEvents.filter(event => event.status === statusFilter);
+    }
+
+    return filteredEvents;
   };
+
+  // Calculate statistics
+  const getStatistics = () => {
+    const total = events.length;
+    const pending = events.filter(e => e.status === "PENDING").length;
+    const approved = events.filter(e => e.status === "APPROVED" || e.status === "ACTIVE").length;
+    const returned = events.filter(e => e.status === "RETURNED").length;
+    const rejected = events.filter(e => e.status === "REJECTED").length;
+    const overdue = events.filter(e => e.status === "OVERDUE").length;
+
+    return { total, pending, approved, returned, rejected, overdue };
+  };
+
+  const stats = getStatistics();
 
   const renderCalendar = () => {
     const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentDate);
@@ -273,6 +295,123 @@ export default function Schedule() {
             <p className="text-xl text-gray-600">
               ดูกำหนดการและสถานะการยืมอุปกรณ์
             </p>
+          </motion.div>
+
+          {/* Statistics Overview */}
+          {user && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6"
+            >
+              {/* Total */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600">ทั้งหมด</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                  </div>
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    <CalendarIcon size={20} className="text-gray-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Pending */}
+              <div className="bg-white rounded-lg shadow-sm border border-amber-100 p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-amber-600">รออนุมัติ</p>
+                    <p className="text-2xl font-bold text-amber-900">{stats.pending}</p>
+                  </div>
+                  <div className="p-2 bg-amber-100 rounded-lg">
+                    <Clock size={20} className="text-amber-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Approved/Active */}
+              <div className="bg-white rounded-lg shadow-sm border border-green-100 p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-green-600">กำลังยืม</p>
+                    <p className="text-2xl font-bold text-green-900">{stats.approved}</p>
+                  </div>
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <CheckCircle size={20} className="text-green-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Returned */}
+              <div className="bg-white rounded-lg shadow-sm border border-blue-100 p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-blue-600">คืนแล้ว</p>
+                    <p className="text-2xl font-bold text-blue-900">{stats.returned}</p>
+                  </div>
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Package size={20} className="text-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Rejected */}
+              <div className="bg-white rounded-lg shadow-sm border border-red-100 p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-red-600">ปฏิเสธ</p>
+                    <p className="text-2xl font-bold text-red-900">{stats.rejected}</p>
+                  </div>
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <XCircle size={20} className="text-red-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Overdue */}
+              {stats.overdue > 0 && (
+                <div className="bg-white rounded-lg shadow-sm border border-orange-100 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-orange-600">เกินกำหนด</p>
+                      <p className="text-2xl font-bold text-orange-900">{stats.overdue}</p>
+                    </div>
+                    <div className="p-2 bg-orange-100 rounded-lg">
+                      <AlertCircle size={20} className="text-orange-600" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Filter */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-6"
+          >
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                กรองตามสถานะ
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              >
+                <option value="ALL">ทั้งหมด</option>
+                <option value="PENDING">รออนุมัติ</option>
+                <option value="APPROVED">อนุมัติแล้ว</option>
+                <option value="ACTIVE">กำลังยืม</option>
+                <option value="RETURNED">คืนแล้ว</option>
+                <option value="REJECTED">ปฏิเสธ</option>
+                <option value="OVERDUE">เกินกำหนด</option>
+              </select>
+            </div>
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

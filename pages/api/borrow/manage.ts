@@ -26,10 +26,10 @@ export default async function handler(
         });
       }
 
-      if (!['approve', 'reject'].includes(action)) {
+      if (!['approve', 'reject', 'return'].includes(action)) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid action. Must be "approve" or "reject"'
+          error: 'Invalid action. Must be "approve", "reject", or "return"'
         });
       }
 
@@ -55,7 +55,7 @@ export default async function handler(
         });
       }
 
-      // Check if borrow request exists and is pending
+      // Check if borrow request exists
       const { data: borrowRequest, error: fetchError } = await supabaseAdmin
         .from('borrow_requests')
         .select(`
@@ -73,32 +73,90 @@ export default async function handler(
         });
       }
 
-      if (borrowRequest.status !== 'PENDING') {
-        return res.status(400).json({
-          success: false,
-          error: 'Request has already been processed'
-        });
+      // Validate status based on action
+      if (action === 'return') {
+        if (!['APPROVED', 'ACTIVE'].includes(borrowRequest.status)) {
+          return res.status(400).json({
+            success: false,
+            error: 'Only approved or active requests can be returned'
+          });
+        }
+      } else {
+        if (borrowRequest.status !== 'PENDING') {
+          return res.status(400).json({
+            success: false,
+            error: 'Only pending requests can be approved or rejected'
+          });
+        }
       }
 
-      let updateData: any = {
-        approved_by: user.id,
-        approved_at: new Date().toISOString(),
-      };
+      let updateData: any = {};
 
       if (action === 'approve') {
-        updateData.status = 'APPROVED';
+        // Check equipment availability before approving
+        if (borrowRequest.equipment.available_quantity < borrowRequest.quantity) {
+          return res.status(400).json({
+            success: false,
+            error: 'Insufficient equipment quantity available'
+          });
+        }
 
-        // Optionally reduce available quantity (you might want to do this when status changes to ACTIVE)
-        // const { error: equipmentError } = await supabaseAdmin
-        //   .from('equipment')
-        //   .update({
-        //     available_quantity: borrowRequest.equipment.available_quantity - borrowRequest.quantity
-        //   })
-        //   .eq('id', borrowRequest.equipment_id);
+        updateData = {
+          status: 'APPROVED',
+          approved_by: user.id,
+          approved_at: new Date().toISOString(),
+        };
+
+        // Reduce available quantity when approving
+        const newAvailableQuantity = borrowRequest.equipment.available_quantity - borrowRequest.quantity;
+        const { error: equipmentError } = await supabaseAdmin
+          .from('equipment')
+          // @ts-ignore
+          .update({
+            available_quantity: newAvailableQuantity,
+            status: newAvailableQuantity === 0 ? 'BORROWED' : borrowRequest.equipment.status
+          })
+          .eq('id', borrowRequest.equipment_id);
+
+        if (equipmentError) {
+          console.error('Error updating equipment quantity:', equipmentError);
+          return res.status(500).json({
+            success: false,
+            error: 'Failed to update equipment quantity'
+          });
+        }
       } else if (action === 'reject') {
-        updateData.status = 'REJECTED';
+        updateData = {
+          status: 'REJECTED',
+          approved_by: user.id,
+          approved_at: new Date().toISOString(),
+        };
         if (rejectionReason) {
           updateData.rejection_reason = rejectionReason;
+        }
+      } else if (action === 'return') {
+        updateData = {
+          status: 'RETURNED',
+          actual_return_date: new Date().toISOString(),
+        };
+
+        // Increase available quantity when returning
+        const newAvailableQuantity = borrowRequest.equipment.available_quantity + borrowRequest.quantity;
+        const { error: equipmentError } = await supabaseAdmin
+          .from('equipment')
+          // @ts-ignore
+          .update({
+            available_quantity: newAvailableQuantity,
+            status: newAvailableQuantity > 0 ? 'AVAILABLE' : borrowRequest.equipment.status
+          })
+          .eq('id', borrowRequest.equipment_id);
+
+        if (equipmentError) {
+          console.error('Error updating equipment quantity on return:', equipmentError);
+          return res.status(500).json({
+            success: false,
+            error: 'Failed to update equipment quantity on return'
+          });
         }
       }
 

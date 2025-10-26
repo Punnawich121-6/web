@@ -539,6 +539,37 @@ const EquipmentModal = ({
     specifications: equipment?.specifications || '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>(equipment?.image || '');
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('กรุณาเลือกไฟล์รูปภาพที่ถูกต้อง (JPEG, PNG, WebP, GIF)');
+        return;
+      }
+
+      // Validate file size (5MB max)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        alert('ไฟล์รูปภาพมีขนาดใหญ่เกินไป กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 5MB');
+        return;
+      }
+
+      setImageFile(file);
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -548,15 +579,41 @@ const EquipmentModal = ({
 
     setIsSubmitting(true);
     try {
+      let imageUrl = formData.image;
+
+      // Upload image if a new file is selected
+      if (imageFile) {
+        setUploadingImage(true);
+        const uploadFormData = new FormData();
+        uploadFormData.append('image', imageFile);
+
+        const uploadResponse = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: uploadFormData,
+        });
+
+        if (!uploadResponse.ok) {
+          const error = await uploadResponse.json();
+          throw new Error(error.error || 'Failed to upload image');
+        }
+
+        const uploadResult = await uploadResponse.json();
+        imageUrl = uploadResult.imageUrl;
+        setUploadingImage(false);
+      }
+
       const submitData = {
         ...formData,
+        image: imageUrl,
         specifications: formData.specifications || null,
       };
       await onSave(submitData);
     } catch (error) {
       console.error('Error submitting form:', error);
+      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + (error as Error).message);
     } finally {
       setIsSubmitting(false);
+      setUploadingImage(false);
     }
   };
 
@@ -697,14 +754,26 @@ const EquipmentModal = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                URL รูปภาพ
+                รูปภาพอุปกรณ์
               </label>
               <input
-                type="url"
-                value={formData.image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                onChange={handleImageChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                รองรับไฟล์: JPEG, PNG, WebP, GIF (ขนาดไม่เกิน 5MB)
+              </p>
+              {imagePreview && (
+                <div className="mt-3">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-32 object-cover rounded-lg border border-gray-300"
+                  />
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -743,10 +812,15 @@ const EquipmentModal = ({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || uploadingImage}
               className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isSubmitting ? (
+              {uploadingImage ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <span>กำลังอัปโหลดรูปภาพ...</span>
+                </>
+              ) : isSubmitting ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                   <span>กำลังบันทึก...</span>
