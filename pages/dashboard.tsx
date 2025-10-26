@@ -158,8 +158,8 @@ const Dashboard = () => {
     descriptionColor: "text-red-100", // สีข้อความรองที่อ่อนลง
   },
   {
-    title: "ประวัติการยืม",
-    description: "ดูประวัติและสถานะการยืมทั้งหมด",
+    title: "ประวัติการยืม/คืนของ",
+    description: "ดูประวัติและสถานะการยืมทั้งหมด และ ยื่นคำร้องขอคืนของก่อนกำหนด",
     icon: History,
     href: "/Borrowing_History",
     // เปลี่ยนเป็นสีเทาเข้ม

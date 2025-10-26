@@ -20,6 +20,7 @@ import {
   ArrowRight,
   User,
   FileText,
+  RotateCcw,
 } from "lucide-react";
 
 interface BorrowRecord {
@@ -30,7 +31,7 @@ interface BorrowRecord {
   borrowDate: string;
   returnDate: string;
   actualReturnDate?: string;
-  status: "pending" | "approved" | "returned" | "overdue" | "rejected";
+  status: "pending" | "approved" | "returned" | "overdue" | "rejected" | "pending_return";
   purpose: string;
   notes?: string;
   image: string;
@@ -41,6 +42,7 @@ interface BorrowRecord {
     email: string;
   };
   rejectionReason?: string;
+  returnRequestedAt?: string;
 }
 
 const BorrowingHistory = () => {
@@ -53,6 +55,9 @@ const BorrowingHistory = () => {
   const [selectedRecord, setSelectedRecord] = useState<BorrowRecord | null>(
     null
   );
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [recordToReturn, setRecordToReturn] = useState<BorrowRecord | null>(null);
+  const [returnLoading, setReturnLoading] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -140,6 +145,56 @@ const BorrowingHistory = () => {
     }
   }, []);
 
+  // Handle early return
+  const handleReturnItem = async () => {
+    if (!recordToReturn || !user) return;
+
+    try {
+      setReturnLoading(true);
+
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) {
+        alert("กรุณาเข้าสู่ระบบใหม่อีกครั้ง");
+        return;
+      }
+
+      const response = await fetch(`/api/borrow/${recordToReturn.id}/return`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        alert("✅ ส่งคำขอคืนอุปกรณ์สำเร็จ! รอเจ้าหน้าที่ตรวจสอบการคืนอุปกรณ์");
+        setShowReturnModal(false);
+        setRecordToReturn(null);
+        // Refresh the borrow history
+        if (session?.user) {
+          await fetchBorrowHistory(session.user);
+        }
+      } else {
+        alert(`❌ เกิดข้อผิดพลาด: ${result.error || 'ไม่สามารถส่งคำขอคืนอุปกรณ์ได้'}`);
+      }
+    } catch (error) {
+      console.error('Error returning item:', error);
+      alert("❌ เกิดข้อผิดพลาดในการคืนอุปกรณ์ กรุณาลองใหม่อีกครั้ง");
+    } finally {
+      setReturnLoading(false);
+    }
+  };
+
+  // Open return confirmation modal
+  const openReturnModal = (record: BorrowRecord) => {
+    setRecordToReturn(record);
+    setShowReturnModal(true);
+  };
+
 
   const statusOptions = [
     {
@@ -159,6 +214,12 @@ const BorrowingHistory = () => {
       label: "อนุมัติแล้ว",
       icon: CheckCircle,
       count: borrowHistory.filter((r) => r.status === "approved").length,
+    },
+    {
+      value: "pending_return",
+      label: "รอตรวจสอบการคืน",
+      icon: RotateCcw,
+      count: borrowHistory.filter((r) => r.status === "pending_return").length,
     },
     {
       value: "returned",
@@ -196,6 +257,8 @@ const BorrowingHistory = () => {
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
       case "approved":
         return "bg-blue-100 text-blue-800 border-blue-200";
+      case "pending_return":
+        return "bg-purple-100 text-purple-800 border-purple-200";
       case "returned":
         return "bg-green-100 text-green-800 border-green-200";
       case "overdue":
@@ -213,6 +276,8 @@ const BorrowingHistory = () => {
         return "รออนุมัติ";
       case "approved":
         return "อนุมัติแล้ว";
+      case "pending_return":
+        return "รอตรวจสอบการคืน";
       case "returned":
         return "คืนแล้ว";
       case "overdue":
@@ -230,6 +295,8 @@ const BorrowingHistory = () => {
         return Clock;
       case "approved":
         return CheckCircle;
+      case "pending_return":
+        return RotateCcw;
       case "returned":
         return CheckCircle;
       case "overdue":
@@ -442,6 +509,16 @@ const BorrowingHistory = () => {
                                 <StatusIcon size={14} />
                                 {getStatusText(record.status)}
                               </span>
+                              {record.status === "approved" && !record.actualReturnDate && (
+                                <button
+                                  onClick={() => openReturnModal(record)}
+                                  className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                                  title="คืนอุปกรณ์"
+                                >
+                                  <RotateCcw size={14} />
+                                  คืนอุปกรณ์
+                                </button>
+                              )}
                               <button
                                 onClick={() => setSelectedRecord(record)}
                                 className="text-red-600 hover:text-red-700 p-1"
@@ -751,6 +828,107 @@ const BorrowingHistory = () => {
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-base"
               >
                 ปิด
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Return Confirmation Modal */}
+      {showReturnModal && recordToReturn && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-xl shadow-xl max-w-md w-full"
+          >
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <RotateCcw size={24} className="text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    ยืนยันการคืนอุปกรณ์
+                  </h3>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                  <img
+                    src={recordToReturn.image}
+                    alt={recordToReturn.equipmentName}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                    {recordToReturn.equipmentName}
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    รหัส: {recordToReturn.equipmentId}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    จำนวน: {recordToReturn.quantity} ชิ้น
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <p className="text-sm text-blue-800">
+                  <strong>📅 กำหนดคืน:</strong> {recordToReturn.returnDate}
+                </p>
+                <p className="text-sm text-blue-800 mt-1">
+                  คุณกำลังคืนอุปกรณ์ก่อนกำหนด ซึ่งจะทำให้อุปกรณ์พร้อมให้บริการทันที
+                </p>
+              </div>
+
+              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
+                <p className="text-sm text-yellow-800">
+                  <strong>⚠️ คำเตือน:</strong> กรุณาตรวจสอบให้แน่ใจว่าคุณได้นำอุปกรณ์มาคืนแล้ว
+                  การกดยืนยันจะอัปเดตสถานะในระบบทันที
+                </p>
+              </div>
+
+              <p className="text-gray-700 text-center text-lg font-medium">
+                คุณต้องการคืนอุปกรณ์นี้ใช่หรือไม่?
+              </p>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowReturnModal(false);
+                  setRecordToReturn(null);
+                }}
+                disabled={returnLoading}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-base disabled:opacity-50"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={handleReturnItem}
+                disabled={returnLoading}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-base disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {returnLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    กำลังดำเนินการ...
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw size={18} />
+                    ยืนยันการคืน
+                  </>
+                )}
               </button>
             </div>
           </motion.div>
