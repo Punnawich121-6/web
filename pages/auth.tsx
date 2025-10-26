@@ -166,25 +166,36 @@ function AuthForm() {
   const getErrorMessage = (error: AuthError | Error): string => {
     const message = error.message.toLowerCase();
 
-    // Login errors
+    console.log('Original error:', error.message); // For debugging
+
+    // Rate limiting (check first as it's important)
+    if (message.includes('too many requests') ||
+        message.includes('rate limit') ||
+        message.includes('email rate limit exceeded')) {
+      return "⏰ มีการพยายามเข้าสู่ระบบมากเกินไป กรุณารอสักครู่แล้วลองใหม่อีกครั้ง (ประมาณ 1-5 นาที)";
+    }
+
+    // Login errors (most common for wrong password)
     if (message.includes('invalid login credentials') ||
         message.includes('invalid email or password') ||
-        message.includes('invalid credentials')) {
+        message.includes('invalid credentials') ||
+        message.includes('email not confirmed')) {
       return "❌ อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง";
     }
 
-    // Email errors
+    // Specific email errors (check before generic email check)
     if (message.includes('user already registered') ||
         message.includes('already registered') ||
-        message.includes('user with this email already exists')) {
+        message.includes('user with this email already exists') ||
+        message.includes('duplicate')) {
       return "⚠️ อีเมลนี้ถูกใช้งานแล้ว กรุณาใช้อีเมลอื่นหรือเข้าสู่ระบบ";
     }
 
-    if (message.includes('invalid email') || message.includes('email')) {
+    if (message.includes('invalid email')) {
       return "❌ รูปแบบอีเมลไม่ถูกต้อง กรุณากรอกอีเมลที่ถูกต้อง เช่น example@email.com";
     }
 
-    // Password errors
+    // Specific password errors
     if (message.includes('password') && message.includes('least')) {
       return "❌ รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
     }
@@ -197,19 +208,19 @@ function AuthForm() {
       return "❌ รหัสผ่านมีความยาวไม่ถูกต้อง (ต้องมี 6-128 ตัวอักษร)";
     }
 
-    // Rate limiting
-    if (message.includes('too many requests') || message.includes('rate limit')) {
-      return "⏰ มีการพยายามเข้าสู่ระบบมากเกินไป กรุณารอสักครู่แล้วลองใหม่อีกครั้ง (ประมาณ 1-5 นาที)";
-    }
-
     // Network errors
-    if (message.includes('network') || message.includes('fetch') || message.includes('timeout')) {
+    if (message.includes('network') ||
+        message.includes('fetch') ||
+        message.includes('timeout') ||
+        message.includes('failed to fetch')) {
       return "🌐 เกิดปัญหาการเชื่อมต่อ กรุณาตรวจสอบอินเทอร์เน็ตและลองใหม่";
     }
 
     // Server errors
-    if (message.includes('500') || message.includes('internal server') || message.includes('server error')) {
-      return "🔧 เซิร์ฟเวอร์มีปัญหา กรุณาลองใหม่ในอีกสักครู่ หากปัญหายังคงอยู่กรุณาติดต่อผู้ดูแลระบบ";
+    if (message.includes('500') ||
+        message.includes('internal server') ||
+        message.includes('server error')) {
+      return "🔧 เซิร์ฟเวอร์มีปัญหา กรุณาลองใหม่ในอีกสักครู่";
     }
 
     if (message.includes('503') || message.includes('service unavailable')) {
@@ -221,8 +232,8 @@ function AuthForm() {
       return "❌ ไม่พบผู้ใช้งานนี้ในระบบ กรุณาตรวจสอบอีเมลหรือสมัครสมาชิกใหม่";
     }
 
-    // Email not confirmed
-    if (message.includes('email not confirmed') || message.includes('confirm')) {
+    // Email confirmation
+    if (message.includes('confirm your email') || message.includes('email confirmation')) {
       return "📧 กรุณายืนยันอีเมลของคุณก่อนเข้าสู่ระบบ ตรวจสอบกล่องจดหมายของคุณ";
     }
 
@@ -232,7 +243,10 @@ function AuthForm() {
     }
 
     // Session/Token errors
-    if (message.includes('session') || message.includes('token') || message.includes('unauthorized')) {
+    if (message.includes('session') ||
+        message.includes('token') ||
+        message.includes('unauthorized') ||
+        message.includes('jwt')) {
       return "🔑 เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่อีกครั้ง";
     }
 
@@ -241,8 +255,14 @@ function AuthForm() {
       return "⚠️ ข้อมูลที่กรอกไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่";
     }
 
-    // Unknown/Generic errors
-    return `⚠️ เกิดข้อผิดพลาด: ${error.message}\nกรุณาลองใหม่อีกครั้งหรือติดต่อผู้ดูแลระบบ`;
+    // Generic "invalid" errors (catch-all for login failures)
+    if (message.includes('invalid')) {
+      return "❌ ข้อมูลที่กรอกไม่ถูกต้อง กรุณาตรวจสอบอีเมลและรหัสผ่านแล้วลองใหม่อีกครั้ง";
+    }
+
+    // Unknown/Generic errors - show friendly message without exposing technical details
+    console.error('Unhandled error:', error.message);
+    return "⚠️ เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง หากปัญหายังคงอยู่กรุณาติดต่อผู้ดูแลระบบ";
   };
 
   const handleSubmit = async () => {
