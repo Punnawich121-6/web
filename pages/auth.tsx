@@ -93,8 +93,13 @@ function AuthForm() {
     // Sanitize email input by trimming whitespace
     if (name === 'email') {
       sanitizedValue = value.trim().toLowerCase();
+
+      // Check max length (RFC 5321 standard)
+      if (sanitizedValue.length > 254) {
+        newFieldErrors.email = "อีเมลยาวเกินไป (สูงสุด 254 ตัวอักษร)";
+      }
       // Real-time email validation
-      if (sanitizedValue && !isValidEmail(sanitizedValue)) {
+      else if (sanitizedValue && !isValidEmail(sanitizedValue)) {
         newFieldErrors.email = "รูปแบบอีเมลไม่ถูกต้อง";
       } else {
         delete newFieldErrors.email;
@@ -103,14 +108,17 @@ function AuthForm() {
 
     // Password validation and strength check
     if (name === 'password') {
-      const strength = calculatePasswordStrength(value);
-      setPasswordStrength(strength);
-
-      if (value && value.length < 6) {
+      // Check max length for security
+      if (value.length > 128) {
+        newFieldErrors.password = "รหัสผ่านยาวเกินไป (สูงสุด 128 ตัวอักษร)";
+      } else if (value && value.length < 6) {
         newFieldErrors.password = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
       } else {
         delete newFieldErrors.password;
       }
+
+      const strength = calculatePasswordStrength(value);
+      setPasswordStrength(strength);
 
       // Check confirm password match
       if (formData.confirmPassword && value !== formData.confirmPassword) {
@@ -122,7 +130,9 @@ function AuthForm() {
 
     // Confirm password validation
     if (name === 'confirmPassword') {
-      if (value && value !== formData.password) {
+      if (value.length > 128) {
+        newFieldErrors.confirmPassword = "รหัสผ่านยาวเกินไป";
+      } else if (value && value !== formData.password) {
         newFieldErrors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
       } else {
         delete newFieldErrors.confirmPassword;
@@ -131,8 +141,17 @@ function AuthForm() {
 
     // Name validation
     if (name === 'name') {
-      if (!isLogin && value && value.trim().length < 2) {
+      // Remove leading/trailing whitespace and multiple spaces
+      sanitizedValue = value.replace(/\s+/g, ' ');
+
+      if (sanitizedValue.length > 100) {
+        newFieldErrors.name = "ชื่อยาวเกินไป (สูงสุด 100 ตัวอักษร)";
+      } else if (!isLogin && sanitizedValue && sanitizedValue.trim().length < 2) {
         newFieldErrors.name = "ชื่อต้องมีอย่างน้อย 2 ตัวอักษร";
+      }
+      // Check for invalid characters (allow Thai, English, space, and basic punctuation)
+      else if (sanitizedValue && !/^[\u0E00-\u0E7Fa-zA-Z\s.'-]+$/.test(sanitizedValue)) {
+        newFieldErrors.name = "ชื่อมีอักขระที่ไม่ถูกต้อง (ใช้ได้เฉพาะตัวอักษรไทย-อังกฤษ และ . ' -)";
       } else {
         delete newFieldErrors.name;
       }
@@ -174,14 +193,27 @@ function AuthForm() {
       return "⚠️ รหัสผ่านควรมีความแข็งแกร่งมากกว่านี้ แนะนำให้ใช้ตัวพิมพ์ใหญ่-เล็ก ตัวเลข และสัญลักษณ์";
     }
 
+    if (message.includes('password') && message.includes('length')) {
+      return "❌ รหัสผ่านมีความยาวไม่ถูกต้อง (ต้องมี 6-128 ตัวอักษร)";
+    }
+
     // Rate limiting
     if (message.includes('too many requests') || message.includes('rate limit')) {
-      return "⏰ มีการพยายามเข้าสู่ระบบมากเกินไป กรุณารอสักครู่แล้วลองใหม่อีกครั้ง";
+      return "⏰ มีการพยายามเข้าสู่ระบบมากเกินไป กรุณารอสักครู่แล้วลองใหม่อีกครั้ง (ประมาณ 1-5 นาที)";
     }
 
     // Network errors
-    if (message.includes('network') || message.includes('fetch')) {
+    if (message.includes('network') || message.includes('fetch') || message.includes('timeout')) {
       return "🌐 เกิดปัญหาการเชื่อมต่อ กรุณาตรวจสอบอินเทอร์เน็ตและลองใหม่";
+    }
+
+    // Server errors
+    if (message.includes('500') || message.includes('internal server') || message.includes('server error')) {
+      return "🔧 เซิร์ฟเวอร์มีปัญหา กรุณาลองใหม่ในอีกสักครู่ หากปัญหายังคงอยู่กรุณาติดต่อผู้ดูแลระบบ";
+    }
+
+    if (message.includes('503') || message.includes('service unavailable')) {
+      return "⏳ บริการไม่พร้อมใช้งานในขณะนี้ กรุณาลองใหม่ภายหลัง";
     }
 
     // User not found
@@ -199,7 +231,18 @@ function AuthForm() {
       return "🔒 บัญชีของคุณถูกระงับ กรุณาติดต่อผู้ดูแลระบบ";
     }
 
-    return "⚠️ เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ กรุณาลองใหม่อีกครั้งหรือติดต่อผู้ดูแลระบบ";
+    // Session/Token errors
+    if (message.includes('session') || message.includes('token') || message.includes('unauthorized')) {
+      return "🔑 เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่อีกครั้ง";
+    }
+
+    // Validation errors
+    if (message.includes('validation') || message.includes('invalid input')) {
+      return "⚠️ ข้อมูลที่กรอกไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่";
+    }
+
+    // Unknown/Generic errors
+    return `⚠️ เกิดข้อผิดพลาด: ${error.message}\nกรุณาลองใหม่อีกครั้งหรือติดต่อผู้ดูแลระบบ`;
   };
 
   const handleSubmit = async () => {
@@ -213,6 +256,8 @@ function AuthForm() {
     // Email validation
     if (!formData.email) {
       errors.email = "กรุณากรอกอีเมล";
+    } else if (formData.email.length > 254) {
+      errors.email = "อีเมลยาวเกินไป (สูงสุด 254 ตัวอักษร)";
     } else if (!isValidEmail(formData.email)) {
       errors.email = "รูปแบบอีเมลไม่ถูกต้อง";
     }
@@ -222,18 +267,26 @@ function AuthForm() {
       errors.password = "กรุณากรอกรหัสผ่าน";
     } else if (formData.password.length < 6) {
       errors.password = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
+    } else if (formData.password.length > 128) {
+      errors.password = "รหัสผ่านยาวเกินไป (สูงสุด 128 ตัวอักษร)";
     }
 
     // Register-specific validation
     if (!isLogin) {
       if (!formData.name || formData.name.trim().length < 2) {
         errors.name = "กรุณากรอกชื่อ-นามสกุล (อย่างน้อย 2 ตัวอักษร)";
+      } else if (formData.name.length > 100) {
+        errors.name = "ชื่อยาวเกินไป (สูงสุด 100 ตัวอักษร)";
+      } else if (!/^[\u0E00-\u0E7Fa-zA-Z\s.'-]+$/.test(formData.name)) {
+        errors.name = "ชื่อมีอักขระที่ไม่ถูกต้อง";
       }
 
       if (!formData.confirmPassword) {
         errors.confirmPassword = "กรุณายืนยันรหัสผ่าน";
       } else if (formData.password !== formData.confirmPassword) {
         errors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
+      } else if (formData.confirmPassword.length > 128) {
+        errors.confirmPassword = "รหัสผ่านยาวเกินไป";
       }
 
       // Warn about weak password
@@ -253,25 +306,25 @@ function AuthForm() {
     try {
       if (isLogin) {
         // Login with Supabase
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
 
         if (error) throw error;
 
-        console.log("Login successful:", data.user);
+        console.log("Login successful");
 
         // Redirect to home page after login
         router.push("/");
       } else {
         // Register with Supabase
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
             data: {
-              display_name: formData.name,
+              display_name: formData.name.trim(),
             }
           }
         });
@@ -287,13 +340,22 @@ function AuthForm() {
           confirmPassword: "",
           name: "",
         });
+        setPasswordStrength(0);
       }
     } catch (err) {
-      const authError = err as AuthError;
-      console.error("Auth error:", authError);
+      console.error("Auth error:", err);
 
-      // Set user-friendly error message
-      const errorMessage = getErrorMessage(authError);
+      // Handle different types of errors
+      let errorMessage: string;
+
+      if (err instanceof Error) {
+        errorMessage = getErrorMessage(err as AuthError);
+      } else if (typeof err === 'string') {
+        errorMessage = `⚠️ ${err}`;
+      } else {
+        errorMessage = "⚠️ เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง";
+      }
+
       setError(errorMessage);
 
       // Also log the exact error for debugging
@@ -314,8 +376,9 @@ function AuthForm() {
     });
   };
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+      e.preventDefault();
       handleSubmit();
     }
   };
@@ -350,7 +413,7 @@ function AuthForm() {
                 placeholder="กรอกชื่อ-นามสกุล"
                 value={formData.name}
                 onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyDown}
                 className={`text-black w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-colors ${
                   fieldErrors.name
                     ? "border-red-300 focus:ring-red-500 bg-red-50"
@@ -376,7 +439,7 @@ function AuthForm() {
               placeholder="กรอกอีเมล เช่น example@email.com"
               value={formData.email}
               onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               className={`text-black w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-colors ${
                 fieldErrors.email
                   ? "border-red-300 focus:ring-red-500 bg-red-50"
@@ -408,7 +471,7 @@ function AuthForm() {
               placeholder="กรอกรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)"
               value={formData.password}
               onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               className={`text-black w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-colors ${
                 fieldErrors.password
                   ? "border-red-300 focus:ring-red-500 bg-red-50"
@@ -455,7 +518,7 @@ function AuthForm() {
                 placeholder="ยืนยันรหัสผ่านอีกครั้ง"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyDown}
                 className={`text-black w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-transparent transition-colors ${
                   fieldErrors.confirmPassword
                     ? "border-red-300 focus:ring-red-500 bg-red-50"
