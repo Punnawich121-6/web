@@ -63,12 +63,62 @@ const EquipmentCatalogUser = () => {
         console.error('Error loading cart from localStorage:', error);
       }
     }
+
+    // Auto-refresh equipment data every 30 seconds to keep availability up-to-date
+    const refreshInterval = setInterval(() => {
+      fetchEquipment();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(refreshInterval);
   }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('equipmentCart', JSON.stringify(cart));
   }, [cart]);
+
+  // Sync cart with latest equipment data (remove unavailable items, adjust quantities)
+  useEffect(() => {
+    if (equipmentData.length > 0 && cart.length > 0) {
+      const updatedCart = cart
+        .map((cartItem) => {
+          const latestEquipment = equipmentData.find(
+            (eq) => eq.id === cartItem.equipment.id
+          );
+
+          if (!latestEquipment) {
+            // Equipment no longer exists
+            return null;
+          }
+
+          if (latestEquipment.availableQuantity === 0) {
+            // Equipment no longer available
+            return null;
+          }
+
+          // Adjust quantity if it exceeds available quantity
+          if (cartItem.quantity > latestEquipment.availableQuantity) {
+            return {
+              ...cartItem,
+              quantity: latestEquipment.availableQuantity,
+              equipment: latestEquipment,
+            };
+          }
+
+          // Update equipment data
+          return {
+            ...cartItem,
+            equipment: latestEquipment,
+          };
+        })
+        .filter((item): item is CartItem => item !== null);
+
+      // Only update if cart changed
+      if (JSON.stringify(updatedCart) !== JSON.stringify(cart)) {
+        setCart(updatedCart);
+      }
+    }
+  }, [equipmentData]);
 
   const fetchEquipment = async () => {
     try {
@@ -107,9 +157,16 @@ const EquipmentCatalogUser = () => {
   });
 
   const addToCart = (equipment: Equipment) => {
+    // Check if equipment is available
+    if (equipment.availableQuantity === 0) {
+      alert('❌ ขออภัย อุปกรณ์นี้ไม่มีให้ยืมในขณะนี้');
+      return;
+    }
+
     const existingItem = cart.find(
       (item) => item.equipment.id === equipment.id
     );
+
     if (existingItem) {
       if (existingItem.quantity < equipment.availableQuantity) {
         setCart((prev) =>
@@ -119,6 +176,8 @@ const EquipmentCatalogUser = () => {
               : item
           )
         );
+      } else {
+        alert(`⚠️ คุณได้เพิ่มจำนวนสูงสุดแล้ว (${equipment.availableQuantity} ชิ้น)`);
       }
     } else {
       setCart((prev) => [...prev, { equipment, quantity: 1 }]);

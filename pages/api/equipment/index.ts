@@ -40,8 +40,25 @@ export default async function handler(
       }
 
       // Filter borrowings to only include ACTIVE and APPROVED statuses
+      // And convert snake_case to camelCase for frontend
       const filteredEquipment = equipment?.map((item: any) => ({
-        ...item,
+        id: item.id,
+        name: item.name,
+        category: item.category,
+        description: item.description,
+        image: item.image,
+        status: item.status,
+        totalQuantity: item.total_quantity,
+        availableQuantity: item.available_quantity, // Convert snake_case to camelCase
+        specifications: item.specifications,
+        location: item.location,
+        serialNumber: item.serial_number,
+        condition: item.condition,
+        purchaseDate: item.purchase_date,
+        createdAt: item.created_at,
+        updatedAt: item.updated_at,
+        createdBy: item.created_by,
+        creator: item.creator,
         borrowings: item.borrowings?.filter((b: any) =>
           ['ACTIVE', 'APPROVED'].includes(b.status)
         ) || []
