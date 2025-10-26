@@ -16,7 +16,7 @@ export default async function handler(
       return res.status(405).json({ success: false, error: 'Method not allowed' });
     }
 
-    // Fetch approved and active borrow requests only (for public view)
+    // Fetch public-appropriate borrow requests (approved, active, and returned)
     const { data: borrowRequests, error } = await supabaseAdmin
       .from('borrow_requests')
       .select(`
@@ -27,7 +27,7 @@ export default async function handler(
           image
         )
       `)
-      .in('status', ['APPROVED', 'ACTIVE'])
+      .in('status', ['APPROVED', 'ACTIVE', 'RETURNED'])
       .order('created_at', { ascending: false });
 
     if (error) {
