@@ -14,7 +14,7 @@ export default async function handler(
   try {
     if (req.method === 'GET') {
       // Get borrow requests (filter by user for non-admin)
-      const { token } = req.query;
+      const { token, myOnly } = req.query;
 
       if (!token || typeof token !== 'string') {
         return res.status(400).json({ success: false, error: 'Token is required' });
@@ -56,8 +56,8 @@ export default async function handler(
         `)
         .order('created_at', { ascending: false });
 
-      // Filter by user if not admin
-      if (user.role !== 'ADMIN') {
+      // Filter by user if not admin OR if myOnly parameter is set
+      if (user.role !== 'ADMIN' || myOnly === 'true') {
         borrowRequestsQuery = borrowRequestsQuery.eq('user_id', user.id);
       }
 

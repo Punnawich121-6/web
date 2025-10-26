@@ -18,8 +18,6 @@ import {
   Home,
   Plus,
   ArrowRight,
-  User,
-  FileText,
 } from "lucide-react";
 
 interface BorrowRecord {
@@ -43,7 +41,7 @@ interface BorrowRecord {
   rejectionReason?: string;
 }
 
-const History = () => {
+const BorrowingHistory = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [borrowHistory, setBorrowHistory] = useState<BorrowRecord[]>([]);
@@ -88,7 +86,7 @@ const History = () => {
       const token = session?.access_token;
       if (!token) return;
 
-      const response = await fetch(`/api/borrow?token=${encodeURIComponent(token)}&myOnly=true`, {
+      const response = await fetch(`/api/borrow?token=${encodeURIComponent(token)}`, {
         method: 'GET',
       });
 
@@ -108,10 +106,6 @@ const History = () => {
           purpose: request.purpose,
           notes: request.notes || undefined,
           image: request.equipment.image || '/placeholder-image.jpg',
-          createdAt: request.createdAt,
-          approvedAt: request.approvedAt,
-          approvedBy: request.approver,
-          rejectionReason: request.rejectionReason,
           }));
           setBorrowHistory(transformedHistory);
         } else {
@@ -241,23 +235,6 @@ const History = () => {
     }
   };
 
-  // Format timestamp to Thai date and time
-  const formatTimestamp = (timestamp?: string) => {
-    if (!timestamp) return null;
-    const date = new Date(timestamp);
-    return {
-      date: date.toLocaleDateString('th-TH', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-      time: date.toLocaleTimeString('th-TH', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-    };
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -284,10 +261,10 @@ const History = () => {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
               <div>
                 <h1 className="text-5xl font-bold text-gray-900 mb-2">
-                  ประวัติการยืมของฉัน
+                  ประวัติการยืมอุปกรณ์
                 </h1>
                 <p className="text-2xl text-gray-600">
-                  ดูประวัติและสถานะการยืมอุปกรณ์ของคุณ
+                  ติดตามสถานะและประวัติการยืมอุปกรณ์ทั้งหมดของคุณ
                 </p>
               </div>
               <div className="flex gap-3 mt-4 lg:mt-0">
@@ -469,24 +446,10 @@ const History = () => {
                             )}
                           </div>
 
-                          <div className="space-y-1 mb-2">
-                            <p className="text-gray-700 text-base">
-                              <span className="font-medium">วัตถุประสงค์:</span>{" "}
-                              {record.purpose}
-                            </p>
-                            {record.createdAt && formatTimestamp(record.createdAt) && (
-                              <p className="text-sm text-gray-500 flex items-center gap-1">
-                                <FileText size={14} />
-                                สร้างคำขอ: {formatTimestamp(record.createdAt)?.date} เวลา {formatTimestamp(record.createdAt)?.time}
-                              </p>
-                            )}
-                            {record.approvedAt && record.approvedBy && formatTimestamp(record.approvedAt) && (
-                              <p className="text-sm text-gray-500 flex items-center gap-1">
-                                <User size={14} />
-                                {record.status === 'rejected' ? 'ปฏิเสธ' : 'อนุมัติ'}โดย: {record.approvedBy.displayName || record.approvedBy.email} ({formatTimestamp(record.approvedAt)?.date} {formatTimestamp(record.approvedAt)?.time})
-                              </p>
-                            )}
-                          </div>
+                          <p className="text-gray-700 text-base">
+                            <span className="font-medium">วัตถุประสงค์:</span>{" "}
+                            {record.purpose}
+                          </p>
                         </div>
                       </div>
                     </motion.div>
@@ -626,123 +589,6 @@ const History = () => {
                   </p>
                 </div>
               )}
-
-              {/* Timeline Section */}
-              <div>
-                <h5 className="font-medium text-gray-700 mb-4 text-lg flex items-center gap-2">
-                  <Clock size={18} />
-                  ประวัติการดำเนินการ
-                </h5>
-                <div className="space-y-4">
-                  {/* Created */}
-                  {selectedRecord.createdAt && (
-                    <div className="flex gap-4 items-start">
-                      <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <FileText size={18} className="text-blue-600" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-medium text-gray-900">สร้างคำขอยืม</p>
-                          {formatTimestamp(selectedRecord.createdAt) && (
-                            <span className="text-sm text-gray-500">
-                              {formatTimestamp(selectedRecord.createdAt)?.time}
-                            </span>
-                          )}
-                        </div>
-                        {formatTimestamp(selectedRecord.createdAt) && (
-                          <p className="text-sm text-gray-600">
-                            {formatTimestamp(selectedRecord.createdAt)?.date}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Approved */}
-                  {selectedRecord.status === 'approved' && selectedRecord.approvedAt && (
-                    <div className="flex gap-4 items-start">
-                      <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <CheckCircle size={18} className="text-green-600" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-medium text-gray-900">อนุมัติคำขอ</p>
-                          {formatTimestamp(selectedRecord.approvedAt) && (
-                            <span className="text-sm text-gray-500">
-                              {formatTimestamp(selectedRecord.approvedAt)?.time}
-                            </span>
-                          )}
-                        </div>
-                        {formatTimestamp(selectedRecord.approvedAt) && (
-                          <p className="text-sm text-gray-600">
-                            {formatTimestamp(selectedRecord.approvedAt)?.date}
-                          </p>
-                        )}
-                        {selectedRecord.approvedBy && (
-                          <div className="flex items-center gap-1 mt-1 text-sm text-gray-600">
-                            <User size={14} />
-                            <span>โดย: {selectedRecord.approvedBy.displayName || selectedRecord.approvedBy.email}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Rejected */}
-                  {selectedRecord.status === 'rejected' && selectedRecord.approvedAt && (
-                    <div className="flex gap-4 items-start">
-                      <div className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                        <XCircle size={18} className="text-red-600" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-medium text-gray-900">ปฏิเสธคำขอ</p>
-                          {formatTimestamp(selectedRecord.approvedAt) && (
-                            <span className="text-sm text-gray-500">
-                              {formatTimestamp(selectedRecord.approvedAt)?.time}
-                            </span>
-                          )}
-                        </div>
-                        {formatTimestamp(selectedRecord.approvedAt) && (
-                          <p className="text-sm text-gray-600">
-                            {formatTimestamp(selectedRecord.approvedAt)?.date}
-                          </p>
-                        )}
-                        {selectedRecord.approvedBy && (
-                          <div className="flex items-center gap-1 mt-1 text-sm text-gray-600">
-                            <User size={14} />
-                            <span>โดย: {selectedRecord.approvedBy.displayName || selectedRecord.approvedBy.email}</span>
-                          </div>
-                        )}
-                        {selectedRecord.rejectionReason && (
-                          <div className="mt-2 p-2 bg-red-50 rounded-lg">
-                            <p className="text-sm text-red-700">
-                              <span className="font-medium">เหตุผล:</span> {selectedRecord.rejectionReason}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Returned */}
-                  {selectedRecord.status === 'returned' && selectedRecord.actualReturnDate && (
-                    <div className="flex gap-4 items-start">
-                      <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <Package size={18} className="text-purple-600" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-medium text-gray-900">คืนอุปกรณ์แล้ว</p>
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          {selectedRecord.actualReturnDate}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
 
             <div className="p-6 border-t border-gray-200 flex justify-end">
@@ -760,4 +606,4 @@ const History = () => {
   );
 };
 
-export default History;
+export default BorrowingHistory;

@@ -88,7 +88,7 @@ const BorrowingHistory = () => {
       const token = session?.access_token;
       if (!token) return;
 
-      const response = await fetch(`/api/borrow?token=${encodeURIComponent(token)}`, {
+      const response = await fetch(`/api/borrow?token=${encodeURIComponent(token)}&myOnly=true`, {
         method: 'GET',
       });
 
