@@ -290,13 +290,55 @@ export default function Equipment_Catalog() {
                   {equipment.name}
                 </h3>
 
-                <div className="flex items-center justify-between text-md text-gray-500 mb-4">
+                <div className="flex items-center justify-between text-md text-gray-500 mb-3">
                   <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full font-medium">
                     {equipment.category}
                   </span>
-                  <div className="text-sm text-gray-600">
-                    พร้อมใช้: {equipment.availableQuantity}/{equipment.totalQuantity}
+                </div>
+
+                {/* Availability Status */}
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm text-gray-600">พร้อมใช้งาน:</span>
+                    <span className={`text-sm font-bold ${
+                      equipment.availableQuantity === 0
+                        ? "text-red-600"
+                        : equipment.availableQuantity <= equipment.totalQuantity * 0.3
+                        ? "text-yellow-600"
+                        : "text-green-600"
+                    }`}>
+                      {equipment.availableQuantity}/{equipment.totalQuantity} ชิ้น
+                      {equipment.availableQuantity === 0 && (
+                        <span className="ml-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                          หมด
+                        </span>
+                      )}
+                    </span>
                   </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        equipment.availableQuantity === 0
+                          ? "bg-red-500"
+                          : equipment.availableQuantity <= equipment.totalQuantity * 0.3
+                          ? "bg-yellow-500"
+                          : "bg-green-500"
+                      }`}
+                      style={{
+                        width: `${(equipment.availableQuantity / equipment.totalQuantity) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  {equipment.availableQuantity === 0 && (
+                    <p className="text-xs text-red-600 mt-1 font-medium">
+                      ⚠️ ไม่มีให้ยืมในขณะนี้
+                    </p>
+                  )}
+                  {equipment.availableQuantity > 0 && equipment.availableQuantity <= equipment.totalQuantity * 0.3 && (
+                    <p className="text-xs text-yellow-600 mt-1 font-medium">
+                      ⚡ เหลือน้อย!
+                    </p>
+                  )}
                 </div>
 
                 <p className="text-gray-600 mb-5 text-md leading-relaxed line-clamp-3 h-20">

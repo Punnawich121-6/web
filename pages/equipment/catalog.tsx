@@ -9,6 +9,7 @@ import {
   ShoppingCart,
   Plus,
   Minus,
+  XCircle,
   Camera,
   Monitor,
   Mic,
@@ -356,16 +357,26 @@ const EquipmentCatalogUser = () => {
                   </p>
 
                   <div className="mb-3">
-                    {/* ===== 4. เพิ่มขนาด "พร้อมใช้งาน" และ จำนวน (sm -> base) ===== */}
                     <div className="flex justify-between text-base mb-1">
-                      <span>พร้อมใช้งาน:</span>
-                      <span className="font-medium">
-                        {item.availableQuantity}/{item.totalQuantity}
+                      <span className="text-gray-600">พร้อมใช้งาน:</span>
+                      <span className={`font-bold ${
+                        item.availableQuantity === 0
+                          ? "text-red-600"
+                          : item.availableQuantity <= item.totalQuantity * 0.3
+                          ? "text-yellow-600"
+                          : "text-green-600"
+                      }`}>
+                        {item.availableQuantity}/{item.totalQuantity} ชิ้น
+                        {item.availableQuantity === 0 && (
+                          <span className="ml-2 text-sm bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                            หมด
+                          </span>
+                        )}
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
                       <div
-                        className={`h-2 rounded-full ${
+                        className={`h-2.5 rounded-full transition-all duration-300 ${
                           getItemStatus(item) === "available"
                             ? "bg-green-500"
                             : getItemStatus(item) === "limited"
@@ -377,6 +388,16 @@ const EquipmentCatalogUser = () => {
                         }}
                       />
                     </div>
+                    {item.availableQuantity === 0 && (
+                      <p className="text-sm text-red-600 mt-1 font-medium">
+                        ⚠️ ไม่มีให้ยืมในขณะนี้
+                      </p>
+                    )}
+                    {item.availableQuantity > 0 && item.availableQuantity <= item.totalQuantity * 0.3 && (
+                      <p className="text-sm text-yellow-600 mt-1 font-medium">
+                        ⚡ เหลือน้อย รีบจองเลย!
+                      </p>
+                    )}
                   </div>
 
                   <div className="mb-4">
@@ -403,44 +424,57 @@ const EquipmentCatalogUser = () => {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {cart.find(
-                        (cartItem) => cartItem.equipment.id === item.id
-                      ) && (
-                        <>
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
-                          >
-                            <Minus size={14} />
-                          </button>
-                          {/* ===== 8. เพิ่มขนาดตัวเลขจำนวน (default -> lg) ===== */}
-                          <span className="font-medium min-w-[2rem] text-center text-lg">
-                            {cart.find(
-                              (cartItem) => cartItem.equipment.id === item.id
-                            )?.quantity || 0}
-                          </span>
-                        </>
-                      )}
+                    {item.availableQuantity === 0 ? (
+                      // Show "Out of Stock" button when no items available
                       <button
-                        onClick={() => addToCart(item)}
-                        disabled={
-                          item.availableQuantity === 0 ||
-                          (cart.find(
-                            (cartItem) => cartItem.equipment.id === item.id
-                          )?.quantity || 0) >= item.availableQuantity
-                        }
-                        // {/* ===== 9. เพิ่มขนาดปุ่ม (sm -> base) ===== */}
-                        className="flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-base font-medium"
+                        disabled
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed text-base font-medium border-2 border-gray-300"
                       >
-                        <Plus size={14} />
+                        <XCircle size={16} />
+                        หมด - ไม่สามารถเพิ่มได้
+                      </button>
+                    ) : (
+                      // Show normal add to cart buttons when items are available
+                      <div className="flex items-center gap-2 w-full">
                         {cart.find(
                           (cartItem) => cartItem.equipment.id === item.id
-                        )
-                          ? "เพิ่ม"
-                          : "เพิ่มลงตะกร้า"}
-                      </button>
-                    </div>
+                        ) && (
+                          <>
+                            <button
+                              onClick={() => removeFromCart(item.id)}
+                              className="w-9 h-9 flex items-center justify-center bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                            >
+                              <Minus size={16} />
+                            </button>
+                            <span className="font-bold min-w-[2.5rem] text-center text-lg text-gray-900">
+                              {cart.find(
+                                (cartItem) => cartItem.equipment.id === item.id
+                              )?.quantity || 0}
+                            </span>
+                          </>
+                        )}
+                        <button
+                          onClick={() => addToCart(item)}
+                          disabled={
+                            (cart.find(
+                              (cartItem) => cartItem.equipment.id === item.id
+                            )?.quantity || 0) >= item.availableQuantity
+                          }
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-base font-medium"
+                        >
+                          <Plus size={16} />
+                          {cart.find(
+                            (cartItem) => cartItem.equipment.id === item.id
+                          ) ? (
+                            (cart.find((cartItem) => cartItem.equipment.id === item.id)?.quantity || 0) >= item.availableQuantity
+                              ? "ถึงจำนวนสูงสุด"
+                              : "เพิ่ม"
+                          ) : (
+                            "เพิ่มลงตะกร้า"
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
