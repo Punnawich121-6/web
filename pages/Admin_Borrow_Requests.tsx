@@ -22,6 +22,7 @@ import {
   Phone,
   Building,
   FileText,
+  RotateCcw,
 } from "lucide-react";
 
 interface BorrowRequest {
@@ -40,7 +41,7 @@ interface BorrowRequest {
   startDate: string;
   endDate: string;
   actualReturnDate?: string;
-  status: "PENDING" | "APPROVED" | "REJECTED" | "ACTIVE" | "RETURNED" | "OVERDUE";
+  status: "PENDING" | "APPROVED" | "REJECTED" | "ACTIVE" | "RETURNED" | "OVERDUE" | "PENDING_RETURN";
   purpose: string;
   notes?: string;
   createdAt: string;
@@ -50,6 +51,9 @@ interface BorrowRequest {
   };
   approvedAt?: string;
   rejectionReason?: string;
+  returnRequestedAt?: string;
+  returnConfirmedBy?: string;
+  returnConfirmedAt?: string;
 }
 
 const AdminBorrowRequests = () => {
@@ -57,7 +61,7 @@ const AdminBorrowRequests = () => {
   const [loading, setLoading] = useState(true);
   const [borrowRequests, setBorrowRequests] = useState<BorrowRequest[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<string>("PENDING");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] = useState<BorrowRequest | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -86,6 +90,23 @@ const AdminBorrowRequests = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Auto-select priority tab based on what needs attention
+  useEffect(() => {
+    if (borrowRequests.length > 0 && selectedStatus === "") {
+      const pendingReturnCount = borrowRequests.filter(r => r.status === "PENDING_RETURN").length;
+      const pendingCount = borrowRequests.filter(r => r.status === "PENDING").length;
+
+      // Priority: PENDING_RETURN > PENDING > APPROVED
+      if (pendingReturnCount > 0) {
+        setSelectedStatus("PENDING_RETURN");
+      } else if (pendingCount > 0) {
+        setSelectedStatus("PENDING");
+      } else {
+        setSelectedStatus("APPROVED");
+      }
+    }
+  }, [borrowRequests, selectedStatus]);
 
   const fetchBorrowRequests = async (sessionParam?: any) => {
     try {
@@ -178,7 +199,43 @@ const AdminBorrowRequests = () => {
     }
   };
 
-  const statusOptions = [
+  const handleConfirmReturn = async (requestId: string) => {
+    try {
+      setActionLoading(requestId);
+      if (!user) return;
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const token = session.access_token;
+      const response = await fetch(`/api/borrow/${requestId}/confirm-return`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        // Refresh the requests list
+        await fetchBorrowRequests();
+        setSelectedRequest(null);
+        alert('ยืนยันการคืนอุปกรณ์แล้ว!');
+      } else {
+        alert('เกิดข้อผิดพลาด: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error confirming return:', error);
+      alert('เกิดข้อผิดพลาดในการยืนยันการคืน');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Section 1: Requests that need action
+  const requestOptions = [
     {
       value: "PENDING",
       label: "รออนุมัติ",
@@ -186,6 +243,17 @@ const AdminBorrowRequests = () => {
       color: "bg-yellow-100 text-yellow-800 border-yellow-200",
       count: borrowRequests.filter((r) => r.status === "PENDING").length,
     },
+    {
+      value: "PENDING_RETURN",
+      label: "รอตรวจสอบการคืน",
+      icon: RotateCcw,
+      color: "bg-purple-100 text-purple-800 border-purple-200",
+      count: borrowRequests.filter((r) => r.status === "PENDING_RETURN").length,
+    },
+  ];
+
+  // Section 2: Status overview
+  const statusOptions = [
     {
       value: "APPROVED",
       label: "อนุมัติแล้ว",
@@ -223,6 +291,9 @@ const AdminBorrowRequests = () => {
     },
   ];
 
+  // Calculate total pending actions
+  const totalPendingActions = requestOptions.reduce((sum, option) => sum + option.count, 0);
+
   const filteredRequests = borrowRequests.filter((request) => {
     const matchesStatus = request.status === selectedStatus;
     const matchesSearch =
@@ -234,17 +305,20 @@ const AdminBorrowRequests = () => {
   });
 
   const getStatusIcon = (status: string) => {
-    const option = statusOptions.find(opt => opt.value === status);
+    const allOptions = [...requestOptions, ...statusOptions];
+    const option = allOptions.find(opt => opt.value === status);
     return option ? option.icon : Package;
   };
 
   const getStatusColor = (status: string) => {
-    const option = statusOptions.find(opt => opt.value === status);
+    const allOptions = [...requestOptions, ...statusOptions];
+    const option = allOptions.find(opt => opt.value === status);
     return option ? option.color : "bg-gray-100 text-gray-800 border-gray-200";
   };
 
   const getStatusText = (status: string) => {
-    const option = statusOptions.find(opt => opt.value === status);
+    const allOptions = [...requestOptions, ...statusOptions];
+    const option = allOptions.find(opt => opt.value === status);
     return option ? option.label : "ไม่ทราบสถานะ";
   };
 
@@ -273,43 +347,129 @@ const AdminBorrowRequests = () => {
           >
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
               <div>
-                <h1 className="text-5xl font-bold text-gray-900 mb-2">
-                  จัดการคำขอยืมอุปกรณ์
-                </h1>
-                <p className="text-2xl text-gray-600">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-5xl font-bold text-gray-900">
+                    จัดการคำขอยืมอุปกรณ์
+                  </h1>
+                  {totalPendingActions > 0 && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                      className="relative"
+                    >
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.2, 1],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          repeatType: "loop"
+                        }}
+                        className="bg-red-500 text-white rounded-full px-4 py-2 flex items-center gap-2 text-xl font-bold shadow-lg"
+                      >
+                        <span>{totalPendingActions}</span>
+                        <span>!</span>
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </div>
+                <p className="text-2xl text-gray-600 mt-2">
                   อนุมัติหรือปฏิเสธคำขอยืมอุปกรณ์จากผู้ใช้
                 </p>
               </div>
             </div>
           </motion.div>
 
-          {/* Stats Cards */}
+          {/* Section 1: Requests that need action */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8"
+            className="mb-8"
           >
-            {statusOptions.map((option, index) => (
-              <motion.button
-                key={option.value}
-                onClick={() => setSelectedStatus(option.value)}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                  selectedStatus === option.value
-                    ? "border-red-600 bg-red-50 text-red-700"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-red-300 hover:bg-red-50"
-                }`}
-              >
-                <div className="flex items-center justify-center mb-2">
-                  <option.icon size={24} />
-                </div>
-                <div className="text-3xl font-bold mb-1">{option.count}</div>
-                <div className="text-sm font-medium">{option.label}</div>
-              </motion.button>
-            ))}
+            <div className="flex items-center gap-3 mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">คำขอที่ต้องดำเนินการ</h2>
+              {totalPendingActions > 0 && (
+                <span className="bg-red-500 text-white rounded-full px-3 py-1 text-sm font-bold">
+                  {totalPendingActions}
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {requestOptions.map((option, index) => (
+                <motion.button
+                  key={option.value}
+                  onClick={() => setSelectedStatus(option.value)}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`p-6 rounded-xl border-2 transition-all duration-200 relative ${
+                    selectedStatus === option.value
+                      ? "border-red-600 bg-red-50 text-red-700 shadow-lg"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-red-300 hover:bg-red-50 hover:shadow-md"
+                  }`}
+                >
+                  {/* Notification Badge */}
+                  {option.count > 0 && selectedStatus !== option.value && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        repeatType: "loop"
+                      }}
+                      className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold shadow-lg"
+                    >
+                      {option.count}!
+                    </motion.div>
+                  )}
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-lg bg-gray-100">
+                      <option.icon size={32} />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="text-4xl font-bold mb-1">{option.count}</div>
+                      <div className="text-lg font-medium">{option.label}</div>
+                    </div>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Section 2: All Status */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8"
+          >
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">สถานะทั้งหมด</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {statusOptions.map((option, index) => (
+                <motion.button
+                  key={option.value}
+                  onClick={() => setSelectedStatus(option.value)}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                    selectedStatus === option.value
+                      ? "border-red-600 bg-red-50 text-red-700 shadow-md"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-red-300 hover:bg-red-50"
+                  }`}
+                >
+                  <div className="flex items-center justify-center mb-2">
+                    <option.icon size={24} />
+                  </div>
+                  <div className="text-3xl font-bold mb-1">{option.count}</div>
+                  <div className="text-sm font-medium">{option.label}</div>
+                </motion.button>
+              ))}
+            </div>
           </motion.div>
 
           {/* Search */}
@@ -464,6 +624,23 @@ const AdminBorrowRequests = () => {
                               </button>
                             </div>
                           )}
+
+                          {request.status === 'PENDING_RETURN' && (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleConfirmReturn(request.id)}
+                                disabled={actionLoading === request.id}
+                                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                              >
+                                {actionLoading === request.id ? (
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                ) : (
+                                  <CheckCircle size={16} />
+                                )}
+                                ยืนยันการคืน
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -586,6 +763,14 @@ const AdminBorrowRequests = () => {
                         {new Date(selectedRequest.endDate).toLocaleDateString('th-TH')}
                       </span>
                     </div>
+                    {selectedRequest.returnRequestedAt && (
+                      <div className="flex justify-between">
+                        <span className="text-purple-700">ขอคืนเมื่อ:</span>
+                        <span className="font-medium text-purple-700">
+                          {new Date(selectedRequest.returnRequestedAt).toLocaleDateString('th-TH')} {new Date(selectedRequest.returnRequestedAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    )}
                     {selectedRequest.actualReturnDate && (
                       <div className="flex justify-between">
                         <span>วันที่คืนจริง:</span>
@@ -689,6 +874,23 @@ const AdminBorrowRequests = () => {
                   >
                     <X size={16} />
                     ปฏิเสธ
+                  </button>
+                </div>
+              )}
+
+              {selectedRequest.status === 'PENDING_RETURN' && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleConfirmReturn(selectedRequest.id)}
+                    disabled={actionLoading === selectedRequest.id}
+                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                  >
+                    {actionLoading === selectedRequest.id ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    ) : (
+                      <CheckCircle size={16} />
+                    )}
+                    ยืนยันการคืน
                   </button>
                 </div>
               )}
