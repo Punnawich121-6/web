@@ -111,13 +111,14 @@ const LibraryNavbar = () => {
 
   const navItems = [
     { href: "/schedule", label: "Schedule" },
+    { href: "/activity", label: "Activity" },
     { href: "/equipment/catalog", label: "Catalog" },
     { href: "/contact", label: "Contact" },
   ];
 
   const userNavItems = [
     { href: "/dashboard", label: "Dashboard" },
-    { href: "/Borrowing_History", label: "History" },
+    { href: "/history", label: "My History" },
   ];
 
   const adminNavItems = [
