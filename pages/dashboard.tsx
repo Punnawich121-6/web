@@ -201,19 +201,19 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <LibraryNavbar />
 
-      <div className="pt-24 pb-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <div className="pt-20 sm:pt-24 pb-6 sm:pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
               {/* Display appropriate header based on admin status */}
               {isAdmin ? 'Admin Dashboard' : 'Dashboard'}
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600">
               {/* Display appropriate subtitle based on admin status */}
               {isAdmin
                 ? 'ภาพรวมและสถิติการยืมอุปกรณ์ทั้งหมด'
@@ -223,11 +223,11 @@ const Dashboard = () => {
 
           {/* Statistics Overview - Only render if stats are loaded */}
           {statsLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8 animate-pulse">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8 animate-pulse">
                 {[...Array(isAdmin ? 5 : 4)].map((_, i) => (
-                    <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-28">
-                       <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                       <div className="h-6 bg-gray-300 rounded w-1/2"></div>
+                    <div key={i} className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 h-24 sm:h-28">
+                       <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                       <div className="h-5 sm:h-6 bg-gray-300 rounded w-1/2"></div>
                     </div>
                 ))}
             </div>
@@ -236,81 +236,80 @@ const Dashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8"
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8"
             >
               {/* Card: ทั้งหมด */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-gray-100 rounded-lg">
-                    <Package className="text-gray-600" size={20} />
+              <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                  <div className="p-1.5 sm:p-2 bg-gray-100 rounded-lg flex-shrink-0">
+                    <Package className="text-gray-600" size={16} />
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-gray-900">
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                       {statistics.overview.total}
                     </p>
-                    <p className="text-base text-gray-600">ทั้งหมด</p> {/* Increased size */}
+                    <p className="text-sm sm:text-base text-gray-600">ทั้งหมด</p>
                   </div>
                 </div>
               </div>
 
               {/* Card: รออนุมัติ */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-yellow-100 rounded-lg">
-                    <Clock className="text-yellow-600" size={20} />
+              <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                  <div className="p-1.5 sm:p-2 bg-yellow-100 rounded-lg flex-shrink-0">
+                    <Clock className="text-yellow-600" size={16} />
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-yellow-600">
+                    <p className="text-2xl sm:text-3xl font-bold text-yellow-600">
                       {statistics.overview.pending}
                     </p>
-                    <p className="text-base text-gray-600">รออนุมัติ</p> {/* Increased size */}
+                    <p className="text-sm sm:text-base text-gray-600">รออนุมัติ</p>
                   </div>
                 </div>
               </div>
 
               {/* Card: อนุมัติแล้ว */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <CheckCircle className="text-green-600" size={20} />
+              <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                  <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
+                    <CheckCircle className="text-green-600" size={16} />
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-green-600">
+                    <p className="text-2xl sm:text-3xl font-bold text-green-600">
                       {statistics.overview.approved}
                     </p>
-                    <p className="text-base text-gray-600">อนุมัติแล้ว</p> {/* Increased size */}
+                    <p className="text-sm sm:text-base text-gray-600">อนุมัติแล้ว</p>
                   </div>
                 </div>
               </div>
 
               {/* Card: คืนแล้ว */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    {/* Assuming CheckCircle is okay for returned, or use another icon */}
-                    <CheckCircle className="text-blue-600" size={20} />
+              <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                  <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                    <CheckCircle className="text-blue-600" size={16} />
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-blue-600">
+                    <p className="text-2xl sm:text-3xl font-bold text-blue-600">
                       {statistics.overview.returned}
                     </p>
-                    <p className="text-base text-gray-600">คืนแล้ว</p> {/* Increased size */}
+                    <p className="text-sm sm:text-base text-gray-600">คืนแล้ว</p>
                   </div>
                 </div>
               </div>
 
               {/* Card: ปฏิเสธ (แสดงเฉพาะ Admin) */}
               {isAdmin && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <XCircle className="text-red-600" size={20} />
+                <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                    <div className="p-1.5 sm:p-2 bg-red-100 rounded-lg flex-shrink-0">
+                      <XCircle className="text-red-600" size={16} />
                     </div>
                     <div>
-                      <p className="text-3xl font-bold text-red-600">
+                      <p className="text-2xl sm:text-3xl font-bold text-red-600">
                         {statistics.overview.rejected}
                       </p>
-                      <p className="text-base text-gray-600">ปฏิเสธ</p> {/* Increased size */}
+                      <p className="text-sm sm:text-base text-gray-600">ปฏิเสธ</p>
                     </div>
                   </div>
                 </div>
@@ -418,30 +417,27 @@ const Dashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: isAdmin && statistics ? 0.4 : 0.2 }} // Adjust delay based on whether admin sections are shown
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">การดำเนินการด่วน</h2>
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">การดำเนินการด่วน</h2>
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {quickActions.map((action, index) => (
                   <motion.a
                     key={index}
                     href={action.href}
-                    whileHover={{ scale: 1.02 }} // Slightly reduced hover scale
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    // Use defined colors from the array
-                    className={`block p-6 rounded-xl shadow-lg ${action.color} ${action.hoverColor} ${action.textColor} transition-all duration-300 group`}
+                    className={`block p-4 sm:p-6 rounded-lg sm:rounded-xl shadow-lg ${action.color} ${action.hoverColor} ${action.textColor} transition-all duration-300 group`}
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      {/* Use icon background color */}
-                      <div className={`p-3 ${action.iconBgColor} rounded-lg bg-opacity-80`}> {/* Added slight opacity */}
-                        <action.icon size={28} />
+                    <div className="flex items-start justify-between mb-3 sm:mb-4">
+                      <div className={`p-2 sm:p-3 ${action.iconBgColor} rounded-lg bg-opacity-80 flex-shrink-0`}>
+                        <action.icon size={24} className="sm:w-7 sm:h-7" />
                       </div>
                       <ArrowRight
-                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:translate-x-1" // Added transition and transform
-                        size={24}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:translate-x-1 flex-shrink-0"
+                        size={20}
                       />
                     </div>
-                    <h3 className="text-xl font-bold mb-2">{action.title}</h3>
-                    {/* Use description color */}
-                    <p className={`${action.descriptionColor}`}>{action.description}</p>
+                    <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">{action.title}</h3>
+                    <p className={`text-sm sm:text-base ${action.descriptionColor}`}>{action.description}</p>
                   </motion.a>
                 ))}
               </div>

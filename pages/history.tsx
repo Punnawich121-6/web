@@ -18,7 +18,7 @@ import {
   Home,
   Plus,
   ArrowRight,
-  User,
+  User as UserIcon,
   FileText,
   RotateCcw,
 } from "lucide-react";
@@ -100,7 +100,6 @@ const History = () => {
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.data) {
-          // Transform API response to match the interface
           const transformedHistory = result.data.map((request: any) => ({
           id: request.id,
           equipmentName: request.equipment.name,
@@ -134,18 +133,15 @@ const History = () => {
     }
   };
 
-  // Check for new pending request from URL params
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("status") === "pending") {
-      // Show success message for new pending request
       setTimeout(() => {
         alert("ส่งคำขอยืมอุปกรณ์สำเร็จ! รอการอนุมัติจากเจ้าหน้าที่");
       }, 500);
     }
   }, []);
 
-  // Handle early return
   const handleReturnItem = async () => {
     if (!recordToReturn || !user) return;
 
@@ -171,30 +167,27 @@ const History = () => {
       const result = await response.json();
 
       if (response.ok && result.success) {
-        alert("✅ ส่งคำขอคืนอุปกรณ์สำเร็จ! รอเจ้าหน้าที่ตรวจสอบการคืนอุปกรณ์");
+        alert("ส่งคำขอคืนอุปกรณ์สำเร็จ! รอเจ้าหน้าที่ตรวจสอบการคืนอุปกรณ์");
         setShowReturnModal(false);
         setRecordToReturn(null);
-        // Refresh the borrow history
         if (session?.user) {
           await fetchBorrowHistory(session.user);
         }
       } else {
-        alert(`❌ เกิดข้อผิดพลาด: ${result.error || 'ไม่สามารถส่งคำขอคืนอุปกรณ์ได้'}`);
+        alert(`เกิดข้อผิดพลาด: ${result.error || 'ไม่สามารถส่งคำขอคืนอุปกรณ์ได้'}`);
       }
     } catch (error) {
       console.error('Error returning item:', error);
-      alert("❌ เกิดข้อผิดพลาดในการคืนอุปกรณ์ กรุณาลองใหม่อีกครั้ง");
+      alert("เกิดข้อผิดพลาดในการคืนอุปกรณ์ กรุณาลองใหม่อีกครั้ง");
     } finally {
       setReturnLoading(false);
     }
   };
 
-  // Open return confirmation modal
   const openReturnModal = (record: BorrowRecord) => {
     setRecordToReturn(record);
     setShowReturnModal(true);
   };
-
 
   const statusOptions = [
     {
@@ -217,7 +210,7 @@ const History = () => {
     },
     {
       value: "pending_return",
-      label: "รอตรวจสอบการคืน",
+      label: "รอตรวจสอบคืน",
       icon: RotateCcw,
       count: borrowHistory.filter((r) => r.status === "pending_return").length,
     },
@@ -277,7 +270,7 @@ const History = () => {
       case "approved":
         return "อนุมัติแล้ว";
       case "pending_return":
-        return "รอตรวจสอบการคืน";
+        return "รอตรวจสอบคืน";
       case "returned":
         return "คืนแล้ว";
       case "overdue":
@@ -308,29 +301,12 @@ const History = () => {
     }
   };
 
-  // Format timestamp to Thai date and time
-  const formatTimestamp = (timestamp?: string) => {
-    if (!timestamp) return null;
-    const date = new Date(timestamp);
-    return {
-      date: date.toLocaleDateString('th-TH', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-      time: date.toLocaleTimeString('th-TH', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
-    };
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
+          <p className="text-gray-600 text-base sm:text-lg lg:text-xl">กำลังโหลด...</p>
         </div>
       </div>
     );
@@ -340,43 +316,43 @@ const History = () => {
     <div className="min-h-screen bg-gray-50">
       <LibraryNavbar />
 
-      <div className="pt-24 pb-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <div className="pt-20 sm:pt-24 pb-6 sm:pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 sm:mb-6">
               <div>
-                <h1 className="text-5xl font-bold text-gray-900 mb-2">
-                  ประวัติการยืมของฉัน
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2">
+                  ประวัติการยืมอุปกรณ์
                 </h1>
-                <p className="text-2xl text-gray-600">
-                  ดูประวัติและสถานะการยืมอุปกรณ์ของคุณ
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600">
+                  ติดตามสถานะและประวัติการยืมอุปกรณ์ทั้งหมดของคุณ
                 </p>
               </div>
-              <div className="flex gap-3 mt-4 lg:mt-0">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 lg:mt-0">
                 <a
                   href="/dashboard"
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-base"
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
                 >
-                  <Home size={18} />
+                  <Home className="w-4 h-4 sm:w-5 sm:h-5" size={18} />
                   Dashboard
                 </a>
                 <a
                   href="/schedule"
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-base"
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
                 >
-                  <Calendar size={18} />
+                  <Calendar className="w-4 h-4 sm:w-5 sm:h-5" size={18} />
                   Schedule
                 </a>
                 <a
                   href="/equipment/catalog"
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-base"
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
                 >
-                  <Plus size={18} />
+                  <Plus className="w-4 h-4 sm:w-5 sm:h-5" size={18} />
                   ยืมอุปกรณ์ใหม่
                 </a>
               </div>
@@ -388,7 +364,7 @@ const History = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4 mb-6 sm:mb-8"
           >
             {statusOptions.map((option, index) => (
               <motion.button
@@ -397,17 +373,17 @@ const History = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 min-h-[44px] touch-manipulation ${
                   selectedStatus === option.value
                     ? "border-red-600 bg-red-50 text-red-700"
                     : "border-gray-200 bg-white text-gray-600 hover:border-red-300 hover:bg-red-50"
                 }`}
               >
                 <div className="flex items-center justify-center mb-2">
-                  <option.icon size={24} />
+                  <option.icon className="w-5 h-5 sm:w-6 sm:h-6" size={24} />
                 </div>
-                <div className="text-3xl font-bold mb-1">{option.count}</div>
-                <div className="text-sm font-medium">{option.label}</div>
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1">{option.count}</div>
+                <div className="text-xs sm:text-sm font-medium">{option.label}</div>
               </motion.button>
             ))}
           </motion.div>
@@ -417,11 +393,11 @@ const History = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-6"
+            className="mb-4 sm:mb-6"
           >
             <div className="relative">
               <Search
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 sm:w-6 sm:h-6"
                 size={20}
               />
               <input
@@ -429,7 +405,7 @@ const History = () => {
                 placeholder="ค้นหาตามชื่ออุปกรณ์, รหัส, หรือวัตถุประสงค์..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg"
+                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm sm:text-base lg:text-lg touch-manipulation"
               />
             </div>
           </motion.div>
@@ -442,17 +418,17 @@ const History = () => {
             className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
           >
             {dataLoading ? (
-              <div className="p-12 text-center">
+              <div className="p-8 sm:p-12 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-                <p className="text-gray-600 text-xl">กำลังโหลดประวัติการยืม...</p>
+                <p className="text-gray-600 text-base sm:text-lg lg:text-xl">กำลังโหลดประวัติการยืม...</p>
               </div>
             ) : filteredHistory.length === 0 ? (
-              <div className="p-12 text-center">
-                <Package className="mx-auto mb-4 text-gray-400" size={48} />
-                <h3 className="text-xl font-medium text-gray-900 mb-2">
+              <div className="p-8 sm:p-12 text-center">
+                <Package className="mx-auto mb-4 text-gray-400 w-10 h-10 sm:w-12 sm:h-12" size={48} />
+                <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2">
                   ไม่พบประวัติการยืม
                 </h3>
-                <p className="text-gray-600 mb-4 text-lg">
+                <p className="text-gray-600 mb-4 text-sm sm:text-base lg:text-lg">
                   {selectedStatus === "all"
                     ? "คุณยังไม่เคยยืมอุปกรณ์ หรือลองเปลี่ยนคำค้นหา"
                     : `ไม่พบรายการที่มีสถานะ "${
@@ -461,10 +437,10 @@ const History = () => {
                       }"`}
                 </p>
                 <a
-                  href="/Equipment_Catalog_User"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-base"
+                  href="/equipment/catalog"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
                 >
-                  <Plus size={18} />
+                  <Plus className="w-4 h-4 sm:w-5 sm:h-5" size={18} />
                   เริ่มยืมอุปกรณ์
                 </a>
               </div>
@@ -478,10 +454,10 @@ const History = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="p-6 hover:bg-gray-50 transition-colors duration-150"
+                      className="p-4 sm:p-6 hover:bg-gray-50 transition-colors duration-150"
                     >
-                      <div className="flex items-start gap-4">
-                        <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+                      <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
                           <img
                             src={record.image}
                             alt={record.equipmentName}
@@ -489,81 +465,67 @@ const History = () => {
                           />
                         </div>
 
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1 min-w-0 w-full">
+                          <div className="flex flex-col sm:flex-row items-start justify-between mb-2 gap-2">
                             <div>
-                              <h3 className="font-semibold text-gray-900 text-xl">
+                              <h3 className="font-semibold text-gray-900 text-base sm:text-lg lg:text-xl">
                                 {record.equipmentName}
                               </h3>
-                              <p className="text-base text-gray-500">
+                              <p className="text-sm sm:text-base text-gray-500">
                                 รหัส: {record.equipmentId} | จำนวน:{" "}
                                 {record.quantity} ชิ้น
                               </p>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
                               <span
-                                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                                className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium border ${getStatusColor(
                                   record.status
                                 )}`}
                               >
-                                <StatusIcon size={14} />
+                                <StatusIcon className="w-3 h-3 sm:w-4 sm:h-4" size={14} />
                                 {getStatusText(record.status)}
                               </span>
-                              {record.status === "approved" && !record.actualReturnDate && (
-                                <button
-                                  onClick={() => openReturnModal(record)}
-                                  className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                                  title="คืนอุปกรณ์"
-                                >
-                                  <RotateCcw size={14} />
-                                  คืนอุปกรณ์
-                                </button>
-                              )}
                               <button
                                 onClick={() => setSelectedRecord(record)}
-                                className="text-red-600 hover:text-red-700 p-1"
+                                className="text-red-600 hover:text-red-700 p-1 min-h-[44px] min-w-[44px] touch-manipulation flex items-center justify-center"
                                 title="ดูรายละเอียด"
                               >
-                                <Eye size={18} />
+                                <Eye className="w-4 h-4 sm:w-5 sm:h-5" size={18} />
                               </button>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-base text-gray-600 mb-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 text-sm sm:text-base text-gray-600 mb-3">
                             <div className="flex items-center gap-2">
-                              <Calendar size={16} />
+                              <Calendar className="w-4 h-4" size={16} />
                               <span>ยืม: {record.borrowDate}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Clock size={16} />
+                              <Clock className="w-4 h-4" size={16} />
                               <span>กำหนดคืน: {record.returnDate}</span>
                             </div>
                             {record.actualReturnDate && (
                               <div className="flex items-center gap-2">
-                                <CheckCircle size={16} />
+                                <CheckCircle className="w-4 h-4" size={16} />
                                 <span>คืนแล้ว: {record.actualReturnDate}</span>
                               </div>
                             )}
                           </div>
 
-                          <div className="space-y-1 mb-2">
-                            <p className="text-gray-700 text-base">
-                              <span className="font-medium">วัตถุประสงค์:</span>{" "}
-                              {record.purpose}
-                            </p>
-                            {record.createdAt && formatTimestamp(record.createdAt) && (
-                              <p className="text-sm text-gray-500 flex items-center gap-1">
-                                <FileText size={14} />
-                                สร้างคำขอ: {formatTimestamp(record.createdAt)?.date} เวลา {formatTimestamp(record.createdAt)?.time}
-                              </p>
-                            )}
-                            {record.approvedAt && record.approvedBy && formatTimestamp(record.approvedAt) && (
-                              <p className="text-sm text-gray-500 flex items-center gap-1">
-                                <User size={14} />
-                                {record.status === 'rejected' ? 'ปฏิเสธ' : 'อนุมัติ'}โดย: {record.approvedBy.displayName || record.approvedBy.email} ({formatTimestamp(record.approvedAt)?.date} {formatTimestamp(record.approvedAt)?.time})
-                              </p>
-                            )}
-                          </div>
+                          <p className="text-gray-700 text-sm sm:text-base mb-3">
+                            <span className="font-medium">วัตถุประสงค์:</span>{" "}
+                            {record.purpose}
+                          </p>
+
+                          {record.status === "approved" && (
+                            <button
+                              onClick={() => openReturnModal(record)}
+                              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
+                            >
+                              <RotateCcw className="w-4 h-4" size={16} />
+                              คืนอุปกรณ์
+                            </button>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -580,35 +542,35 @@ const History = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            className="bg-white rounded-xl shadow-xl max-w-full sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto"
           >
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                     รายละเอียดการยืม
                   </h3>
-                  <p className="text-gray-600 text-lg">
+                  <p className="text-gray-600 text-sm sm:text-base lg:text-lg">
                     #{selectedRecord.id}
                   </p>
                 </div>
                 <button
                   onClick={() => setSelectedRecord(null)}
-                  className="text-gray-400 hover:text-gray-600 text-3xl"
+                  className="text-gray-400 hover:text-gray-600 text-2xl sm:text-3xl min-h-[44px] min-w-[44px] touch-manipulation flex items-center justify-center"
                 >
                   ×
                 </button>
               </div>
             </div>
 
-            <div className="p-6 space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+              <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                   <img
                     src={selectedRecord.image}
                     alt={selectedRecord.equipmentName}
@@ -616,10 +578,10 @@ const History = () => {
                   />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-2xl font-semibold text-gray-900 mb-2">
+                  <h4 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-2">
                     {selectedRecord.equipmentName}
                   </h4>
-                  <div className="grid grid-cols-2 gap-4 text-base">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4 text-sm sm:text-base">
                     <div>
                       <span className="font-medium text-gray-700">
                         รหัสอุปกรณ์:
@@ -638,12 +600,12 @@ const History = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2 text-lg">
+                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">
                     ข้อมูลการยืม
                   </h5>
-                  <div className="space-y-2 text-base">
+                  <div className="space-y-2 text-sm sm:text-base">
                     <div className="flex justify-between">
                       <span>วันที่ยืม:</span>
                       <span className="font-medium">
@@ -668,16 +630,17 @@ const History = () => {
                 </div>
 
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2 text-lg">
+                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">
                     สถานะ
                   </h5>
                   <span
-                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-base font-medium border ${getStatusColor(
+                    className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full text-sm sm:text-base font-medium border ${getStatusColor(
                       selectedRecord.status
                     )}`}
                   >
                     {React.createElement(getStatusIcon(selectedRecord.status), {
                       size: 16,
+                      className: "w-4 h-4",
                     })}
                     {getStatusText(selectedRecord.status)}
                   </span>
@@ -685,147 +648,30 @@ const History = () => {
               </div>
 
               <div>
-                <h5 className="font-medium text-gray-700 mb-2 text-lg">
+                <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">
                   วัตถุประสงค์
                 </h5>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-lg">
+                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-sm sm:text-base lg:text-lg">
                   {selectedRecord.purpose}
                 </p>
               </div>
 
               {selectedRecord.notes && (
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2 text-lg">
+                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">
                     หมายเหตุ
                   </h5>
-                  <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-lg">
+                  <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-sm sm:text-base lg:text-lg">
                     {selectedRecord.notes}
                   </p>
                 </div>
               )}
-
-              {/* Timeline Section */}
-              <div>
-                <h5 className="font-medium text-gray-700 mb-4 text-lg flex items-center gap-2">
-                  <Clock size={18} />
-                  ประวัติการดำเนินการ
-                </h5>
-                <div className="space-y-4">
-                  {/* Created */}
-                  {selectedRecord.createdAt && (
-                    <div className="flex gap-4 items-start">
-                      <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <FileText size={18} className="text-blue-600" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-medium text-gray-900">สร้างคำขอยืม</p>
-                          {formatTimestamp(selectedRecord.createdAt) && (
-                            <span className="text-sm text-gray-500">
-                              {formatTimestamp(selectedRecord.createdAt)?.time}
-                            </span>
-                          )}
-                        </div>
-                        {formatTimestamp(selectedRecord.createdAt) && (
-                          <p className="text-sm text-gray-600">
-                            {formatTimestamp(selectedRecord.createdAt)?.date}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Approved */}
-                  {selectedRecord.status === 'approved' && selectedRecord.approvedAt && (
-                    <div className="flex gap-4 items-start">
-                      <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <CheckCircle size={18} className="text-green-600" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-medium text-gray-900">อนุมัติคำขอ</p>
-                          {formatTimestamp(selectedRecord.approvedAt) && (
-                            <span className="text-sm text-gray-500">
-                              {formatTimestamp(selectedRecord.approvedAt)?.time}
-                            </span>
-                          )}
-                        </div>
-                        {formatTimestamp(selectedRecord.approvedAt) && (
-                          <p className="text-sm text-gray-600">
-                            {formatTimestamp(selectedRecord.approvedAt)?.date}
-                          </p>
-                        )}
-                        {selectedRecord.approvedBy && (
-                          <div className="flex items-center gap-1 mt-1 text-sm text-gray-600">
-                            <User size={14} />
-                            <span>โดย: {selectedRecord.approvedBy.displayName || selectedRecord.approvedBy.email}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Rejected */}
-                  {selectedRecord.status === 'rejected' && selectedRecord.approvedAt && (
-                    <div className="flex gap-4 items-start">
-                      <div className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                        <XCircle size={18} className="text-red-600" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-medium text-gray-900">ปฏิเสธคำขอ</p>
-                          {formatTimestamp(selectedRecord.approvedAt) && (
-                            <span className="text-sm text-gray-500">
-                              {formatTimestamp(selectedRecord.approvedAt)?.time}
-                            </span>
-                          )}
-                        </div>
-                        {formatTimestamp(selectedRecord.approvedAt) && (
-                          <p className="text-sm text-gray-600">
-                            {formatTimestamp(selectedRecord.approvedAt)?.date}
-                          </p>
-                        )}
-                        {selectedRecord.approvedBy && (
-                          <div className="flex items-center gap-1 mt-1 text-sm text-gray-600">
-                            <User size={14} />
-                            <span>โดย: {selectedRecord.approvedBy.displayName || selectedRecord.approvedBy.email}</span>
-                          </div>
-                        )}
-                        {selectedRecord.rejectionReason && (
-                          <div className="mt-2 p-2 bg-red-50 rounded-lg">
-                            <p className="text-sm text-red-700">
-                              <span className="font-medium">เหตุผล:</span> {selectedRecord.rejectionReason}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Returned */}
-                  {selectedRecord.status === 'returned' && selectedRecord.actualReturnDate && (
-                    <div className="flex gap-4 items-start">
-                      <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <Package size={18} className="text-purple-600" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-medium text-gray-900">คืนอุปกรณ์แล้ว</p>
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          {selectedRecord.actualReturnDate}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
 
-            <div className="p-6 border-t border-gray-200 flex justify-end">
+            <div className="p-4 sm:p-6 border-t border-gray-200 flex justify-end">
               <button
                 onClick={() => setSelectedRecord(null)}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-base"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
               >
                 ปิด
               </button>
@@ -839,97 +685,52 @@ const History = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-xl shadow-xl max-w-md w-full"
+            className="bg-white rounded-xl shadow-xl max-w-full sm:max-w-md w-full"
           >
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <RotateCcw size={24} className="text-green-600" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">
-                    ยืนยันการคืนอุปกรณ์
-                  </h3>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                  <img
-                    src={recordToReturn.image}
-                    alt={recordToReturn.equipmentName}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-1">
-                    {recordToReturn.equipmentName}
-                  </h4>
-                  <p className="text-sm text-gray-600">
-                    รหัส: {recordToReturn.equipmentId}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    จำนวน: {recordToReturn.quantity} ชิ้น
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <p className="text-sm text-blue-800">
-                  <strong>📅 กำหนดคืน:</strong> {recordToReturn.returnDate}
-                </p>
-                <p className="text-sm text-blue-800 mt-1">
-                  คุณกำลังคืนอุปกรณ์ก่อนกำหนด ซึ่งจะทำให้อุปกรณ์พร้อมให้บริการทันที
-                </p>
-              </div>
-
-              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
-                <p className="text-sm text-yellow-800">
-                  <strong>⚠️ คำเตือน:</strong> กรุณาตรวจสอบให้แน่ใจว่าคุณได้นำอุปกรณ์มาคืนแล้ว
-                  การกดยืนยันจะอัปเดตสถานะในระบบทันที
-                </p>
-              </div>
-
-              <p className="text-gray-700 text-center text-lg font-medium">
-                คุณต้องการคืนอุปกรณ์นี้ใช่หรือไม่?
+            <div className="p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
+                ยืนยันการคืนอุปกรณ์
+              </h3>
+              <p className="text-gray-600 mb-4 text-sm sm:text-base">
+                คุณต้องการส่งคำขอคืนอุปกรณ์ <strong>{recordToReturn.equipmentName}</strong> ใช่หรือไม่?
               </p>
-            </div>
-
-            <div className="p-6 border-t border-gray-200 flex gap-3 justify-end">
-              <button
-                onClick={() => {
-                  setShowReturnModal(false);
-                  setRecordToReturn(null);
-                }}
-                disabled={returnLoading}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-base disabled:opacity-50"
-              >
-                ยกเลิก
-              </button>
-              <button
-                onClick={handleReturnItem}
-                disabled={returnLoading}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-base disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {returnLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    กำลังดำเนินการ...
-                  </>
-                ) : (
-                  <>
-                    <RotateCcw size={18} />
-                    ยืนยันการคืน
-                  </>
-                )}
-              </button>
+              <p className="text-sm sm:text-base text-yellow-700 bg-yellow-50 p-3 rounded-lg mb-4">
+                หมายเหตุ: หลังจากส่งคำขอ เจ้าหน้าที่จะตรวจสอบสภาพอุปกรณ์และอนุมัติการคืน
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => {
+                    setShowReturnModal(false);
+                    setRecordToReturn(null);
+                  }}
+                  disabled={returnLoading}
+                  className="w-full sm:flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px] touch-manipulation"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={handleReturnItem}
+                  disabled={returnLoading}
+                  className="w-full sm:flex-1 px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base min-h-[44px] touch-manipulation"
+                >
+                  {returnLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      <span>กำลังส่งคำขอ...</span>
+                    </>
+                  ) : (
+                    <>
+                      <RotateCcw className="w-4 h-4" size={16} />
+                      <span>ยืนยันคืนอุปกรณ์</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </motion.div>
         </motion.div>

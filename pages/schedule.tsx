@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import LibraryNavbar from "../components/LibraryNavbar";
@@ -42,6 +42,12 @@ export default function Schedule() {
   const [events, setEvents] = useState<BorrowEvent[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -159,7 +165,7 @@ export default function Schedule() {
     // Empty cells for days before the month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(
-        <div key={`empty-${i}`} className="bg-gray-50 border border-gray-100 rounded-lg p-3 h-28" />
+        <div key={`empty-${i}`} className="bg-gray-50 border border-gray-100 rounded-md sm:rounded-lg p-1 sm:p-3 h-16 sm:h-24 md:h-28" />
       );
     }
 
@@ -173,31 +179,31 @@ export default function Schedule() {
       days.push(
         <motion.div
           key={day}
-          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setSelectedDate(date)}
-          className={`border rounded-lg p-3 h-28 cursor-pointer transition-all ${
+          className={`border rounded-md sm:rounded-lg p-1 sm:p-2 md:p-3 h-16 sm:h-24 md:h-28 cursor-pointer transition-all touch-manipulation ${
             isToday
               ? "bg-red-50 border-red-300 shadow-md"
               : isSelected
               ? "bg-blue-50 border-blue-300 shadow-md"
-              : "bg-white border-gray-200 hover:border-red-200 hover:shadow-sm"
+              : "bg-white border-gray-200 hover:border-red-200 hover:shadow-sm active:bg-gray-50"
           }`}
         >
-          <div className="flex justify-between items-start mb-2">
+          <div className="flex justify-between items-start mb-0.5 sm:mb-1 md:mb-2">
             <span
-              className={`text-lg font-semibold ${
+              className={`text-sm sm:text-base md:text-lg font-semibold ${
                 isToday ? "text-red-600" : "text-gray-700"
               }`}
             >
               {day}
             </span>
             {dayEvents.length > 0 && (
-              <span className="text-xs bg-red-500 text-white px-2 py-1 rounded-full font-medium">
+              <span className="text-xs bg-red-500 text-white px-1 sm:px-1.5 md:px-2 py-0.5 sm:py-1 rounded-full font-medium">
                 {dayEvents.length}
               </span>
             )}
           </div>
-          <div className="space-y-1">
+          <div className="space-y-0.5 sm:space-y-1">
             {dayEvents.slice(0, 2).map((event, idx) => {
               const isReturned = event.status === "RETURNED";
               const isActive = event.status === "APPROVED" || event.status === "ACTIVE";
@@ -206,7 +212,7 @@ export default function Schedule() {
               return (
                 <div
                   key={idx}
-                  className={`text-xs p-1.5 rounded truncate font-medium ${
+                  className={`text-xs p-0.5 sm:p-1 md:p-1.5 rounded truncate font-medium ${
                     isReturned
                       ? "bg-blue-100 text-blue-800 border border-blue-300"
                       : isActive
@@ -216,12 +222,13 @@ export default function Schedule() {
                       : "bg-gray-100 text-gray-700"
                   }`}
                 >
-                  {event.equipment.name}
+                  <span className="hidden sm:inline">{event.equipment.name}</span>
+                  <span className="sm:hidden">•</span>
                 </div>
               );
             })}
             {dayEvents.length > 2 && (
-              <div className="text-xs text-gray-500 font-medium">+{dayEvents.length - 2}</div>
+              <div className="text-xs text-gray-500 font-medium hidden sm:block">+{dayEvents.length - 2}</div>
             )}
           </div>
         </motion.div>
@@ -244,6 +251,31 @@ export default function Schedule() {
     setSelectedDate(new Date());
   };
 
+  // Swipe handlers for mobile
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextMonth();
+    }
+    if (isRightSwipe) {
+      previousMonth();
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -259,94 +291,108 @@ export default function Schedule() {
     <div className="min-h-screen bg-gray-50">
       <LibraryNavbar />
 
-      <div className="pt-24 pb-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <div className="pt-20 sm:pt-24 pb-6 sm:pb-8 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
               ตารางการยืมอุปกรณ์
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-gray-600">
               ดูว่าวันไหนมีการยืมหรือคืนอุปกรณ์
             </p>
           </motion.div>
 
           {/* Calendar */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Calendar */}
             <div className="lg:col-span-2">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white rounded-xl shadow-lg border border-gray-200 p-6"
+                className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 sm:p-6"
+                ref={calendarRef}
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
               >
                 {/* Calendar Header */}
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-3xl font-bold text-gray-900">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                     {currentDate.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' })}
                   </h2>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
                     <button
                       onClick={previousMonth}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 sm:p-2.5 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation flex-1 sm:flex-initial"
+                      aria-label="เดือนก่อนหน้า"
                     >
-                      <ChevronLeft size={24} />
+                      <ChevronLeft size={20} className="sm:w-6 sm:h-6" />
                     </button>
                     <button
                       onClick={today}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                      className="px-4 sm:px-5 py-2 sm:py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm sm:text-base touch-manipulation flex-1 sm:flex-initial"
                     >
                       วันนี้
                     </button>
                     <button
                       onClick={nextMonth}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 sm:p-2.5 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation flex-1 sm:flex-initial"
+                      aria-label="เดือนถัดไป"
                     >
-                      <ChevronRight size={24} />
+                      <ChevronRight size={20} className="sm:w-6 sm:h-6" />
                     </button>
                   </div>
                 </div>
 
                 {/* Days of Week */}
-                <div className="grid grid-cols-7 gap-2 mb-3">
-                  {['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'].map((day) => (
-                    <div key={day} className="text-center text-sm font-bold text-gray-700 py-2">
-                      {day}
+                <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 sm:mb-3">
+                  {['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'].map((day, idx) => (
+                    <div key={day} className="text-center text-xs sm:text-sm font-bold text-gray-700 py-1 sm:py-2">
+                      <span className="hidden sm:inline">{day}</span>
+                      <span className="sm:hidden">{['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'][idx]}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Calendar Grid */}
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-7 gap-1 sm:gap-2">
                   {renderCalendar()}
                 </div>
 
                 {/* Color Legend */}
-                <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
                   <h4 className="text-sm font-semibold text-gray-900 mb-3">สถานะการยืม</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-                      <span className="text-sm text-gray-700">กำลังยืม</span>
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-100 border border-green-300 rounded flex-shrink-0"></div>
+                      <span className="text-xs sm:text-sm text-gray-700">กำลังยืม</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
-                      <span className="text-sm text-gray-700">คืนแล้ว</span>
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-100 border border-blue-300 rounded flex-shrink-0"></div>
+                      <span className="text-xs sm:text-sm text-gray-700">คืนแล้ว</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-amber-100 border border-amber-300 rounded"></div>
-                      <span className="text-sm text-gray-700">รออนุมัติ</span>
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 bg-amber-100 border border-amber-300 rounded flex-shrink-0"></div>
+                      <span className="text-xs sm:text-sm text-gray-700">รออนุมัติ</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-gray-100 border border-gray-300 rounded"></div>
-                      <span className="text-sm text-gray-700">อื่นๆ</span>
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gray-100 border border-gray-300 rounded flex-shrink-0"></div>
+                      <span className="text-xs sm:text-sm text-gray-700">อื่นๆ</span>
                     </div>
                   </div>
+                </div>
+
+                {/* Swipe hint for mobile */}
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200 sm:hidden">
+                  <p className="text-xs text-gray-500 text-center">
+                    เลื่อนซ้าย-ขวาเพื่อเปลี่ยนเดือน
+                  </p>
                 </div>
               </motion.div>
             </div>
@@ -357,47 +403,51 @@ export default function Schedule() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sticky top-24"
+                className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-24"
               >
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <CalendarIcon size={24} className="text-red-600" />
-                  {selectedDate
-                    ? selectedDate.toLocaleDateString('th-TH', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                      })
-                    : "เลือกวันที่"}
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                  <CalendarIcon size={20} className="text-red-600 sm:w-6 sm:h-6" />
+                  <span className="truncate">
+                    {selectedDate
+                      ? selectedDate.toLocaleDateString('th-TH', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })
+                      : "เลือกวันที่"}
+                  </span>
                 </h3>
 
                 {selectedDate ? (
-                  <div className="space-y-3">
+                  <div className="space-y-3 max-h-[calc(100vh-16rem)] overflow-y-auto">
                     {getEventsForDate(selectedDate).length > 0 ? (
                       getEventsForDate(selectedDate).map((event) => (
                         <div
                           key={event.id}
-                          className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-red-300 transition-colors"
+                          className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-red-300 transition-colors"
                         >
-                          <div className="flex items-start justify-between mb-3">
-                            <h4 className="font-semibold text-gray-900 text-lg">{event.equipment.name}</h4>
-                            {getStatusIcon(event.status)}
+                          <div className="flex items-start justify-between mb-2 sm:mb-3">
+                            <h4 className="font-semibold text-gray-900 text-base sm:text-lg break-words flex-1 pr-2">
+                              {event.equipment.name}
+                            </h4>
+                            <div className="flex-shrink-0">{getStatusIcon(event.status)}</div>
                           </div>
-                          <div className="space-y-2 text-sm text-gray-600">
+                          <div className="space-y-1.5 sm:space-y-2 text-sm text-gray-600">
                             {user && event.user.displayName && (
                               <div className="flex items-center gap-2">
-                                <UserIcon size={16} />
-                                <span>{event.user.displayName}</span>
+                                <UserIcon size={14} className="flex-shrink-0 sm:w-4 sm:h-4" />
+                                <span className="truncate">{event.user.displayName}</span>
                               </div>
                             )}
                             <div className="flex items-center gap-2">
-                              <Package size={16} />
-                              <span>{event.equipment.category} • จำนวน {event.quantity} ชิ้น</span>
+                              <Package size={14} className="flex-shrink-0 sm:w-4 sm:h-4" />
+                              <span className="truncate">{event.equipment.category} • จำนวน {event.quantity} ชิ้น</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Clock size={16} />
+                              <Clock size={14} className="flex-shrink-0 sm:w-4 sm:h-4" />
                               <span className="font-medium">{getStatusText(event.status)}</span>
                             </div>
-                            <div className="pt-2 border-t border-gray-200 mt-2">
+                            <div className="pt-2 border-t border-gray-200 mt-2 space-y-1">
                               <p className="text-xs text-gray-500">
                                 ยืม: {new Date(event.startDate).toLocaleDateString('th-TH')}
                               </p>
@@ -407,7 +457,7 @@ export default function Schedule() {
                             </div>
                             {user && event.purpose && event.purpose !== 'การยืมอุปกรณ์' && (
                               <div className="pt-2 border-t border-gray-200 mt-2">
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-gray-500 break-words">
                                   <span className="font-medium">วัตถุประสงค์:</span> {event.purpose}
                                 </p>
                               </div>
@@ -416,17 +466,17 @@ export default function Schedule() {
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-12">
-                        <CalendarIcon className="mx-auto mb-3 text-gray-400" size={48} />
-                        <p className="text-gray-500">ไม่มีกิจกรรมในวันนี้</p>
+                      <div className="text-center py-8 sm:py-12">
+                        <CalendarIcon className="mx-auto mb-3 text-gray-400" size={40} />
+                        <p className="text-gray-500 text-sm sm:text-base">ไม่มีกิจกรรมในวันนี้</p>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-16">
-                    <CalendarIcon className="mx-auto mb-4 text-gray-400" size={64} />
-                    <p className="text-gray-500 text-lg">คลิกที่วันในปฏิทิน</p>
-                    <p className="text-gray-400 text-sm mt-1">เพื่อดูรายละเอียด</p>
+                  <div className="text-center py-12 sm:py-16">
+                    <CalendarIcon className="mx-auto mb-3 sm:mb-4 text-gray-400" size={48} />
+                    <p className="text-gray-500 text-base sm:text-lg">คลิกที่วันในปฏิทิน</p>
+                    <p className="text-gray-400 text-xs sm:text-sm mt-1">เพื่อดูรายละเอียด</p>
                   </div>
                 )}
               </motion.div>

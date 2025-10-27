@@ -337,18 +337,18 @@ const AdminBorrowRequests = () => {
     <div className="min-h-screen bg-gray-50">
       <LibraryNavbar />
 
-      <div className="pt-24 pb-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <div className="pt-20 sm:pt-24 pb-6 sm:pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 sm:mb-6">
               <div>
-                <div className="flex items-center gap-3">
-                  <h1 className="text-5xl font-bold text-gray-900">
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
                     จัดการคำขอยืมอุปกรณ์
                   </h1>
                   {totalPendingActions > 0 && (
@@ -367,7 +367,7 @@ const AdminBorrowRequests = () => {
                           repeat: Infinity,
                           repeatType: "loop"
                         }}
-                        className="bg-red-500 text-white rounded-full px-4 py-2 flex items-center gap-2 text-xl font-bold shadow-lg"
+                        className="bg-red-500 text-white rounded-full px-3 py-1 sm:px-4 sm:py-2 flex items-center gap-1 sm:gap-2 text-base sm:text-xl font-bold shadow-lg"
                       >
                         <span>{totalPendingActions}</span>
                         <span>!</span>
@@ -375,7 +375,7 @@ const AdminBorrowRequests = () => {
                     </motion.div>
                   )}
                 </div>
-                <p className="text-2xl text-gray-600 mt-2">
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mt-1 sm:mt-2">
                   อนุมัติหรือปฏิเสธคำขอยืมอุปกรณ์จากผู้ใช้
                 </p>
               </div>
@@ -387,17 +387,17 @@ const AdminBorrowRequests = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">คำขอที่ต้องดำเนินการ</h2>
+            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">คำขอที่ต้องดำเนินการ</h2>
               {totalPendingActions > 0 && (
-                <span className="bg-red-500 text-white rounded-full px-3 py-1 text-sm font-bold">
+                <span className="bg-red-500 text-white rounded-full px-2 py-0.5 sm:px-3 sm:py-1 text-xs sm:text-sm font-bold">
                   {totalPendingActions}
                 </span>
               )}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               {requestOptions.map((option, index) => (
                 <motion.button
                   key={option.value}
@@ -405,7 +405,7 @@ const AdminBorrowRequests = () => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`p-6 rounded-xl border-2 transition-all duration-200 relative ${
+                  className={`p-4 sm:p-6 rounded-lg sm:rounded-xl border-2 transition-all duration-200 relative ${
                     selectedStatus === option.value
                       ? "border-red-600 bg-red-50 text-red-700 shadow-lg"
                       : "border-gray-200 bg-white text-gray-600 hover:border-red-300 hover:bg-red-50 hover:shadow-md"
@@ -421,18 +421,18 @@ const AdminBorrowRequests = () => {
                         repeat: Infinity,
                         repeatType: "loop"
                       }}
-                      className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center text-lg font-bold shadow-lg"
+                      className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 bg-red-500 text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm sm:text-lg font-bold shadow-lg"
                     >
                       {option.count}!
                     </motion.div>
                   )}
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-lg bg-gray-100">
-                      <option.icon size={32} />
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="p-2 sm:p-3 rounded-lg bg-gray-100 flex-shrink-0">
+                      <option.icon size={24} className="sm:w-8 sm:h-8" />
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="text-4xl font-bold mb-1">{option.count}</div>
-                      <div className="text-lg font-medium">{option.label}</div>
+                      <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-0.5 sm:mb-1">{option.count}</div>
+                      <div className="text-sm sm:text-base lg:text-lg font-medium">{option.label}</div>
                     </div>
                   </div>
                 </motion.button>
@@ -445,10 +445,10 @@ const AdminBorrowRequests = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">สถานะทั้งหมด</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">สถานะทั้งหมด</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
               {statusOptions.map((option, index) => (
                 <motion.button
                   key={option.value}
@@ -456,17 +456,17 @@ const AdminBorrowRequests = () => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                  className={`p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 ${
                     selectedStatus === option.value
                       ? "border-red-600 bg-red-50 text-red-700 shadow-md"
                       : "border-gray-200 bg-white text-gray-600 hover:border-red-300 hover:bg-red-50"
                   }`}
                 >
-                  <div className="flex items-center justify-center mb-2">
-                    <option.icon size={24} />
+                  <div className="flex items-center justify-center mb-1 sm:mb-2">
+                    <option.icon size={20} className="sm:w-6 sm:h-6" />
                   </div>
-                  <div className="text-3xl font-bold mb-1">{option.count}</div>
-                  <div className="text-sm font-medium">{option.label}</div>
+                  <div className="text-2xl sm:text-3xl font-bold mb-0.5 sm:mb-1">{option.count}</div>
+                  <div className="text-xs sm:text-sm font-medium">{option.label}</div>
                 </motion.button>
               ))}
             </div>
@@ -477,19 +477,19 @@ const AdminBorrowRequests = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-6"
+            className="mb-4 sm:mb-6"
           >
             <div className="relative">
               <Search
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={20}
+                size={18}
               />
               <input
                 type="text"
                 placeholder="ค้นหาตามชื่ออุปกรณ์, ผู้ใช้, หรือวัตถุประสงค์..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg"
+                className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm sm:text-base lg:text-lg"
               />
             </div>
           </motion.div>
@@ -507,12 +507,12 @@ const AdminBorrowRequests = () => {
                 <p className="text-gray-600 text-xl">กำลังโหลดคำขอ...</p>
               </div>
             ) : filteredRequests.length === 0 ? (
-              <div className="p-12 text-center">
-                <Package className="mx-auto mb-4 text-gray-400" size={48} />
-                <h3 className="text-xl font-medium text-gray-900 mb-2">
+              <div className="p-8 sm:p-12 text-center">
+                <Package className="mx-auto mb-3 sm:mb-4 text-gray-400" size={40} />
+                <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-1 sm:mb-2">
                   ไม่พบคำขอ
                 </h3>
-                <p className="text-gray-600 text-lg">
+                <p className="text-gray-600 text-sm sm:text-base lg:text-lg">
                   ไม่มีคำขอที่มีสถานะ "{getStatusText(selectedStatus)}" ในขณะนี้
                 </p>
               </div>
@@ -526,10 +526,10 @@ const AdminBorrowRequests = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="p-6 hover:bg-gray-50 transition-colors duration-150"
+                      className="p-4 sm:p-6 hover:bg-gray-50 transition-colors duration-150"
                     >
-                      <div className="flex items-start gap-4">
-                        <div className="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+                      <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
                           {request.equipment.image ? (
                             <img
                               src={request.equipment.image}
@@ -544,63 +544,63 @@ const AdminBorrowRequests = () => {
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <h3 className="font-semibold text-gray-900 text-xl">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2 gap-2">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 text-base sm:text-lg lg:text-xl">
                                 {request.equipment.name}
                               </h3>
-                              <p className="text-base text-gray-500">
+                              <p className="text-xs sm:text-sm lg:text-base text-gray-500">
                                 {request.equipment.category} | รหัส: {request.equipment.serialNumber}
                               </p>
-                              <p className="text-base text-gray-700 mt-1">
-                                <UserIcon size={16} className="inline mr-1" />
+                              <p className="text-xs sm:text-sm lg:text-base text-gray-700 mt-1">
+                                <UserIcon size={14} className="inline mr-1" />
                                 {request.user.displayName} ({request.user.email})
                               </p>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                               <span
-                                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium border ${getStatusColor(
                                   request.status
                                 )}`}
                               >
-                                <StatusIcon size={14} />
+                                <StatusIcon size={12} />
                                 {getStatusText(request.status)}
                               </span>
                               <button
                                 onClick={() => setSelectedRequest(request)}
-                                className="text-red-600 hover:text-red-700 p-1"
+                                className="text-red-600 hover:text-red-700 p-2 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
                                 title="ดูรายละเอียด"
                               >
-                                <Eye size={18} />
+                                <Eye size={16} className="sm:w-5 sm:h-5" />
                               </button>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-base text-gray-600 mb-3">
-                            <div className="flex items-center gap-2">
-                              <Calendar size={16} />
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm lg:text-base text-gray-600 mb-2 sm:mb-3">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <Calendar size={14} />
                               <span>ยืม: {new Date(request.startDate).toLocaleDateString('th-TH')}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Clock size={16} />
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <Clock size={14} />
                               <span>คืน: {new Date(request.endDate).toLocaleDateString('th-TH')}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Package size={16} />
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                              <Package size={14} />
                               <span>จำนวน: {request.quantity} ชิ้น</span>
                             </div>
                           </div>
 
-                          <p className="text-gray-700 text-base mb-3">
+                          <p className="text-gray-700 text-xs sm:text-sm lg:text-base mb-2 sm:mb-3">
                             <span className="font-medium">วัตถุประสงค์:</span> {request.purpose}
                           </p>
 
                           {request.status === 'PENDING' && (
-                            <div className="flex gap-2">
+                            <div className="flex flex-col sm:flex-row gap-2">
                               <button
                                 onClick={() => handleRequestAction(request.id, 'approve')}
                                 disabled={actionLoading === request.id}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                                className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-sm sm:text-base touch-manipulation min-h-[44px]"
                               >
                                 {actionLoading === request.id ? (
                                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -617,7 +617,7 @@ const AdminBorrowRequests = () => {
                                   }
                                 }}
                                 disabled={actionLoading === request.id}
-                                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                                className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-sm sm:text-base touch-manipulation min-h-[44px]"
                               >
                                 <X size={16} />
                                 ปฏิเสธ
@@ -630,7 +630,7 @@ const AdminBorrowRequests = () => {
                               <button
                                 onClick={() => handleConfirmReturn(request.id)}
                                 disabled={actionLoading === request.id}
-                                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                                className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm sm:text-base touch-manipulation min-h-[44px]"
                               >
                                 {actionLoading === request.id ? (
                                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -657,34 +657,34 @@ const AdminBorrowRequests = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4 touch-manipulation"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[80vh] overflow-y-auto"
+            className="bg-white rounded-xl shadow-xl max-w-full sm:max-w-2xl lg:max-w-3xl w-full max-h-[90vh] overflow-y-auto"
           >
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
               <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
                     รายละเอียดคำขอยืม
                   </h3>
-                  <p className="text-gray-600 text-lg">#{selectedRequest.id}</p>
+                  <p className="text-gray-600 text-sm sm:text-base lg:text-lg break-all">#{selectedRequest.id}</p>
                 </div>
                 <button
                   onClick={() => setSelectedRequest(null)}
-                  className="text-gray-400 hover:text-gray-600 text-3xl"
+                  className="text-gray-400 hover:text-gray-600 text-2xl sm:text-3xl ml-2 flex-shrink-0 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                   ×
                 </button>
               </div>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {/* Equipment Info */}
-              <div className="flex items-start gap-4">
-                <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+              <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                   {selectedRequest.equipment.image ? (
                     <img
                       src={selectedRequest.equipment.image}
@@ -693,22 +693,22 @@ const AdminBorrowRequests = () => {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Package className="text-gray-400" size={40} />
+                      <Package className="text-gray-400" size={32} />
                     </div>
                   )}
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-2xl font-semibold text-gray-900 mb-2">
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-2">
                     {selectedRequest.equipment.name}
                   </h4>
-                  <div className="grid grid-cols-2 gap-4 text-base">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm sm:text-base">
                     <div>
                       <span className="font-medium text-gray-700">หมวดหมู่:</span>
                       <p className="text-gray-600">{selectedRequest.equipment.category}</p>
                     </div>
                     <div>
                       <span className="font-medium text-gray-700">รหัสอุปกรณ์:</span>
-                      <p className="text-gray-600">{selectedRequest.equipment.serialNumber}</p>
+                      <p className="text-gray-600 break-all">{selectedRequest.equipment.serialNumber}</p>
                     </div>
                     <div>
                       <span className="font-medium text-gray-700">จำนวน:</span>
@@ -717,7 +717,7 @@ const AdminBorrowRequests = () => {
                     <div>
                       <span className="font-medium text-gray-700">สถานะ:</span>
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs sm:text-sm font-medium border ${getStatusColor(
                           selectedRequest.status
                         )}`}
                       >
@@ -731,50 +731,50 @@ const AdminBorrowRequests = () => {
 
               {/* User Info */}
               <div>
-                <h5 className="font-medium text-gray-700 mb-3 text-lg">ข้อมูลผู้ขอยืม</h5>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h5 className="font-medium text-gray-700 mb-2 sm:mb-3 text-base sm:text-lg">ข้อมูลผู้ขอยืม</h5>
+                <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm sm:text-base">
                     <div className="flex items-center gap-2">
                       <UserIcon size={16} />
-                      <span>{selectedRequest.user.displayName}</span>
+                      <span className="break-all">{selectedRequest.user.displayName}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Mail size={16} />
-                      <span>{selectedRequest.user.email}</span>
+                      <span className="break-all">{selectedRequest.user.email}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Dates */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2 text-lg">ระยะเวลายืม</h5>
-                  <div className="space-y-2 text-base">
-                    <div className="flex justify-between">
+                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">ระยะเวลายืม</h5>
+                  <div className="space-y-2 text-sm sm:text-base">
+                    <div className="flex justify-between gap-2">
                       <span>วันที่ยืม:</span>
-                      <span className="font-medium">
+                      <span className="font-medium text-right">
                         {new Date(selectedRequest.startDate).toLocaleDateString('th-TH')}
                       </span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-2">
                       <span>กำหนดคืน:</span>
-                      <span className="font-medium">
+                      <span className="font-medium text-right">
                         {new Date(selectedRequest.endDate).toLocaleDateString('th-TH')}
                       </span>
                     </div>
                     {selectedRequest.returnRequestedAt && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between gap-2">
                         <span className="text-purple-700">ขอคืนเมื่อ:</span>
-                        <span className="font-medium text-purple-700">
+                        <span className="font-medium text-purple-700 text-right">
                           {new Date(selectedRequest.returnRequestedAt).toLocaleDateString('th-TH')} {new Date(selectedRequest.returnRequestedAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                     )}
                     {selectedRequest.actualReturnDate && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between gap-2">
                         <span>วันที่คืนจริง:</span>
-                        <span className="font-medium">
+                        <span className="font-medium text-right">
                           {new Date(selectedRequest.actualReturnDate).toLocaleDateString('th-TH')}
                         </span>
                       </div>
@@ -783,24 +783,24 @@ const AdminBorrowRequests = () => {
                 </div>
 
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2 text-lg">ข้อมูลคำขอ</h5>
-                  <div className="space-y-2 text-base">
-                    <div className="flex justify-between">
+                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">ข้อมูลคำขอ</h5>
+                  <div className="space-y-2 text-sm sm:text-base">
+                    <div className="flex justify-between gap-2">
                       <span>วันที่ขอ:</span>
-                      <span className="font-medium">
+                      <span className="font-medium text-right">
                         {new Date(selectedRequest.createdAt).toLocaleDateString('th-TH')}
                       </span>
                     </div>
                     {selectedRequest.approver && (
                       <>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-2">
                           <span>ผู้อนุมัติ:</span>
-                          <span className="font-medium">{selectedRequest.approver.displayName}</span>
+                          <span className="font-medium text-right">{selectedRequest.approver.displayName}</span>
                         </div>
                         {selectedRequest.approvedAt && (
-                          <div className="flex justify-between">
+                          <div className="flex justify-between gap-2">
                             <span>วันที่อนุมัติ:</span>
-                            <span className="font-medium">
+                            <span className="font-medium text-right">
                               {new Date(selectedRequest.approvedAt).toLocaleDateString('th-TH')}
                             </span>
                           </div>
@@ -813,8 +813,8 @@ const AdminBorrowRequests = () => {
 
               {/* Purpose */}
               <div>
-                <h5 className="font-medium text-gray-700 mb-2 text-lg">วัตถุประสงค์</h5>
-                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-lg">
+                <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">วัตถุประสงค์</h5>
+                <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-sm sm:text-base lg:text-lg">
                   {selectedRequest.purpose}
                 </p>
               </div>
@@ -822,8 +822,8 @@ const AdminBorrowRequests = () => {
               {/* Notes */}
               {selectedRequest.notes && (
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2 text-lg">หมายเหตุ</h5>
-                  <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-lg">
+                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">หมายเหตุ</h5>
+                  <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-sm sm:text-base lg:text-lg">
                     {selectedRequest.notes}
                   </p>
                 </div>
@@ -832,28 +832,28 @@ const AdminBorrowRequests = () => {
               {/* Rejection Reason */}
               {selectedRequest.rejectionReason && (
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2 text-lg">เหตุผลการปฏิเสธ</h5>
-                  <p className="text-red-600 bg-red-50 p-3 rounded-lg text-lg">
+                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">เหตุผลการปฏิเสธ</h5>
+                  <p className="text-red-600 bg-red-50 p-3 rounded-lg text-sm sm:text-base lg:text-lg">
                     {selectedRequest.rejectionReason}
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="p-6 border-t border-gray-200 flex justify-between">
+            <div className="p-4 sm:p-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between gap-2">
               <button
                 onClick={() => setSelectedRequest(null)}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-base"
+                className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
               >
                 ปิด
               </button>
 
               {selectedRequest.status === 'PENDING' && (
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <button
                     onClick={() => handleRequestAction(selectedRequest.id, 'approve')}
                     disabled={actionLoading === selectedRequest.id}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-sm sm:text-base touch-manipulation min-h-[44px]"
                   >
                     {actionLoading === selectedRequest.id ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -870,7 +870,7 @@ const AdminBorrowRequests = () => {
                       }
                     }}
                     disabled={actionLoading === selectedRequest.id}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-sm sm:text-base touch-manipulation min-h-[44px]"
                   >
                     <X size={16} />
                     ปฏิเสธ
@@ -879,11 +879,11 @@ const AdminBorrowRequests = () => {
               )}
 
               {selectedRequest.status === 'PENDING_RETURN' && (
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full sm:w-auto">
                   <button
                     onClick={() => handleConfirmReturn(selectedRequest.id)}
                     disabled={actionLoading === selectedRequest.id}
-                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm sm:text-base touch-manipulation min-h-[44px]"
                   >
                     {actionLoading === selectedRequest.id ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

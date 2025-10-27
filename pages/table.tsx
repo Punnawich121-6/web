@@ -96,16 +96,16 @@ const DayDetailModal = ({
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto mx-4"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-red-600 via-red-500 to-rose-500 text-white p-6 rounded-t-3xl">
+          <div className="bg-gradient-to-r from-red-600 via-red-500 to-rose-500 text-white p-4 sm:p-6 rounded-t-3xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">{formatDate(date)}</h2>
+              <h2 className="text-lg sm:text-2xl font-bold">{formatDate(date)}</h2>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-white/20 rounded-xl transition-colors"
+                className="p-2 hover:bg-white/20 rounded-xl transition-colors flex-shrink-0"
               >
                 <svg
                   className="w-6 h-6"
@@ -124,10 +124,10 @@ const DayDetailModal = ({
             </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Holiday Information */}
             {holiday && (
-              <div className="mb-6 p-4 bg-red-50 rounded-2xl border border-red-200">
+              <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 rounded-2xl border border-red-200">
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 bg-red-500 rounded-full"></div>
                   <div>
@@ -148,8 +148,8 @@ const DayDetailModal = ({
 
             {/* Events */}
             {events.length > 0 ? (
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold text-gray-800 mb-4">
+              <div className="space-y-3 sm:space-y-4">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
                   กิจกรรม ({events.length} รายการ)
                 </h3>
 
@@ -508,7 +508,7 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
   const getDayStyle = (day: number | null): string => {
     if (!day) return "text-slate-300";
     let baseStyle =
-      "relative h-20 p-2 text-center cursor-pointer transition-all duration-300 rounded-xl";
+      "relative h-16 sm:h-20 p-1 sm:p-2 text-center cursor-pointer transition-all duration-300 rounded-lg sm:rounded-xl text-xs sm:text-base";
     if (isToday(day) && highlightToday) {
       baseStyle += " ring-2 ring-red-500 bg-red-50";
     } else if (getHolidayForDay(day)) {
@@ -655,12 +655,12 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
   };
 
   return (
-    <div className="w-full max-w-10xl mx-auto p-6">
+    <div className="w-full max-w-10xl mx-auto p-4 sm:p-6">
       {/* Status Summary - moved to top */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4"
+        className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
       >
         {[
           {
@@ -812,8 +812,8 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
           </div>
         </div>
 
-        <div className="p-6 bg-slate-50 border-b border-slate-200">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+        <div className="p-4 sm:p-6 bg-slate-50 border-b border-slate-200">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 text-xs sm:text-sm">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-green-200 border-2 border-green-400 rounded-lg"></div>
               <span className="text-slate-700">การยืม</span>
@@ -837,15 +837,15 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
           </div>
         </div>
 
-        <div className="p-6">
-          <div className="grid grid-cols-7 gap-2">
+        <div className="p-4 sm:p-6">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2">
             {dayNames.map((dayName, index) => (
               <div
                 key={index}
-                className="p-4 text-center font-bold bg-slate-100 text-slate-700 rounded-xl"
+                className="p-2 sm:p-4 text-center font-bold bg-slate-100 text-slate-700 rounded-xl text-xs sm:text-base"
               >
-                <div className="hidden md:block">{dayNamesLong[index]}</div>
-                <div className="md:hidden">{dayName}</div>
+                <div className="hidden sm:block">{dayNamesLong[index]}</div>
+                <div className="sm:hidden">{dayName}</div>
               </div>
             ))}
             <AnimatePresence>
@@ -864,7 +864,7 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
                 >
                   {day && (
                     <>
-                      <div className="text-lg font-semibold mb-1">{day}</div>
+                      <div className="text-sm sm:text-lg font-semibold mb-1">{day}</div>
                       {isToday(day) && highlightToday && (
                         <div className="absolute top-1 left-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                       )}
@@ -962,7 +962,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-red-50">
       <LibraryNavbar />
-      <div className="max-w-full px-4 pt-32">
+      <div className="max-w-full px-4 sm:px-6 pt-20 sm:pt-24">
         {loading ? (
           <div className="flex justify-center items-center min-h-[400px]">
             <div className="text-center">

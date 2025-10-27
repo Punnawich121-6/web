@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import LibraryNavbar from "../components/LibraryNavbar";
@@ -44,6 +44,12 @@ export default function Schedule() {
   const [viewMode, setViewMode] = useState<"calendar" | "list" | "equipment">("list");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchTerm, setSearchTerm] = useState("");
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -147,7 +153,7 @@ export default function Schedule() {
     // Empty cells for days before the month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(
-        <div key={`empty-${i}`} className="bg-gray-50 border border-gray-100 rounded-lg p-2 h-24" />
+        <div key={`empty-${i}`} className="bg-gray-50 border border-gray-100 rounded-md sm:rounded-lg p-1 sm:p-2 h-16 sm:h-20 md:h-24" />
       );
     }
 
@@ -161,26 +167,26 @@ export default function Schedule() {
       days.push(
         <motion.div
           key={day}
-          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setSelectedDate(date)}
-          className={`border rounded-lg p-2 h-24 cursor-pointer transition-all ${
+          className={`border rounded-md sm:rounded-lg p-1 sm:p-2 h-16 sm:h-20 md:h-24 cursor-pointer transition-all touch-manipulation ${
             isToday
               ? "bg-red-50 border-red-300 shadow-sm"
               : isSelected
               ? "bg-blue-50 border-blue-300 shadow-sm"
-              : "bg-white border-gray-200 hover:border-red-200 hover:shadow-sm"
+              : "bg-white border-gray-200 hover:border-red-200 hover:shadow-sm active:bg-gray-50"
           }`}
         >
-          <div className="flex justify-between items-start mb-1">
+          <div className="flex justify-between items-start mb-0.5 sm:mb-1">
             <span
-              className={`text-base font-medium ${
+              className={`text-sm sm:text-base font-medium ${
                 isToday ? "text-red-600" : "text-gray-700"
               }`}
             >
               {day}
             </span>
             {dayEvents.length > 0 && (
-              <span className="text-sm bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">
+              <span className="text-xs bg-red-100 text-red-600 px-1 sm:px-1.5 py-0.5 rounded-full">
                 {dayEvents.length}
               </span>
             )}
@@ -194,7 +200,7 @@ export default function Schedule() {
               return (
                 <div
                   key={idx}
-                  className={`text-sm p-1 rounded truncate font-medium ${
+                  className={`text-xs p-0.5 sm:p-1 rounded truncate font-medium ${
                     isReturned
                       ? "bg-blue-100 text-blue-800 border border-blue-300"
                       : isActive
@@ -204,12 +210,13 @@ export default function Schedule() {
                       : "bg-gray-100 text-gray-700"
                   }`}
                 >
-                  {event.equipment.name}
+                  <span className="hidden sm:inline">{event.equipment.name}</span>
+                  <span className="sm:hidden">•</span>
                 </div>
               );
             })}
             {dayEvents.length > 2 && (
-              <div className="text-sm text-gray-500">+{dayEvents.length - 2} more</div>
+              <div className="text-xs text-gray-500 hidden sm:block">+{dayEvents.length - 2}</div>
             )}
           </div>
         </motion.div>
@@ -230,6 +237,31 @@ export default function Schedule() {
   const today = () => {
     setCurrentDate(new Date());
     setSelectedDate(new Date());
+  };
+
+  // Swipe handlers for mobile
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextMonth();
+    }
+    if (isRightSwipe) {
+      previousMonth();
+    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -282,18 +314,18 @@ export default function Schedule() {
     <div className="min-h-screen bg-gray-50">
       <LibraryNavbar />
 
-      <div className="pt-24 pb-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <div className="pt-20 sm:pt-24 pb-6 sm:pb-8 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
               ปฏิทินการยืมอุปกรณ์
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600">
               ดูกำหนดการและสถานะการยืมอุปกรณ์
             </p>
           </motion.div>
@@ -304,83 +336,83 @@ export default function Schedule() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6"
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-6"
             >
               {/* Total */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">ทั้งหมด</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">ทั้งหมด</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
                   </div>
-                  <div className="p-2 bg-gray-100 rounded-lg">
-                    <CalendarIcon size={20} className="text-gray-600" />
+                  <div className="p-1.5 sm:p-2 bg-gray-100 rounded-lg">
+                    <CalendarIcon size={16} className="text-gray-600 sm:w-5 sm:h-5" />
                   </div>
                 </div>
               </div>
 
               {/* Pending */}
-              <div className="bg-white rounded-lg shadow-sm border border-amber-100 p-4">
+              <div className="bg-white rounded-lg shadow-sm border border-amber-100 p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-amber-600">รออนุมัติ</p>
-                    <p className="text-2xl font-bold text-amber-900">{stats.pending}</p>
+                    <p className="text-xs sm:text-sm text-amber-600">รออนุมัติ</p>
+                    <p className="text-xl sm:text-2xl font-bold text-amber-900">{stats.pending}</p>
                   </div>
-                  <div className="p-2 bg-amber-100 rounded-lg">
-                    <Clock size={20} className="text-amber-600" />
+                  <div className="p-1.5 sm:p-2 bg-amber-100 rounded-lg">
+                    <Clock size={16} className="text-amber-600 sm:w-5 sm:h-5" />
                   </div>
                 </div>
               </div>
 
               {/* Approved/Active */}
-              <div className="bg-white rounded-lg shadow-sm border border-green-100 p-4">
+              <div className="bg-white rounded-lg shadow-sm border border-green-100 p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-green-600">กำลังยืม</p>
-                    <p className="text-2xl font-bold text-green-900">{stats.approved}</p>
+                    <p className="text-xs sm:text-sm text-green-600">กำลังยืม</p>
+                    <p className="text-xl sm:text-2xl font-bold text-green-900">{stats.approved}</p>
                   </div>
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <CheckCircle size={20} className="text-green-600" />
+                  <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg">
+                    <CheckCircle size={16} className="text-green-600 sm:w-5 sm:h-5" />
                   </div>
                 </div>
               </div>
 
               {/* Returned */}
-              <div className="bg-white rounded-lg shadow-sm border border-blue-100 p-4">
+              <div className="bg-white rounded-lg shadow-sm border border-blue-100 p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-blue-600">คืนแล้ว</p>
-                    <p className="text-2xl font-bold text-blue-900">{stats.returned}</p>
+                    <p className="text-xs sm:text-sm text-blue-600">คืนแล้ว</p>
+                    <p className="text-xl sm:text-2xl font-bold text-blue-900">{stats.returned}</p>
                   </div>
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Package size={20} className="text-blue-600" />
+                  <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
+                    <Package size={16} className="text-blue-600 sm:w-5 sm:h-5" />
                   </div>
                 </div>
               </div>
 
               {/* Rejected */}
-              <div className="bg-white rounded-lg shadow-sm border border-red-100 p-4">
+              <div className="bg-white rounded-lg shadow-sm border border-red-100 p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-red-600">ปฏิเสธ</p>
-                    <p className="text-2xl font-bold text-red-900">{stats.rejected}</p>
+                    <p className="text-xs sm:text-sm text-red-600">ปฏิเสธ</p>
+                    <p className="text-xl sm:text-2xl font-bold text-red-900">{stats.rejected}</p>
                   </div>
-                  <div className="p-2 bg-red-100 rounded-lg">
-                    <XCircle size={20} className="text-red-600" />
+                  <div className="p-1.5 sm:p-2 bg-red-100 rounded-lg">
+                    <XCircle size={16} className="text-red-600 sm:w-5 sm:h-5" />
                   </div>
                 </div>
               </div>
 
               {/* Overdue */}
               {stats.overdue > 0 && (
-                <div className="bg-white rounded-lg shadow-sm border border-orange-100 p-4">
+                <div className="bg-white rounded-lg shadow-sm border border-orange-100 p-3 sm:p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-orange-600">เกินกำหนด</p>
-                      <p className="text-2xl font-bold text-orange-900">{stats.overdue}</p>
+                      <p className="text-xs sm:text-sm text-orange-600">เกินกำหนด</p>
+                      <p className="text-xl sm:text-2xl font-bold text-orange-900">{stats.overdue}</p>
                     </div>
-                    <div className="p-2 bg-orange-100 rounded-lg">
-                      <AlertCircle size={20} className="text-orange-600" />
+                    <div className="p-1.5 sm:p-2 bg-orange-100 rounded-lg">
+                      <AlertCircle size={16} className="text-orange-600 sm:w-5 sm:h-5" />
                     </div>
                   </div>
                 </div>
@@ -393,16 +425,16 @@ export default function Schedule() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-6"
+            className="mb-4 sm:mb-6"
           >
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-4">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 กรองตามสถานะ
               </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full md:w-64 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent touch-manipulation"
               >
                 <option value="ALL">ทั้งหมด</option>
                 <option value="PENDING">รออนุมัติ</option>
@@ -415,105 +447,117 @@ export default function Schedule() {
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Calendar */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div
+                className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6"
+                ref={calendarRef}
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+              >
                 {/* Calendar Header */}
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                     {currentDate.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' })}
                   </h2>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
                     <button
                       onClick={previousMonth}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation flex-1 sm:flex-initial"
+                      aria-label="เดือนก่อนหน้า"
                     >
-                      <ChevronLeft size={20} />
+                      <ChevronLeft size={18} className="sm:w-5 sm:h-5" />
                     </button>
                     <button
                       onClick={today}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs sm:text-sm font-medium touch-manipulation flex-1 sm:flex-initial"
                     >
                       วันนี้
                     </button>
                     <button
                       onClick={nextMonth}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation flex-1 sm:flex-initial"
+                      aria-label="เดือนถัดไป"
                     >
-                      <ChevronRight size={20} />
+                      <ChevronRight size={18} className="sm:w-5 sm:h-5" />
                     </button>
                   </div>
                 </div>
 
                 {/* Days of Week */}
-                <div className="grid grid-cols-7 gap-2 mb-2">
+                <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
                   {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map((day) => (
-                    <div key={day} className="text-center text-base font-medium text-gray-600 py-2">
+                    <div key={day} className="text-center text-xs sm:text-sm md:text-base font-medium text-gray-600 py-1 sm:py-2">
                       {day}
                     </div>
                   ))}
                 </div>
 
                 {/* Calendar Grid */}
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-7 gap-1 sm:gap-2">
                   {renderCalendar()}
+                </div>
+
+                {/* Swipe hint for mobile */}
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200 sm:hidden">
+                  <p className="text-xs text-gray-500 text-center">
+                    เลื่อนซ้าย-ขวาเพื่อเปลี่ยนเดือน
+                  </p>
                 </div>
               </div>
 
               {/* Color Legend */}
-              <div className="bg-gray-50 rounded-lg p-4 mt-6">
-                <h4 className="text-base font-semibold text-gray-900 mb-3">สถานะการยืม</h4>
-                <div className="space-y-2">
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mt-4 sm:mt-6">
+                <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-2 sm:mb-3">สถานะการยืม</h4>
+                <div className="space-y-1.5 sm:space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-                    {/* ===== 1. เพิ่มขนาดเป็น text-lg ===== */}
-                    <span className="text-lg text-gray-700">กำลังยืม</span>
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-100 border border-green-300 rounded flex-shrink-0"></div>
+                    <span className="text-sm sm:text-base md:text-lg text-gray-700">กำลังยืม</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div>
-                    {/* ===== 2. เพิ่มขนาดเป็น text-lg ===== */}
-                    <span className="text-lg text-gray-700">คืนแล้ว</span>
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-100 border border-blue-300 rounded flex-shrink-0"></div>
+                    <span className="text-sm sm:text-base md:text-lg text-gray-700">คืนแล้ว</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-amber-100 border border-amber-300 rounded"></div>
-                    {/* ===== 3. เพิ่มขนาดเป็น text-lg ===== */}
-                    <span className="text-lg text-gray-700">รออนุมัติ</span>
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 bg-amber-100 border border-amber-300 rounded flex-shrink-0"></div>
+                    <span className="text-sm sm:text-base md:text-lg text-gray-700">รออนุมัติ</span>
                   </div>
                 </div>
               </div>
 
               {/* Quick Links - Only show for logged in users */}
               {user && (
-                <div className="grid grid-cols-2 gap-4 mt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
                   <motion.a
                     href="/dashboard"
-                    whileHover={{ scale: 1.02 }}
-                    className="p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                    whileTap={{ scale: 0.98 }}
+                    className="p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors touch-manipulation"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-red-600 rounded-lg">
-                        <CalendarIcon className="text-white" size={20} />
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="p-1.5 sm:p-2 bg-red-600 rounded-lg flex-shrink-0">
+                        <CalendarIcon className="text-white" size={18} />
                       </div>
                       <div>
-                        <div className="text-lg font-medium text-red-900">Dashboard</div>
-                        <div className="text-base text-red-700">ภาพรวมการยืม</div>
+                        <div className="text-base sm:text-lg font-medium text-red-900">Dashboard</div>
+                        <div className="text-sm sm:text-base text-red-700">ภาพรวมการยืม</div>
                       </div>
                     </div>
                   </motion.a>
 
                   <motion.a
                     href="/Borrowing_History"
-                    whileHover={{ scale: 1.02 }}
-                    className="p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                    whileTap={{ scale: 0.98 }}
+                    className="p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors touch-manipulation"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-red-600 rounded-lg">
-                        <Package className="text-white" size={20} />
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="p-1.5 sm:p-2 bg-red-600 rounded-lg flex-shrink-0">
+                        <Package className="text-white" size={18} />
                       </div>
                       <div>
-                        <div className="text-lg font-medium text-red-900">History</div>
-                        <div className="text-base text-red-700">ประวัติการยืม</div>
+                        <div className="text-base sm:text-lg font-medium text-red-900">History</div>
+                        <div className="text-sm sm:text-base text-red-700">ประวัติการยืม</div>
                       </div>
                     </div>
                   </motion.a>
@@ -523,44 +567,48 @@ export default function Schedule() {
 
             {/* Sidebar - Selected Date Events */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-24">
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <CalendarIcon size={20} className="text-red-600" />
-                  {selectedDate
-                    ? selectedDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long' })
-                    : "เลือกวันที่"}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 lg:sticky lg:top-24">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                  <CalendarIcon size={18} className="text-red-600 sm:w-5 sm:h-5 flex-shrink-0" />
+                  <span className="truncate">
+                    {selectedDate
+                      ? selectedDate.toLocaleDateString('th-TH', { day: 'numeric', month: 'long' })
+                      : "เลือกวันที่"}
+                  </span>
                 </h3>
 
                 {selectedDate ? (
-                  <div className="space-y-3">
+                  <div className="space-y-3 max-h-[calc(100vh-16rem)] overflow-y-auto">
                     {getEventsForDate(selectedDate).length > 0 ? (
                       getEventsForDate(selectedDate).map((event) => (
                         <div
                           key={event.id}
-                          className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                          className="p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200"
                         >
                           <div className="flex items-start justify-between mb-2">
-                            <h4 className="font-medium text-gray-900">{event.equipment.name}</h4>
-                            {getStatusIcon(event.status)}
+                            <h4 className="font-medium text-gray-900 text-sm sm:text-base break-words flex-1 pr-2">
+                              {event.equipment.name}
+                            </h4>
+                            <div className="flex-shrink-0">{getStatusIcon(event.status)}</div>
                           </div>
-                          <div className="space-y-1 text-base text-gray-600">
+                          <div className="space-y-1 text-sm sm:text-base text-gray-600">
                             {user && event.user.email && (
                               <div className="flex items-center gap-2">
-                                <UserIcon size={14} />
-                                <span>{event.user.displayName}</span>
+                                <UserIcon size={14} className="flex-shrink-0" />
+                                <span className="truncate">{event.user.displayName}</span>
                               </div>
                             )}
                             <div className="flex items-center gap-2">
-                              <Package size={14} />
-                              <span>{event.equipment.category}</span>
+                              <Package size={14} className="flex-shrink-0" />
+                              <span className="truncate">{event.equipment.category}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <Clock size={14} />
+                              <Clock size={14} className="flex-shrink-0" />
                               <span>{getStatusText(event.status)}</span>
                             </div>
                             {user && event.purpose && event.purpose !== 'การยืมอุปกรณ์' && (
                               <div className="mt-2 pt-2 border-t border-gray-200">
-                                <p className="text-sm text-gray-500">
+                                <p className="text-xs sm:text-sm text-gray-500 break-words">
                                   วัตถุประสงค์: {event.purpose}
                                 </p>
                               </div>
@@ -569,16 +617,16 @@ export default function Schedule() {
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-8">
-                        <CalendarIcon className="mx-auto mb-3 text-gray-400" size={48} />
-                        <p className="text-base text-gray-500">ไม่มีกิจกรรมในวันนี้</p>
+                      <div className="text-center py-6 sm:py-8">
+                        <CalendarIcon className="mx-auto mb-3 text-gray-400" size={40} />
+                        <p className="text-sm sm:text-base text-gray-500">ไม่มีกิจกรรมในวันนี้</p>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <CalendarIcon className="mx-auto mb-3 text-gray-400" size={48} />
-                    <p className="text-base text-gray-500">เลือกวันที่เพื่อดูรายละเอียด</p>
+                  <div className="text-center py-10 sm:py-12">
+                    <CalendarIcon className="mx-auto mb-3 text-gray-400" size={40} />
+                    <p className="text-sm sm:text-base text-gray-500">เลือกวันที่เพื่อดูรายละเอียด</p>
                   </div>
                 )}
               </div>

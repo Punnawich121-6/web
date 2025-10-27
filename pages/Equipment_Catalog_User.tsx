@@ -226,24 +226,24 @@ const EquipmentCatalogUser = () => {
     <div className="min-h-screen bg-gray-50">
       <LibraryNavbar />
 
-      <div className="pt-24 pb-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <div className="pt-20 sm:pt-24 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-8"
+            className="text-center mb-6 sm:mb-8"
           >
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
               เลือกอุปกรณ์ที่ต้องการยืม
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600">
               เลือกอุปกรณ์จากแคตตาล็อกและเพิ่มลงในตะกร้า
             </p>
           </motion.div>
 
           {/* Search and Filter */}
-          <div className="flex flex-col lg:flex-row gap-6 mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
@@ -256,7 +256,7 @@ const EquipmentCatalogUser = () => {
                   placeholder="ค้นหาอุปกรณ์..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm sm:text-base"
                 />
               </div>
             </div>
@@ -264,7 +264,7 @@ const EquipmentCatalogUser = () => {
             {/* Cart Button */}
             <motion.button
               onClick={() => setIsCartOpen(true)}
-              className="relative flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="relative flex items-center justify-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -287,13 +287,13 @@ const EquipmentCatalogUser = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="flex flex-wrap gap-3 mb-8"
+            className="flex flex-wrap gap-2 sm:gap-3 mb-6 sm:mb-8"
           >
             {categories.map((category, index) => (
               <motion.button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                   selectedCategory === category.id
                     ? "bg-red-600 text-white"
                     : "bg-white text-gray-700 hover:bg-red-50 hover:text-red-600"
@@ -315,7 +315,7 @@ const EquipmentCatalogUser = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
           >
             {filteredEquipment.map((item, index) => (
               <motion.div
@@ -340,20 +340,20 @@ const EquipmentCatalogUser = () => {
                   </div>
                 </div>
 
-                <div className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-gray-900 text-lg">
+                <div className="p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-2">
+                    <h3 className="font-semibold text-gray-900 text-base sm:text-lg">
                       {item.name}
                     </h3>
-                    <span className="text-sm text-gray-500">#{item.serialNumber}</span>
+                    <span className="text-xs sm:text-sm text-gray-500 flex-shrink-0">#{item.serialNumber}</span>
                   </div>
 
-                  <p className="text-gray-600 text-sm mb-3">
+                  <p className="text-gray-600 text-xs sm:text-sm mb-3">
                     {item.description}
                   </p>
 
                   <div className="mb-3">
-                    <div className="flex justify-between text-sm mb-1">
+                    <div className="flex justify-between text-xs sm:text-sm mb-1">
                       <span>พร้อมใช้งาน:</span>
                       <span className="font-medium">
                         {item.availableQuantity}/{item.totalQuantity}
@@ -376,8 +376,8 @@ const EquipmentCatalogUser = () => {
                   </div>
 
                   <div className="mb-4">
-                    <div className="text-sm text-gray-500 mb-1">สถานที่:</div>
-                    <div className="text-sm text-gray-700 mb-2">{item.location}</div>
+                    <div className="text-xs sm:text-sm text-gray-500 mb-1">สถานที่:</div>
+                    <div className="text-xs sm:text-sm text-gray-700 mb-2">{item.location}</div>
                     {item.specifications && (
                       <>
                         <div className="text-sm text-gray-500 mb-1">คุณสมบัติ:</div>
@@ -395,19 +395,19 @@ const EquipmentCatalogUser = () => {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:justify-between">
+                    <div className="flex items-center justify-center sm:justify-start gap-2 w-full sm:w-auto">
                       {cart.find(
                         (cartItem) => cartItem.equipment.id === item.id
                       ) && (
                         <>
                           <button
                             onClick={() => removeFromCart(item.id)}
-                            className="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
+                            className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
                           >
                             <Minus size={14} />
                           </button>
-                          <span className="font-medium min-w-[2rem] text-center">
+                          <span className="font-medium min-w-[2rem] text-center text-sm sm:text-base">
                             {cart.find(
                               (cartItem) => cartItem.equipment.id === item.id
                             )?.quantity || 0}
@@ -422,7 +422,7 @@ const EquipmentCatalogUser = () => {
                             (cartItem) => cartItem.equipment.id === item.id
                           )?.quantity || 0) >= item.availableQuantity
                         }
-                        className="flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                        className="flex items-center justify-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-xs sm:text-sm font-medium flex-1 sm:flex-initial min-h-[36px]"
                       >
                         <Plus size={14} />
                         {cart.find(
@@ -458,11 +458,11 @@ const EquipmentCatalogUser = () => {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto mx-4"
           >
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-bold text-gray-900">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
                   ตะกร้าของฉัน
                 </h3>
                 <button
@@ -474,45 +474,45 @@ const EquipmentCatalogUser = () => {
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {cart.length === 0 ? (
-                <div className="text-center py-8">
+                <div className="text-center py-6 sm:py-8">
                   <ShoppingCart
                     className="mx-auto mb-4 text-gray-400"
                     size={48}
                   />
-                  <p className="text-gray-500">ตะกร้าของคุณยังว่างเปล่า</p>
+                  <p className="text-sm sm:text-base text-gray-500">ตะกร้าของคุณยังว่างเปล่า</p>
                   <button
                     onClick={() => setIsCartOpen(false)}
-                    className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
                   >
                     เลือกอุปกรณ์
                   </button>
                 </div>
               ) : (
                 <>
-                  <div className="space-y-4 mb-6">
+                  <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                     {cart.map((item) => (
                       <div
                         key={item.equipment.id}
-                        className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg"
+                        className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border border-gray-200 rounded-lg"
                       >
-                        <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-100 rounded-lg flex-shrink-0">
                           <img
                             src={item.equipment.image}
                             alt={item.equipment.name}
                             className="w-full h-full object-cover rounded-lg"
                           />
                         </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
                             {item.equipment.name}
                           </h4>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-xs sm:text-sm text-gray-600 truncate">
                             #{item.equipment.id}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                           <button
                             onClick={() => removeFromCart(item.equipment.id)}
                             className="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
@@ -536,21 +536,21 @@ const EquipmentCatalogUser = () => {
 
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between items-center mb-4">
-                      <span className="text-lg font-semibold">รวมทั้งหมด:</span>
-                      <span className="text-lg font-bold text-red-600">
+                      <span className="text-base sm:text-lg font-semibold">รวมทั้งหมด:</span>
+                      <span className="text-base sm:text-lg font-bold text-red-600">
                         {cartItemCount} รายการ
                       </span>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <button
                         onClick={() => setIsCartOpen(false)}
-                        className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
                       >
                         เลือกอุปกรณ์เพิ่ม
                       </button>
                       <a
                         href="/Book_Detail"
-                        className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-center font-medium"
+                        className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-center font-medium text-sm sm:text-base"
                       >
                         ดำเนินการต่อ
                       </a>

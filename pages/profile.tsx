@@ -123,10 +123,10 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
+          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg sm:text-xl">กำลังโหลด...</p>
         </div>
       </div>
     );
@@ -158,18 +158,18 @@ const Profile = () => {
     <div className="min-h-screen bg-gray-50">
       <LibraryNavbar />
 
-      <div className="pt-24 pb-12">
-        <div className="max-w-4xl mx-auto px-6">
+      <div className="pt-20 sm:pt-24 pb-8 sm:pb-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           >
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
               โปรไฟล์ของฉัน
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600">
               จัดการข้อมูลส่วนตัวของคุณ
             </p>
           </motion.div>
@@ -179,28 +179,28 @@ const Profile = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6"
+            className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6"
           >
             {/* Profile Header */}
-            <div className="bg-gradient-to-r from-red-600 to-red-700 px-8 py-12">
-              <div className="flex items-center gap-6">
-                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
-                  <span className="text-red-600 font-bold text-4xl">
+            <div className="bg-gradient-to-r from-red-600 to-red-700 px-4 sm:px-6 md:px-8 py-8 sm:py-10 md:py-12">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                  <span className="text-red-600 font-bold text-3xl sm:text-4xl">
                     {user?.email?.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <div className="text-white">
-                  <h2 className="text-3xl font-bold mb-2">
+                <div className="text-white text-center sm:text-left">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 break-words">
                     {formData.displayName || user?.email?.split("@")[0]}
                   </h2>
-                  <p className="text-red-100 text-lg flex items-center gap-2">
-                    <Mail className="w-5 h-5" />
-                    {user?.email}
+                  <p className="text-red-100 text-sm sm:text-base md:text-lg flex items-center justify-center sm:justify-start gap-2 break-all">
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                    <span className="break-all">{user?.email}</span>
                   </p>
                   {userProfile && (
                     <div className="mt-3">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getRoleColor(userProfile.role)}`}>
-                        <Shield className="w-4 h-4 mr-1" />
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getRoleColor(userProfile.role)}`}>
+                        <Shield className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                         {getRoleBadge(userProfile.role)}
                       </span>
                     </div>
@@ -210,23 +210,23 @@ const Profile = () => {
             </div>
 
             {/* Profile Form */}
-            <form onSubmit={handleSubmit} className="p-8">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 md:p-8">
               {success && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg"
+                  className="mb-4 sm:mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm sm:text-base"
                 >
                   บันทึกข้อมูลสำเร็จ!
                 </motion.div>
               )}
 
-              <div className="space-y-6">
+              <div className="space-y-5 sm:space-y-6">
                 {/* Display Name */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                     <div className="flex items-center gap-2">
-                      <UserIcon className="w-4 h-4" />
+                      <UserIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                       ชื่อที่แสดง
                     </div>
                   </label>
@@ -234,16 +234,16 @@ const Profile = () => {
                     type="text"
                     value={formData.displayName}
                     onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                    className="text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+                    className="text-black w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors touch-manipulation"
                     placeholder="กรอกชื่อที่ต้องการแสดง"
                   />
                 </div>
 
                 {/* Email (Read-only) */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                     <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
+                      <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                       อีเมล
                     </div>
                   </label>
@@ -251,29 +251,29 @@ const Profile = () => {
                     type="email"
                     value={user?.email || ''}
                     disabled
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                    className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                   />
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-gray-500">
                     อีเมลไม่สามารถเปลี่ยนแปลงได้
                   </p>
                 </div>
 
                 {/* Account Info */}
                 {userProfile && (
-                  <div className="pt-6 border-t border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  <div className="pt-5 sm:pt-6 border-t border-gray-200">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                       ข้อมูลบัญชี
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <p className="text-sm text-gray-600 mb-1">บทบาท</p>
-                        <p className="text-base font-medium text-gray-900">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                      <div className="bg-gray-50 rounded-lg p-4 sm:p-5">
+                        <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-1.5">บทบาท</p>
+                        <p className="text-sm sm:text-base font-medium text-gray-900">
                           {getRoleBadge(userProfile.role)}
                         </p>
                       </div>
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <p className="text-sm text-gray-600 mb-1">สมัครสมาชิกเมื่อ</p>
-                        <p className="text-base font-medium text-gray-900">
+                      <div className="bg-gray-50 rounded-lg p-4 sm:p-5">
+                        <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-1.5">สมัครสมาชิกเมื่อ</p>
+                        <p className="text-sm sm:text-base font-medium text-gray-900">
                           {new Date(userProfile.created_at).toLocaleDateString('th-TH', {
                             year: 'numeric',
                             month: 'long',
@@ -286,22 +286,22 @@ const Profile = () => {
                 )}
 
                 {/* Submit Button */}
-                <div className="flex gap-4 pt-6">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-5 sm:pt-6">
                   <button
                     type="submit"
                     disabled={saving}
-                    className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-medium py-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                    className="w-full sm:flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:bg-red-400 text-white font-medium py-3.5 sm:py-3 text-sm sm:text-base rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 touch-manipulation"
                   >
-                    <Save className="w-5 h-5" />
+                    <Save className="w-4 h-4 sm:w-5 sm:h-5" />
                     {saving ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
                   </button>
                   <button
                     type="button"
                     onClick={() => router.push('/dashboard')}
-                    className="px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-lg transition-colors duration-200 flex items-center gap-2"
+                    className="w-full sm:w-auto px-6 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-medium py-3.5 sm:py-3 text-sm sm:text-base rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 touch-manipulation"
                   >
                     กลับ
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
               </div>

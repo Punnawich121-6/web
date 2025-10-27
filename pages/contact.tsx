@@ -31,51 +31,41 @@ const DeveloperCard = ({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       whileHover={{ y: -10, scale: 1.02 }}
-      className="group p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100"
+      className="group p-4 sm:p-6 lg:p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100"
     >
-      <div className="relative w-32 h-32 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center text-5xl text-gray-400 font-bold group-hover:scale-105 transition-transform duration-300">
+      <div className="relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 mx-auto mb-4 sm:mb-6 rounded-full bg-gray-100 flex items-center justify-center text-4xl sm:text-5xl text-gray-400 font-bold group-hover:scale-105 transition-transform duration-300">
         <span>{imagePlaceholder}</span>
         <div className="absolute inset-0 rounded-full bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </div>
 
-      <div className="text-center space-y-5">
-        {" "}
-        {/* Increased space */}
+      <div className="text-center space-y-3 sm:space-y-4 lg:space-y-5">
         <div>
-          <h3 className="text-4xl font-bold text-gray-900">{name}</h3>{" "}
-          {/* text-3xl -> text-4xl */}
-          <p className="text-xl text-red-600 font-semibold">{role}</p>{" "}
-          {/* text-lg -> text-xl */}
+          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">{name}</h3>
+          <p className="text-base sm:text-lg lg:text-xl text-red-600 font-semibold">{role}</p>
         </div>
-        <p className="text-lg text-gray-600 leading-relaxed">{description}</p>{" "}
-        {/* text-base -> text-lg */}
-        <div className="space-y-3 pt-2">
-          <h4 className="text-lg font-semibold text-gray-500 uppercase tracking-wide">
-            {" "}
-            {/* text-base -> text-lg */}
+        <p className="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed">{description}</p>
+        <div className="space-y-2 sm:space-y-3 pt-2">
+          <h4 className="text-base sm:text-lg font-semibold text-gray-500 uppercase tracking-wide">
             Skills
           </h4>
           <div className="flex flex-wrap gap-2 justify-center">
             {skills.map((skill, index) => (
               <span
                 key={index}
-                className="px-4 py-2 text-sm font-medium bg-red-100 text-red-700 rounded-full border border-red-200/50" // text-xs -> text-sm, increased padding
+                className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium bg-red-100 text-red-700 rounded-full border border-red-200/50"
               >
                 {skill}
               </span>
             ))}
           </div>
         </div>
-        <div className="pt-6 space-y-3">
-          <div className="flex items-center justify-center gap-2 p-3 rounded-xl bg-gray-100 text-gray-700">
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              {" "}
-              {/* Increased icon size */}
+        <div className="pt-4 sm:pt-6 space-y-2 sm:space-y-3">
+          <div className="flex items-center justify-center gap-2 p-2 sm:p-3 rounded-xl bg-gray-100 text-gray-700">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
               <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
             </svg>
-            <span className="text-lg font-medium">{email}</span>{" "}
-            {/* text-base -> text-lg */}
+            <span className="text-sm sm:text-base lg:text-lg font-medium break-all">{email}</span>
           </div>
 
           <div className="flex gap-3 justify-center">
@@ -136,23 +126,23 @@ export default function ContactPage() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-red-500/5 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 pt-36 pb-20">
-        <div className="max-w-7xl mx-auto px-6">
+      <div className="relative z-10 pt-20 sm:pt-24 lg:pt-36 pb-12 sm:pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-6 mb-20"
+            className="text-center space-y-4 sm:space-y-6 mb-12 sm:mb-20"
           >
-            <h1 className="text-5xl lg:text-7xl font-black">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-7xl font-black">
               <span className="text-red-600">Contact Us</span>
             </h1>
-            <p className="text-2xl lg:text-3xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-gray-600 max-w-3xl mx-auto px-4">
               พบกับทีมผู้จัดทำ TimeToUse
               ระบบยืม-คืนอุปกรณ์ที่ทันสมัยและมีประสิทธิภาพ
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 max-w-6xl mx-auto">
             <DeveloperCard
               name="Name1"
               role="Frontend"
@@ -187,19 +177,19 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mt-20 p-12 bg-white rounded-3xl shadow-lg border border-gray-100 text-center"
+            className="mt-12 sm:mt-16 lg:mt-20 p-6 sm:p-8 lg:p-12 bg-white rounded-3xl shadow-lg border border-gray-100 text-center"
           >
-            <h2 className="text-4xl font-bold mb-6">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">
               <span className="text-red-600">About TimeToUse Project</span>
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed max-w-4xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed max-w-4xl mx-auto">
               TimeToUse
               เป็นโปรเจคที่พัฒนาขึ้นเพื่อแก้ไขปัญหาการจัดการอุปกรณ์ในองค์กร
             </p>
 
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <div className="px-6 py-3 bg-gray-100 rounded-full">
-                <span className="text-gray-700 font-semibold text-base">
+            <div className="mt-6 sm:mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
+              <div className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-100 rounded-full">
+                <span className="text-gray-700 font-semibold text-sm sm:text-base">
                   Made with Next.js
                 </span>
               </div>
@@ -220,16 +210,16 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mt-20 text-center space-y-8"
+            className="mt-12 sm:mt-16 lg:mt-20 text-center space-y-6 sm:space-y-8"
           >
 
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <Link href="/">
                 <motion.button
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 rounded-2xl bg-red-600 text-white font-bold shadow-xl hover:shadow-2xl hover:bg-red-700 transition-all duration-300 text-lg"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-red-600 text-white font-bold shadow-xl hover:shadow-2xl hover:bg-red-700 transition-all duration-300 text-base sm:text-lg"
                 >
                   กลับหน้าหลัก
                 </motion.button>
@@ -239,7 +229,7 @@ export default function ContactPage() {
                 <motion.button
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 rounded-2xl bg-white border-2 border-gray-200 text-gray-700 font-bold shadow-lg hover:shadow-xl transition-all duration-300 text-lg"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-white border-2 border-gray-200 text-gray-700 font-bold shadow-lg hover:shadow-xl transition-all duration-300 text-base sm:text-lg"
                 >
                   ดูปฏิทิน
                 </motion.button>
@@ -249,9 +239,9 @@ export default function ContactPage() {
         </div>
       </div>
 
-      <footer className="py-8 bg-gray-800 text-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-base text-gray-300">
+      <footer className="py-6 sm:py-8 bg-gray-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+          <p className="text-sm sm:text-base text-gray-300">
             © {new Date().getFullYear()} TimeToUse
             <span className="text-red-400">
               {" "}
