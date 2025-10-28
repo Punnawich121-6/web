@@ -98,6 +98,10 @@ export default async function handler(
       })) || [];
 
       console.log(`Returning ${transformedRequests.length} borrow requests for user role: ${user.role}`);
+
+      // Add HTTP caching header (2 minutes for frequently changing data)
+      res.setHeader('Cache-Control', 'private, max-age=120, s-maxage=120, stale-while-revalidate=240');
+
       res.status(200).json({ success: true, data: transformedRequests });
     } else if (req.method === 'POST') {
       // Create new borrow request

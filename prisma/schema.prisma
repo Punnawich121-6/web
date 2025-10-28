@@ -54,6 +54,11 @@ model Equipment {
   createdBy     String
   creator       User              @relation("CreatedEquipment", fields: [createdBy], references: [id])
   borrowings    BorrowRequest[]
+
+  // Performance indexes for frequently queried fields
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
 }
 
 model BorrowRequest {
@@ -75,6 +80,13 @@ model BorrowRequest {
   rejectionReason String?
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
+
+  // Performance indexes for frequently queried fields
+  @@index([status])
+  @@index([userId])
+  @@index([equipmentId])
+  @@index([createdAt])
+  @@index([status, createdAt])
 }
 
 enum EquipmentStatus {

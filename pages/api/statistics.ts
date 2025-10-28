@@ -37,36 +37,61 @@ export default async function handler(
 
     // Admin gets full statistics, regular users get their own statistics
     if (user.role === 'ADMIN') {
-      // Get all borrow requests for statistics
-      const { data: allRequests, error } = await supabaseAdmin
-        .from('borrow_requests')
-        .select(`
-          *,
-          equipment:equipment!borrow_requests_equipment_id_fkey (
-            id,
-            name,
-            category
-          )
-        `);
+      // ✅ PERFORMANCE FIX: Use parallel queries instead of fetching all data
+      // This is much faster and reduces memory usage
 
-      if (error) {
-        return res.status(500).json({ success: false, error: error.message });
-      }
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+      // Parallel queries for better performance
+      const [
+        totalResult,
+        pendingResult,
+        approvedResult,
+        activeResult,
+        returnedResult,
+        rejectedResult,
+        equipmentBorrowings,
+        recentRequests
+      ] = await Promise.all([
+        // Total count
+        supabaseAdmin.from('borrow_requests').select('*', { count: 'exact', head: true }),
+        // Count by status
+        supabaseAdmin.from('borrow_requests').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
+        supabaseAdmin.from('borrow_requests').select('*', { count: 'exact', head: true }).eq('status', 'APPROVED'),
+        supabaseAdmin.from('borrow_requests').select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE'),
+        supabaseAdmin.from('borrow_requests').select('*', { count: 'exact', head: true }).eq('status', 'RETURNED'),
+        supabaseAdmin.from('borrow_requests').select('*', { count: 'exact', head: true }).eq('status', 'REJECTED'),
+        // Top equipment (need to fetch to aggregate)
+        supabaseAdmin
+          .from('borrow_requests')
+          .select(`
+            equipment_id,
+            equipment:equipment!borrow_requests_equipment_id_fkey (
+              id,
+              name,
+              category
+            )
+          `),
+        // Recent requests for monthly trends
+        supabaseAdmin
+          .from('borrow_requests')
+          .select('created_at')
+          .gte('created_at', sixMonthsAgo.toISOString())
+          .order('created_at', { ascending: false })
+      ]);
 
       // Calculate statistics
-      const totalBorrows = allRequests?.length || 0;
-      // ⭐️ START FIX: Add (r: any) to all filters
-      const pendingCount = allRequests?.filter((r: any) => r.status === 'PENDING').length || 0;
-      const approvedCount = allRequests?.filter((r: any) => r.status === 'APPROVED' || r.status === 'ACTIVE').length || 0;
-      const returnedCount = allRequests?.filter((r: any) => r.status === 'RETURNED').length || 0;
-      const rejectedCount = allRequests?.filter((r: any) => r.status === 'REJECTED').length || 0;
-      // ⭐️ END FIX
+      const totalBorrows = totalResult.count || 0;
+      const pendingCount = pendingResult.count || 0;
+      const approvedCount = (approvedResult.count || 0) + (activeResult.count || 0);
+      const returnedCount = returnedResult.count || 0;
+      const rejectedCount = rejectedResult.count || 0;
 
-      // Most borrowed equipment
+      // Most borrowed equipment - aggregate from fetched data
       const equipmentCounts: Record<string, { name: string; count: number; category: string }> = {};
-      
-      // ⭐️ FIX: Add (req: any)
-      allRequests?.forEach((req: any) => {
+
+      equipmentBorrowings.data?.forEach((req: any) => {
         if (req.equipment) {
           const equipId = req.equipment.id;
           if (!equipmentCounts[equipId]) {
@@ -94,8 +119,7 @@ export default async function handler(
         monthlyData[monthKey] = 0;
       }
 
-      // ⭐️ FIX: Add (req: any)
-      allRequests?.forEach((req: any) => {
+      recentRequests.data?.forEach((req: any) => {
         const reqDate = new Date(req.created_at);
         const monthKey = reqDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'short' });
         if (monthlyData.hasOwnProperty(monthKey)) {
@@ -108,21 +132,20 @@ export default async function handler(
         count
       }));
 
-      // Category distribution
+      // Category distribution - from top equipment
       const categoryCount: Record<string, number> = {};
-      
-      // ⭐️ FIX: Add (req: any)
-      allRequests?.forEach((req: any) => {
-        if (req.equipment?.category) {
-          const category = req.equipment.category;
-          categoryCount[category] = (categoryCount[category] || 0) + 1;
-        }
+
+      Object.values(equipmentCounts).forEach(({ category }) => {
+        categoryCount[category] = (categoryCount[category] || 0) + 1;
       });
 
       const categoryData = Object.entries(categoryCount).map(([name, value]) => ({
         name,
         value
       }));
+
+      // Add cache headers (2 minutes)
+      res.setHeader('Cache-Control', 'private, max-age=120, s-maxage=120, stale-while-revalidate=240');
 
       res.status(200).json({
         success: true,

@@ -13,9 +13,8 @@ export default async function handler(
 ) {
   try {
     if (req.method === 'GET') {
-      // Get all equipment
-      // Note: Supabase doesn't support filtering nested relations in the select query the same way Prisma does
-      // We fetch all equipment and all their borrowings, then the client can filter if needed
+      // ✅ PERFORMANCE FIX: Remove borrowings join to drastically reduce data transfer
+      // Equipment list doesn't need borrowing details - only basic equipment info
       const { data: equipment, error } = await supabaseAdmin
         .from('equipment')
         .select(`
@@ -23,13 +22,6 @@ export default async function handler(
           creator:users!equipment_created_by_fkey (
             display_name,
             email
-          ),
-          borrowings:borrow_requests!borrow_requests_equipment_id_fkey (
-            *,
-            user:users!borrow_requests_user_id_fkey (
-              display_name,
-              email
-            )
           )
         `)
         .order('created_at', { ascending: false });
@@ -39,8 +31,7 @@ export default async function handler(
         return res.status(500).json({ success: false, error: error.message });
       }
 
-      // Filter borrowings to only include ACTIVE and APPROVED statuses
-      // And convert snake_case to camelCase for frontend
+      // Convert snake_case to camelCase for frontend
       const filteredEquipment = equipment?.map((item: any) => ({
         id: item.id,
         name: item.name,
@@ -49,7 +40,7 @@ export default async function handler(
         image: item.image,
         status: item.status,
         totalQuantity: item.total_quantity,
-        availableQuantity: item.available_quantity, // Convert snake_case to camelCase
+        availableQuantity: item.available_quantity,
         specifications: item.specifications,
         location: item.location,
         serialNumber: item.serial_number,
@@ -59,10 +50,11 @@ export default async function handler(
         updatedAt: item.updated_at,
         createdBy: item.created_by,
         creator: item.creator,
-        borrowings: item.borrowings?.filter((b: any) =>
-          ['ACTIVE', 'APPROVED'].includes(b.status)
-        ) || []
+        // If needed, borrowings can be fetched separately via /api/equipment/[id]/borrowings
       }));
+
+      // Add HTTP caching header (5 minutes)
+      res.setHeader('Cache-Control', 'private, max-age=300, s-maxage=300, stale-while-revalidate=600');
 
       res.status(200).json({ success: true, data: filteredEquipment || [] });
     } else if (req.method === 'POST') {
