@@ -168,22 +168,27 @@ function AuthForm() {
 
     console.log('Original error:', error.message); // For debugging
 
-    // Rate limiting (check first as it's important)
+    // 1. Rate limiting (check first as it's important)
     if (message.includes('too many requests') ||
         message.includes('rate limit') ||
         message.includes('email rate limit exceeded')) {
       return "⏰ มีการพยายามเข้าสู่ระบบมากเกินไป กรุณารอสักครู่แล้วลองใหม่อีกครั้ง (ประมาณ 1-5 นาที)";
     }
+    
+    // 2. Email confirmation (Specific login failure)
+    if (message.includes('confirm your email') || message.includes('email not confirmed')) {
+        return "📧 กรุณายืนยันอีเมลของคุณก่อนเข้าสู่ระบบ ตรวจสอบกล่องจดหมาย (รวมถึง Junk/Spam) ของคุณ";
+    }
 
-    // Login errors (most common for wrong password)
+    // 3. Login errors (This is the "รหัสผิด หรือ user ผิด" case)
+    // Supabase returns a generic message for security.
     if (message.includes('invalid login credentials') ||
         message.includes('invalid email or password') ||
-        message.includes('invalid credentials') ||
-        message.includes('email not confirmed')) {
+        message.includes('invalid credentials')) {
       return "❌ อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง";
     }
 
-    // Specific email errors (check before generic email check)
+    // 4. User already registered (Registration failure)
     if (message.includes('user already registered') ||
         message.includes('already registered') ||
         message.includes('user with this email already exists') ||
@@ -191,11 +196,12 @@ function AuthForm() {
       return "⚠️ อีเมลนี้ถูกใช้งานแล้ว กรุณาใช้อีเมลอื่นหรือเข้าสู่ระบบ";
     }
 
+    // 5. Invalid email format
     if (message.includes('invalid email')) {
       return "❌ รูปแบบอีเมลไม่ถูกต้อง กรุณากรอกอีเมลที่ถูกต้อง เช่น example@email.com";
     }
 
-    // Specific password errors
+    // 6. Specific password errors
     if (message.includes('password') && message.includes('least')) {
       return "❌ รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
     }
@@ -208,7 +214,7 @@ function AuthForm() {
       return "❌ รหัสผ่านมีความยาวไม่ถูกต้อง (ต้องมี 6-128 ตัวอักษร)";
     }
 
-    // Network errors
+    // 7. Network errors
     if (message.includes('network') ||
         message.includes('fetch') ||
         message.includes('timeout') ||
@@ -216,7 +222,7 @@ function AuthForm() {
       return "🌐 เกิดปัญหาการเชื่อมต่อ กรุณาตรวจสอบอินเทอร์เน็ตและลองใหม่";
     }
 
-    // Server errors
+    // 8. Server errors
     if (message.includes('500') ||
         message.includes('internal server') ||
         message.includes('server error')) {
@@ -227,22 +233,17 @@ function AuthForm() {
       return "⏳ บริการไม่พร้อมใช้งานในขณะนี้ กรุณาลองใหม่ภายหลัง";
     }
 
-    // User not found
+    // 9. User not found (More common in password reset, but good to have)
     if (message.includes('user not found') || message.includes('no user')) {
       return "❌ ไม่พบผู้ใช้งานนี้ในระบบ กรุณาตรวจสอบอีเมลหรือสมัครสมาชิกใหม่";
     }
 
-    // Email confirmation
-    if (message.includes('confirm your email') || message.includes('email confirmation')) {
-      return "📧 กรุณายืนยันอีเมลของคุณก่อนเข้าสู่ระบบ ตรวจสอบกล่องจดหมายของคุณ";
-    }
-
-    // Account locked/disabled
+    // 10. Account locked/disabled
     if (message.includes('account') && (message.includes('locked') || message.includes('disabled'))) {
       return "🔒 บัญชีของคุณถูกระงับ กรุณาติดต่อผู้ดูแลระบบ";
     }
 
-    // Session/Token errors
+    // 11. Session/Token errors
     if (message.includes('session') ||
         message.includes('token') ||
         message.includes('unauthorized') ||
@@ -250,17 +251,17 @@ function AuthForm() {
       return "🔑 เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่อีกครั้ง";
     }
 
-    // Validation errors
+    // 12. Validation errors
     if (message.includes('validation') || message.includes('invalid input')) {
       return "⚠️ ข้อมูลที่กรอกไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่";
     }
 
-    // Generic "invalid" errors (catch-all for login failures)
+    // 13. Generic "invalid" errors (catch-all for login failures)
     if (message.includes('invalid')) {
       return "❌ ข้อมูลที่กรอกไม่ถูกต้อง กรุณาตรวจสอบอีเมลและรหัสผ่านแล้วลองใหม่อีกครั้ง";
     }
 
-    // Unknown/Generic errors - show friendly message without exposing technical details
+    // 14. Unknown/Generic errors
     console.error('Unhandled error:', error.message);
     return "⚠️ เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง หากปัญหายังคงอยู่กรุณาติดต่อผู้ดูแลระบบ";
   };
@@ -352,7 +353,7 @@ function AuthForm() {
         if (error) throw error;
 
         // Show success message and switch to login
-        alert("สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ");
+        alert("สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลของคุณเพื่อยืนยันบัญชี จากนั้นจึงเข้าสู่ระบบ");
         setIsLogin(true);
         setFormData({
           email: formData.email, // Keep email for convenience
@@ -564,7 +565,7 @@ function AuthForm() {
           {error && (
             <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-sm">
               <div className="flex items-start gap-2">
-                <span className="text-lg">⚠️</span>
+                <span className="text-lg"></span>
                 <p className="text-sm font-medium flex-1">{error}</p>
               </div>
             </div>
