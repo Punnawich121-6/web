@@ -119,10 +119,10 @@ export default async function handler(
 
     console.log(`Return confirmed by admin. Request ID: ${id}, Admin: ${userProfile.id}`);
 
+    // ⭐️ แก้ไขจุดนี้: ลบ 'message' property ออก
     res.status(200).json({
       success: true,
-      data: updatedRequest,
-      message: 'Return confirmed successfully'
+      data: updatedRequest
     });
   } catch (error) {
     console.error('Error confirming return:', error);
