@@ -764,7 +764,7 @@ const BorrowingHistory = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* ... (Add other timeline events like rejected, returned, etc. in the same pattern) ... */}
 
                 </div>

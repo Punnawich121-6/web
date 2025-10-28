@@ -120,7 +120,6 @@ export default async function handler(
     res.status(200).json({
       success: true,
       data: updatedRequest,
-      message: 'Return request submitted successfully. Waiting for admin approval.'
     });
   } catch (error) {
     console.error('Error returning item:', error);
