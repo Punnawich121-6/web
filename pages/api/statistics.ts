@@ -55,14 +55,18 @@ export default async function handler(
 
       // Calculate statistics
       const totalBorrows = allRequests?.length || 0;
-      const pendingCount = allRequests?.filter(r => r.status === 'PENDING').length || 0;
-      const approvedCount = allRequests?.filter(r => r.status === 'APPROVED' || r.status === 'ACTIVE').length || 0;
-      const returnedCount = allRequests?.filter(r => r.status === 'RETURNED').length || 0;
-      const rejectedCount = allRequests?.filter(r => r.status === 'REJECTED').length || 0;
+      // ⭐️ START FIX: Add (r: any) to all filters
+      const pendingCount = allRequests?.filter((r: any) => r.status === 'PENDING').length || 0;
+      const approvedCount = allRequests?.filter((r: any) => r.status === 'APPROVED' || r.status === 'ACTIVE').length || 0;
+      const returnedCount = allRequests?.filter((r: any) => r.status === 'RETURNED').length || 0;
+      const rejectedCount = allRequests?.filter((r: any) => r.status === 'REJECTED').length || 0;
+      // ⭐️ END FIX
 
       // Most borrowed equipment
       const equipmentCounts: Record<string, { name: string; count: number; category: string }> = {};
-      allRequests?.forEach(req => {
+      
+      // ⭐️ FIX: Add (req: any)
+      allRequests?.forEach((req: any) => {
         if (req.equipment) {
           const equipId = req.equipment.id;
           if (!equipmentCounts[equipId]) {
@@ -90,7 +94,8 @@ export default async function handler(
         monthlyData[monthKey] = 0;
       }
 
-      allRequests?.forEach(req => {
+      // ⭐️ FIX: Add (req: any)
+      allRequests?.forEach((req: any) => {
         const reqDate = new Date(req.created_at);
         const monthKey = reqDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'short' });
         if (monthlyData.hasOwnProperty(monthKey)) {
@@ -105,7 +110,9 @@ export default async function handler(
 
       // Category distribution
       const categoryCount: Record<string, number> = {};
-      allRequests?.forEach(req => {
+      
+      // ⭐️ FIX: Add (req: any)
+      allRequests?.forEach((req: any) => {
         if (req.equipment?.category) {
           const category = req.equipment.category;
           categoryCount[category] = (categoryCount[category] || 0) + 1;
@@ -144,9 +151,11 @@ export default async function handler(
       }
 
       const totalBorrows = userRequests?.length || 0;
-      const pendingCount = userRequests?.filter(r => r.status === 'PENDING').length || 0;
-      const approvedCount = userRequests?.filter(r => r.status === 'APPROVED' || r.status === 'ACTIVE').length || 0;
-      const returnedCount = userRequests?.filter(r => r.status === 'RETURNED').length || 0;
+      // ⭐️ START FIX: Add (r: any) to all filters
+      const pendingCount = userRequests?.filter((r: any) => r.status === 'PENDING').length || 0;
+      const approvedCount = userRequests?.filter((r: any) => r.status === 'APPROVED' || r.status === 'ACTIVE').length || 0;
+      const returnedCount = userRequests?.filter((r: any) => r.status === 'RETURNED').length || 0;
+      // ⭐️ END FIX
 
       res.status(200).json({
         success: true,
@@ -156,7 +165,7 @@ export default async function handler(
             pending: pendingCount,
             approved: approvedCount,
             returned: returnedCount,
-            rejected: 0,
+            rejected: 0, // Users don't need to see their own rejected count here, or add: userRequests?.filter((r: any) => r.status === 'REJECTED').length || 0
           }
         }
       });
