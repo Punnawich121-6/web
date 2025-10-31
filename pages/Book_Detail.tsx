@@ -199,13 +199,13 @@ export default function BookDetail() {
             >
               <CheckCircle className="mx-auto mb-4 text-green-600 w-12 h-12 sm:w-16 sm:h-16" size={64} />
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                ส่งคำขอยืมสำเร็จ!
+                Borrow request submitted successfully!
               </h2>
               <p className="text-sm sm:text-base text-gray-600 mb-4">
-                คำขอยืมอุปกรณ์ของคุณได้ถูกส่งไปยังผู้ดูแลระบบแล้ว
+                Your equipment borrow request has been sent to the administrator
               </p>
               <p className="text-xs sm:text-sm text-gray-500">
-                กำลังนำคุณไปยังหน้าประวัติการยืม...
+                Redirecting you to the borrowing history page...
               </p>
             </motion.div>
           </div>
@@ -226,10 +226,10 @@ export default function BookDetail() {
             className="mb-6 sm:mb-8"
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              ยืนยันการยืมอุปกรณ์
+              Confirm Equipment Borrowing
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-600">
-              กรอกข้อมูลและยืนยันการยืมอุปกรณ์
+              Fill in the information and confirm equipment borrowing
             </p>
           </motion.div>
 
@@ -259,7 +259,7 @@ export default function BookDetail() {
                 <div className="flex items-center gap-2 mb-4">
                   <ShoppingCart className="text-red-600 w-5 h-5 sm:w-6 sm:h-6" size={24} />
                   <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                    รายการอุปกรณ์
+                    Equipment List
                   </h3>
                 </div>
 
@@ -298,9 +298,9 @@ export default function BookDetail() {
                           </button>
                         </div>
                         <div className="flex justify-between items-center text-xs sm:text-sm">
-                          <span className="text-gray-600">จำนวน:</span>
+                          <span className="text-gray-600">Quantity:</span>
                           <span className="font-medium text-gray-900">
-                            {item.quantity} ชิ้น
+                            {item.quantity} Piece
                           </span>
                         </div>
                       </div>
@@ -308,10 +308,10 @@ export default function BookDetail() {
                     <div className="pt-3 border-t border-gray-200">
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-gray-900 text-sm sm:text-base">
-                          รวมทั้งหมด:
+                          Total:
                         </span>
                         <span className="text-base sm:text-lg font-bold text-red-600">
-                          {cart.reduce((sum, item) => sum + item.quantity, 0)} ชิ้น
+                          {cart.reduce((sum, item) => sum + item.quantity, 0)} Piece
                         </span>
                       </div>
                     </div>
@@ -324,7 +324,7 @@ export default function BookDetail() {
             <div className="lg:col-span-2">
               <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
-                  ข้อมูลการยืม
+                  Borrowing Information
                 </h3>
 
                 <div className="space-y-4 sm:space-y-6">
@@ -332,7 +332,7 @@ export default function BookDetail() {
                     <div>
                       <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                         <Calendar className="inline mr-2 w-4 h-4 sm:w-5 sm:h-5" size={16} />
-                        วันที่เริ่มยืม *
+                        Borrow Start Date *
                       </label>
                       <input
                         type="date"
@@ -349,7 +349,7 @@ export default function BookDetail() {
                     <div>
                       <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                         <Calendar className="inline mr-2 w-4 h-4 sm:w-5 sm:h-5" size={16} />
-                        วันที่คืน *
+                        Return Date *
                       </label>
                       <input
                         type="date"
@@ -367,7 +367,7 @@ export default function BookDetail() {
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                       <FileText className="inline mr-2 w-4 h-4 sm:w-5 sm:h-5" size={16} />
-                      วัตถุประสงค์การยืม *
+                      Purpose of Borrowing *
                     </label>
                     <textarea
                       required
@@ -376,7 +376,7 @@ export default function BookDetail() {
                       onChange={(e) =>
                         setFormData({ ...formData, purpose: e.target.value })
                       }
-                      placeholder="โปรดระบุวัตถุประสงค์ในการยืมอุปกรณ์"
+                      placeholder="Please specify the purpose of borrowing the equipment"
                       className="w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 text-sm sm:text-base touch-manipulation"
                     />
                   </div>
@@ -384,7 +384,7 @@ export default function BookDetail() {
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                       <FileText className="inline mr-2 w-4 h-4 sm:w-5 sm:h-5" size={16} />
-                      หมายเหตุเพิ่มเติม
+                      Additional Notes
                     </label>
                     <textarea
                       rows={3}
@@ -392,7 +392,7 @@ export default function BookDetail() {
                       onChange={(e) =>
                         setFormData({ ...formData, notes: e.target.value })
                       }
-                      placeholder="หมายเหตุหรือข้อมูลเพิ่มเติม (ถ้ามี)"
+                      placeholder="Additional Notes or Information (if any)"
                       className="w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900 text-sm sm:text-base touch-manipulation"
                     />
                   </div>
@@ -405,7 +405,7 @@ export default function BookDetail() {
                     disabled={submitting}
                     className="w-full sm:flex-1 px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px] touch-manipulation"
                   >
-                    กลับไปเลือกอุปกรณ์
+                    Back to Select Equipment
                   </button>
                   <button
                     type="submit"
@@ -415,12 +415,12 @@ export default function BookDetail() {
                     {submitting ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white border-t-transparent"></div>
-                        <span>กำลังส่งคำขอ...</span>
+                        <span>Submitting Request หรือ Sending Request...</span>
                       </>
                     ) : (
                       <>
                         <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" size={20} />
-                        <span>ยืนยันการยืม</span>
+                        <span>Confirm Borrowing</span>
                       </>
                     )}
                   </button>

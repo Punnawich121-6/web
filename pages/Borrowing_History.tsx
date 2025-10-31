@@ -140,7 +140,7 @@ const BorrowingHistory = () => {
     if (urlParams.get("status") === "pending") {
       // Show success message for new pending request
       setTimeout(() => {
-        alert("ส่งคำขอยืมอุปกรณ์สำเร็จ! รอการอนุมัติจากเจ้าหน้าที่");
+        alert("Equipment borrow request submitted successfully! Awaiting approval from the staff");
       }, 500);
     }
   }, []);
@@ -179,11 +179,11 @@ const BorrowingHistory = () => {
           await fetchBorrowHistory(session.user);
         }
       } else {
-        alert(`❌ เกิดข้อผิดพลาด: ${result.error || 'ไม่สามารถส่งคำขอคืนอุปกรณ์ได้'}`);
+        alert(`❌ Error: ${result.error || 'ไม่สามารถส่งคำขอคืนอุปกรณ์ได้'}`);
       }
     } catch (error) {
       console.error('Error returning item:', error);
-      alert("❌ เกิดข้อผิดพลาดในการคืนอุปกรณ์ กรุณาลองใหม่อีกครั้ง");
+      alert("❌ Error returning item, Please try again");
     } finally {
       setReturnLoading(false);
     }
@@ -199,43 +199,43 @@ const BorrowingHistory = () => {
   const statusOptions = [
     {
       value: "all",
-      label: "ทั้งหมด",
+      label: "all",
       icon: Package,
       count: borrowHistory.length,
     },
     {
       value: "pending",
-      label: "รออนุมัติ",
+      label: "pending",
       icon: Clock,
       count: borrowHistory.filter((r) => r.status === "pending").length,
     },
     {
       value: "approved",
-      label: "อนุมัติแล้ว",
+      label: "approved",
       icon: CheckCircle,
       count: borrowHistory.filter((r) => r.status === "approved").length,
     },
     {
       value: "pending_return",
-      label: "รอตรวจสอบการคืน",
+      label: "pending_return",
       icon: RotateCcw,
       count: borrowHistory.filter((r) => r.status === "pending_return").length,
     },
     {
       value: "returned",
-      label: "คืนแล้ว",
+      label: "returned",
       icon: CheckCircle,
       count: borrowHistory.filter((r) => r.status === "returned").length,
     },
     {
       value: "overdue",
-      label: "เกินกำหนด",
+      label: "overdue",
       icon: AlertCircle,
       count: borrowHistory.filter((r) => r.status === "overdue").length,
     },
     {
       value: "rejected",
-      label: "ถูกปฏิเสธ",
+      label: "rejected",
       icon: XCircle,
       count: borrowHistory.filter((r) => r.status === "rejected").length,
     },
@@ -273,19 +273,19 @@ const BorrowingHistory = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case "pending":
-        return "รออนุมัติ";
+        return "pending";
       case "approved":
-        return "อนุมัติแล้ว";
+        return "approved";
       case "pending_return":
-        return "รอตรวจสอบการคืน";
+        return "pending_return";
       case "returned":
-        return "คืนแล้ว";
+        return "returned";
       case "overdue":
-        return "เกินกำหนด";
+        return "overdue";
       case "rejected":
-        return "ถูกปฏิเสธ";
+        return "rejected";
       default:
-        return "ไม่ทราบสถานะ";
+        return "UNKNOW";
     }
   };
 
@@ -351,10 +351,10 @@ const BorrowingHistory = () => {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-2">
-                  ประวัติการยืมอุปกรณ์
+                  Equipment Borrowing History
                 </h1>
                 <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-gray-600">
-                  ติดตามสถานะและประวัติการยืมอุปกรณ์ทั้งหมดของคุณ
+                  Track the status and complete borrowing history of your equipment
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 lg:mt-0">
@@ -377,7 +377,7 @@ const BorrowingHistory = () => {
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
                 >
                   <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span>ยืมอุปกรณ์ใหม่</span>
+                  <span>Borrow New Equipment</span>
                 </a>
               </div>
             </div>
@@ -425,7 +425,7 @@ const BorrowingHistory = () => {
               />
               <input
                 type="text"
-                placeholder="ค้นหาตามชื่ออุปกรณ์, รหัส, หรือวัตถุประสงค์..."
+                placeholder="Search by equipment name, code, or purpose…"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm sm:text-base lg:text-lg"
@@ -443,13 +443,13 @@ const BorrowingHistory = () => {
             {dataLoading ? (
               <div className="p-8 sm:p-12 text-center">
                 <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-                <p className="text-gray-600 text-sm sm:text-base lg:text-lg">กำลังโหลดประวัติการยืม...</p>
+                <p className="text-gray-600 text-sm sm:text-base lg:text-lg">Loading borrowing history...</p>
               </div>
             ) : filteredHistory.length === 0 ? (
               <div className="p-8 sm:p-12 text-center">
                 <Package className="mx-auto mb-4 text-gray-400 w-10 h-10 sm:w-12 sm:h-12" />
                 <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2">
-                  ไม่พบประวัติการยืม
+                  No borrowing history found
                 </h3>
                 <p className="text-gray-600 mb-4 text-sm sm:text-base lg:text-lg">
                   {selectedStatus === "all"
@@ -464,7 +464,7 @@ const BorrowingHistory = () => {
                   className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base w-full sm:w-auto"
                 >
                   <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span>เริ่มยืมอุปกรณ์</span>
+                  <span>Start Borrowing Equipment</span>
                 </a>
               </div>
             ) : (
@@ -495,8 +495,8 @@ const BorrowingHistory = () => {
                                 {record.equipmentName}
                               </h3>
                               <p className="text-xs sm:text-sm lg:text-base text-gray-500">
-                                รหัส: {record.equipmentId} | จำนวน:{" "}
-                                {record.quantity} ชิ้น
+                                Password: {record.equipmentId} | Quantity:{" "}
+                                {record.quantity} Piece
                               </p>
                             </div>
                             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
@@ -531,29 +531,29 @@ const BorrowingHistory = () => {
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 text-xs sm:text-sm lg:text-base text-gray-600 mb-3">
                             <div className="flex items-center gap-2">
                               <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                              <span>ยืม: {record.borrowDate}</span>
+                              <span>Borrow Date: {record.borrowDate}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                              <span>กำหนดคืน: {record.returnDate}</span>
+                              <span>Return Due Date: {record.returnDate}</span>
                             </div>
                             {record.actualReturnDate && (
                               <div className="flex items-center gap-2">
                                 <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                                <span>คืนแล้ว: {record.actualReturnDate}</span>
+                                <span>Returned: {record.actualReturnDate}</span>
                               </div>
                             )}
                           </div>
 
                           <div className="space-y-1 mb-2">
                             <p className="text-gray-700 text-xs sm:text-sm lg:text-base">
-                              <span className="font-medium">วัตถุประสงค์:</span>{" "}
+                              <span className="font-medium">Purpose:</span>{" "}
                               {record.purpose}
                             </p>
                             {record.createdAt && formatTimestamp(record.createdAt) && (
                               <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-1">
                                 <FileText className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                                <span className="break-words">สร้างคำขอ: {formatTimestamp(record.createdAt)?.date} เวลา {formatTimestamp(record.createdAt)?.time}</span>
+                                <span className="break-words">Create Request: {formatTimestamp(record.createdAt)?.date} เวลา {formatTimestamp(record.createdAt)?.time}</span>
                               </p>
                             )}
                             {record.approvedAt && record.approvedBy && formatTimestamp(record.approvedAt) && (
@@ -630,7 +630,7 @@ const BorrowingHistory = () => {
                     <div>
                       <span className="font-medium text-gray-700">จำนวน:</span>
                       <p className="text-gray-600">
-                        {selectedRecord.quantity} ชิ้น
+                        {selectedRecord.quantity} Piece
                       </p>
                     </div>
                   </div>
@@ -686,7 +686,7 @@ const BorrowingHistory = () => {
 
               <div>
                 <h5 className="font-medium text-gray-700 mb-2 text-sm sm:text-base lg:text-lg">
-                  วัตถุประสงค์
+                  Purpose
                 </h5>
                 <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-xs sm:text-sm lg:text-base break-words">
                   {selectedRecord.purpose}
@@ -696,7 +696,7 @@ const BorrowingHistory = () => {
               {selectedRecord.notes && (
                 <div>
                   <h5 className="font-medium text-gray-700 mb-2 text-sm sm:text-base lg:text-lg">
-                    หมายเหตุ
+                    notes
                   </h5>
                   <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-xs sm:text-sm lg:text-base break-words">
                     {selectedRecord.notes}

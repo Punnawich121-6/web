@@ -219,15 +219,15 @@ const EquipmentCatalogUser = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case "AVAILABLE":
-        return "พร้อมใช้งาน";
+        return "AVAILABLE";
       case "BORROWED":
         return "Borrowed";
       case "MAINTENANCE":
-        return "ซ่อมบำรุง";
+        return "MAINTENANCE";
       case "RETIRED":
-        return "เลิกใช้งาน";
+        return "RETIRED";
       default:
-        return "ไม่ทราบสถานะ";
+        return "UNKNOW";
     }
   };
 
@@ -414,7 +414,7 @@ const EquipmentCatalogUser = () => {
 
                   <div className="mb-3">
                     <div className="flex justify-between text-xs sm:text-sm mb-1">
-                      <span className="text-gray-600">พร้อมใช้งาน:</span>
+                      <span className="text-gray-600">available:</span>
                       <span className={`font-bold ${
                         item.availableQuantity === 0
                           ? "text-red-600"
@@ -425,7 +425,7 @@ const EquipmentCatalogUser = () => {
                         {item.availableQuantity}/{item.totalQuantity} items
                         {item.availableQuantity === 0 && (
                           <span className="ml-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
-                            หมด
+                            Out of stock
                           </span>
                         )}
                       </span>
@@ -457,11 +457,11 @@ const EquipmentCatalogUser = () => {
                   </div>
 
                   <div className="mb-3 sm:mb-4">
-                    <div className="text-xs sm:text-sm text-gray-500 mb-1">สถานที่:</div>
+                    <div className="text-xs sm:text-sm text-gray-500 mb-1">location:</div>
                     <div className="text-sm sm:text-base text-gray-700 mb-2">{item.location}</div>
                     {item.specifications && (
                       <>
-                        <div className="text-xs sm:text-sm text-gray-500 mb-1">คุณสมบัติ:</div>
+                        <div className="text-xs sm:text-sm text-gray-500 mb-1">specifications:</div>
                         <div className="flex flex-wrap gap-1">
                           {Object.entries(item.specifications).slice(0, 2).map(([key, value], i) => (
                             <span
@@ -483,7 +483,7 @@ const EquipmentCatalogUser = () => {
                         className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-200 text-gray-500 rounded-lg cursor-not-allowed text-xs sm:text-sm font-medium border-2 border-gray-300 min-h-[44px] touch-manipulation"
                       >
                         <XCircle className="w-4 h-4" size={16} />
-                        หมด - ไม่สามารถเพิ่มได้
+                        Out of stock – Cannot add more
                       </button>
                     ) : (
                       <div className="flex items-center gap-2 w-full">
@@ -521,7 +521,7 @@ const EquipmentCatalogUser = () => {
                               ? "Max quantity"
                               : "เพิ่ม"
                           ) : (
-                            "เพิ่มลงตะกร้า"
+                            "Add to Cart"
                           )}
                         </button>
                       </div>
@@ -557,7 +557,7 @@ const EquipmentCatalogUser = () => {
             <div className="p-4 sm:p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  ตะกร้าของฉัน
+                  My Cart
                 </h3>
                 <button
                   onClick={() => setIsCartOpen(false)}
@@ -630,7 +630,7 @@ const EquipmentCatalogUser = () => {
 
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between items-center mb-4">
-                      <span className="text-base sm:text-lg font-semibold">รวมทั้งหมด:</span>
+                      <span className="text-base sm:text-lg font-semibold">Total:</span>
                       <span className="text-base sm:text-lg font-bold text-red-600">
                         {cartItemCount} รายการ
                       </span>
@@ -640,13 +640,13 @@ const EquipmentCatalogUser = () => {
                         onClick={() => setIsCartOpen(false)}
                         className="w-full sm:flex-1 px-4 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
                       >
-                        Select Equipmentเพิ่ม
+                        Select Equipment More
                       </button>
                       <a
                         href="/Book_Detail"
                         className="w-full sm:flex-1 px-4 py-2.5 sm:py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-center font-medium text-sm sm:text-base min-h-[44px] touch-manipulation flex items-center justify-center"
                       >
-                        ดำเนินการต่อ
+                        Continue
                       </a>
                     </div>
                   </div>

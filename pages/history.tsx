@@ -137,7 +137,7 @@ const History = () => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("status") === "pending") {
       setTimeout(() => {
-        alert("ส่งคำขอยืมอุปกรณ์สำเร็จ! รอการอนุมัติจากเจ้าหน้าที่");
+        alert("Equipment borrow request submitted successfully! Awaiting staff approval");
       }, 500);
     }
   }, []);
@@ -167,14 +167,14 @@ const History = () => {
       const result = await response.json();
 
       if (response.ok && result.success) {
-        alert("ส่งคำขอคืนอุปกรณ์สำเร็จ! รอเจ้าหน้าที่ตรวจสอบการคืนอุปกรณ์");
+        alert("Equipment return request submitted successfully! Awaiting staff verification");
         setShowReturnModal(false);
         setRecordToReturn(null);
         if (session?.user) {
           await fetchBorrowHistory(session.user);
         }
       } else {
-        alert(`เกิดข้อผิดพลาด: ${result.error || 'ไม่สามารถส่งคำขอคืนอุปกรณ์ได้'}`);
+        alert(`An error occurred: ${result.error || 'Unable to submit equipment return request'}`);
       }
     } catch (error) {
       console.error('Error returning item:', error);
@@ -420,13 +420,13 @@ const History = () => {
             {dataLoading ? (
               <div className="p-8 sm:p-12 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-                <p className="text-gray-600 text-base sm:text-lg lg:text-xl">กำลังโหลดประวัติการยืม...</p>
+                <p className="text-gray-600 text-base sm:text-lg lg:text-xl">Loading borrowing history...</p>
               </div>
             ) : filteredHistory.length === 0 ? (
               <div className="p-8 sm:p-12 text-center">
                 <Package className="mx-auto mb-4 text-gray-400 w-10 h-10 sm:w-12 sm:h-12" size={48} />
                 <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2">
-                  ไม่พบประวัติการยืม
+                  No borrowing history found
                 </h3>
                 <p className="text-gray-600 mb-4 text-sm sm:text-base lg:text-lg">
                   {selectedStatus === "all"
@@ -441,7 +441,7 @@ const History = () => {
                   className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
                 >
                   <Plus className="w-4 h-4 sm:w-5 sm:h-5" size={18} />
-                  เริ่มยืมอุปกรณ์
+                  Start Borrowing Equipment
                 </a>
               </div>
             ) : (
@@ -472,8 +472,8 @@ const History = () => {
                                 {record.equipmentName}
                               </h3>
                               <p className="text-sm sm:text-base text-gray-500">
-                                รหัส: {record.equipmentId} | จำนวน:{" "}
-                                {record.quantity} ชิ้น
+                                Code: {record.equipmentId} | quantity:{" "}
+                                {record.quantity} Piece
                               </p>
                             </div>
                             <div className="flex items-center gap-2 sm:gap-3">
@@ -498,22 +498,22 @@ const History = () => {
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 text-sm sm:text-base text-gray-600 mb-3">
                             <div className="flex items-center gap-2">
                               <Calendar className="w-4 h-4" size={16} />
-                              <span>ยืม: {record.borrowDate}</span>
+                              <span>Borrow: {record.borrowDate}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Clock className="w-4 h-4" size={16} />
-                              <span>กำหนดคืน: {record.returnDate}</span>
+                              <span>Return Due Date: {record.returnDate}</span>
                             </div>
                             {record.actualReturnDate && (
                               <div className="flex items-center gap-2">
                                 <CheckCircle className="w-4 h-4" size={16} />
-                                <span>คืนแล้ว: {record.actualReturnDate}</span>
+                                <span>Returned: {record.actualReturnDate}</span>
                               </div>
                             )}
                           </div>
 
                           <p className="text-gray-700 text-sm sm:text-base mb-3">
-                            <span className="font-medium">วัตถุประสงค์:</span>{" "}
+                            <span className="font-medium">Purpose:</span>{" "}
                             {record.purpose}
                           </p>
 
@@ -523,7 +523,7 @@ const History = () => {
                               className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
                             >
                               <RotateCcw className="w-4 h-4" size={16} />
-                              คืนอุปกรณ์
+                              Return Equipment
                             </button>
                           )}
                         </div>
@@ -584,16 +584,16 @@ const History = () => {
                   <div className="grid grid-cols-2 gap-3 sm:gap-4 text-sm sm:text-base">
                     <div>
                       <span className="font-medium text-gray-700">
-                        รหัสอุปกรณ์:
+                        Equipment Code:
                       </span>
                       <p className="text-gray-600">
                         {selectedRecord.equipmentId}
                       </p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">จำนวน:</span>
+                      <span className="font-medium text-gray-700">quantity:</span>
                       <p className="text-gray-600">
-                        {selectedRecord.quantity} ชิ้น
+                        {selectedRecord.quantity} Piece
                       </p>
                     </div>
                   </div>
@@ -603,7 +603,7 @@ const History = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">
-                    ข้อมูลการยืม
+                    Borrowing Information
                   </h5>
                   <div className="space-y-2 text-sm sm:text-base">
                     <div className="flex justify-between">
@@ -613,7 +613,7 @@ const History = () => {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>กำหนดคืน:</span>
+                      <span>Return Due Date:</span>
                       <span className="font-medium">
                         {selectedRecord.returnDate}
                       </span>
@@ -697,10 +697,10 @@ const History = () => {
                 Confirm Equipment Return
               </h3>
               <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                คุณต้องการส่งคำขอคืนอุปกรณ์ <strong>{recordToReturn.equipmentName}</strong> ใช่หรือไม่?
+                Do you want to submit a return request for the equipment? <strong>{recordToReturn.equipmentName}</strong> Yes or No?
               </p>
               <p className="text-sm sm:text-base text-yellow-700 bg-yellow-50 p-3 rounded-lg mb-4">
-                Note: หลังจากส่งคำขอ เจ้าหน้าที่จะตรวจสอบสภาพอุปกรณ์และอนุมัติการคืน
+                Note: After submitting the request, the staff will inspect the condition of the equipment and approve the return
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
@@ -711,7 +711,7 @@ const History = () => {
                   disabled={returnLoading}
                   className="w-full sm:flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px] touch-manipulation"
                 >
-                  ยกเลิก
+                  Cancel
                 </button>
                 <button
                   onClick={handleReturnItem}
@@ -721,7 +721,7 @@ const History = () => {
                   {returnLoading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                      <span>กำลังส่งคำขอ...</span>
+                      <span>Submitting request...</span>
                     </>
                   ) : (
                     <>
