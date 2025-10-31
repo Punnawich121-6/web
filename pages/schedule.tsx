@@ -374,7 +374,7 @@ export default function Schedule() {
                 {/* Calendar Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                    {currentDate.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' })}
+                    {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                   </h2>
                   <div className="flex gap-2 w-full sm:w-auto">
                     <button
