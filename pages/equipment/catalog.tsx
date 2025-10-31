@@ -632,7 +632,7 @@ const EquipmentCatalogUser = () => {
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-base sm:text-lg font-semibold">Total:</span>
                       <span className="text-base sm:text-lg font-bold text-red-600">
-                        {cartItemCount} รายการ
+                        {cartItemCount} list(s)
                       </span>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3">

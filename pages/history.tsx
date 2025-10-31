@@ -100,23 +100,34 @@ const History = () => {
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.data) {
-          const transformedHistory = result.data.map((request: any) => ({
-          id: request.id,
-          equipmentName: request.equipment.name,
-          equipmentId: request.equipment.id,
-          quantity: request.quantity,
-          borrowDate: new Date(request.startDate).toLocaleDateString('th-TH'),
-          returnDate: new Date(request.endDate).toLocaleDateString('th-TH'),
-          actualReturnDate: request.actualReturnDate ? new Date(request.actualReturnDate).toLocaleDateString('th-TH') : undefined,
-          status: request.status.toLowerCase(),
-          purpose: request.purpose,
-          notes: request.notes || undefined,
-          image: request.equipment.image || '/placeholder-image.jpg',
-          createdAt: request.createdAt,
-          approvedAt: request.approvedAt,
-          approvedBy: request.approver,
-          rejectionReason: request.rejectionReason,
-          }));
+          const transformedHistory = result.data.map((request: any) => {
+            // Format dates consistently by extracting the date part and formatting in Thai locale
+            const formatDate = (dateString: string) => {
+              const date = new Date(dateString);
+              const year = date.getFullYear() + 543; // Convert to Buddhist Era
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const day = String(date.getDate()).padStart(2, '0');
+              return `${day}/${month}/${year}`;
+            };
+
+            return {
+              id: request.id,
+              equipmentName: request.equipment.name,
+              equipmentId: request.equipment.id,
+              quantity: request.quantity,
+              borrowDate: formatDate(request.startDate),
+              returnDate: formatDate(request.endDate),
+              actualReturnDate: request.actualReturnDate ? formatDate(request.actualReturnDate) : undefined,
+              status: request.status.toLowerCase(),
+              purpose: request.purpose,
+              notes: request.notes || undefined,
+              image: request.equipment.image || '/placeholder-image.jpg',
+              createdAt: request.createdAt,
+              approvedAt: request.approvedAt,
+              approvedBy: request.approver,
+              rejectionReason: request.rejectionReason,
+            };
+          });
           setBorrowHistory(transformedHistory);
         } else {
           setBorrowHistory([]);

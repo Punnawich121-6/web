@@ -300,7 +300,7 @@ const Profile = () => {
                     onClick={() => router.push('/dashboard')}
                     className="w-full sm:w-auto px-6 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-medium py-3.5 sm:py-3 text-sm sm:text-base rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 touch-manipulation"
                   >
-                    กลับ
+                    Back
                     <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
