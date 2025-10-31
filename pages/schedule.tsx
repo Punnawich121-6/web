@@ -35,11 +35,19 @@ interface BorrowEvent {
   quantity: number;
 }
 
+interface Holiday {
+  name: string;
+  date: string;
+  observed: string;
+  public: boolean;
+}
+
 export default function Schedule() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<BorrowEvent[]>([]);
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -103,6 +111,27 @@ export default function Schedule() {
     }
   };
 
+  const fetchHolidays = async (year: number) => {
+    try {
+      const response = await fetch(`/api/holidays?year=${year}&country=TH`);
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.holidays) {
+          setHolidays(result.holidays);
+        }
+      } else {
+        console.error('Error fetching holidays:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching holidays:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchHolidays(currentDate.getFullYear());
+  }, [currentDate.getFullYear()]);
+
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -120,6 +149,14 @@ export default function Schedule() {
       const start = event.startDate.split('T')[0];
       const end = event.endDate.split('T')[0];
       return dateStr >= start && dateStr <= end;
+    });
+  };
+
+  const getHolidaysForDate = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return holidays.filter(holiday => {
+      const holidayDate = holiday.date.split('T')[0];
+      return holidayDate === dateStr && holiday.public;
     });
   };
 
@@ -173,8 +210,10 @@ export default function Schedule() {
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
       const dayEvents = getEventsForDate(date);
+      const dayHolidays = getHolidaysForDate(date);
       const isToday = date.toDateString() === new Date().toDateString();
       const isSelected = selectedDate?.toDateString() === date.toDateString();
+      const isHoliday = dayHolidays.length > 0;
 
       days.push(
         <motion.div
@@ -186,25 +225,36 @@ export default function Schedule() {
               ? "bg-red-50 border-red-300 shadow-md"
               : isSelected
               ? "bg-blue-50 border-blue-300 shadow-md"
+              : isHoliday
+              ? "bg-purple-50 border-purple-300"
               : "bg-white border-gray-200 hover:border-red-200 hover:shadow-sm active:bg-gray-50"
           }`}
         >
           <div className="flex justify-between items-start mb-0.5 sm:mb-1 md:mb-2">
             <span
               className={`text-sm sm:text-base md:text-lg font-semibold ${
-                isToday ? "text-red-600" : "text-gray-700"
+                isToday ? "text-red-600" : isHoliday ? "text-purple-700" : "text-gray-700"
               }`}
             >
               {day}
             </span>
-            {dayEvents.length > 0 && (
-              <span className="text-xs bg-red-500 text-white px-1 sm:px-1.5 md:px-2 py-0.5 sm:py-1 rounded-full font-medium">
-                {dayEvents.length}
+            {(dayEvents.length > 0 || dayHolidays.length > 0) && (
+              <span className={`text-xs ${isHoliday ? 'bg-purple-500' : 'bg-red-500'} text-white px-1 sm:px-1.5 md:px-2 py-0.5 sm:py-1 rounded-full font-medium`}>
+                {dayEvents.length + dayHolidays.length}
               </span>
             )}
           </div>
           <div className="space-y-0.5 sm:space-y-1">
-            {dayEvents.slice(0, 2).map((event, idx) => {
+            {dayHolidays.slice(0, 1).map((holiday, idx) => (
+              <div
+                key={`holiday-${idx}`}
+                className="text-xs p-0.5 sm:p-1 md:p-1.5 rounded truncate font-medium bg-purple-100 text-purple-800 border border-purple-300"
+              >
+                <span className="hidden sm:inline">{holiday.name}</span>
+                <span className="sm:hidden">🎉</span>
+              </div>
+            ))}
+            {dayEvents.slice(0, dayHolidays.length > 0 ? 1 : 2).map((event, idx) => {
               const isReturned = event.status === "RETURNED";
               const isActive = event.status === "APPROVED" || event.status === "ACTIVE";
               const isPending = event.status === "PENDING";
@@ -227,8 +277,8 @@ export default function Schedule() {
                 </div>
               );
             })}
-            {dayEvents.length > 2 && (
-              <div className="text-xs text-gray-500 font-medium hidden sm:block">+{dayEvents.length - 2}</div>
+            {(dayEvents.length + dayHolidays.length) > 2 && (
+              <div className="text-xs text-gray-500 font-medium hidden sm:block">+{(dayEvents.length + dayHolidays.length) - 2}</div>
             )}
           </div>
         </motion.div>
@@ -367,8 +417,12 @@ export default function Schedule() {
 
                 {/* Color Legend */}
                 <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Borrowing Status</h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Legend</h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 bg-purple-100 border border-purple-300 rounded flex-shrink-0"></div>
+                      <span className="text-xs sm:text-sm text-gray-700">Holiday</span>
+                    </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-100 border border-green-300 rounded flex-shrink-0"></div>
                       <span className="text-xs sm:text-sm text-gray-700">Borrowing</span>
@@ -420,6 +474,33 @@ export default function Schedule() {
 
                 {selectedDate ? (
                   <div className="space-y-3 max-h-[calc(100vh-16rem)] overflow-y-auto">
+                    {/* Show Holidays First */}
+                    {getHolidaysForDate(selectedDate).map((holiday, idx) => (
+                      <div
+                        key={`holiday-${idx}`}
+                        className="p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-300 hover:border-purple-400 transition-colors"
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-semibold text-purple-900 text-base sm:text-lg break-words flex-1 pr-2">
+                            {holiday.name}
+                          </h4>
+                          <span className="text-2xl flex-shrink-0">🎉</span>
+                        </div>
+                        <div className="space-y-1.5 sm:space-y-2 text-sm text-purple-700">
+                          <p className="font-medium">Public Holiday</p>
+                          <p className="text-xs text-purple-600">
+                            {new Date(holiday.date).toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Show Borrow Events */}
                     {getEventsForDate(selectedDate).length > 0 ? (
                       getEventsForDate(selectedDate).map((event) => (
                         <div
@@ -465,12 +546,12 @@ export default function Schedule() {
                           </div>
                         </div>
                       ))
-                    ) : (
+                    ) : getHolidaysForDate(selectedDate).length === 0 ? (
                       <div className="text-center py-8 sm:py-12">
                         <CalendarIcon className="mx-auto mb-3 text-gray-400" size={40} />
                         <p className="text-gray-500 text-sm sm:text-base">No activities on this day</p>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 ) : (
                   <div className="text-center py-12 sm:py-16">

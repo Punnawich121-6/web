@@ -192,43 +192,43 @@ const History = () => {
   const statusOptions = [
     {
       value: "all",
-      label: "ทั้งหมด",
+      label: "all",
       icon: Package,
       count: borrowHistory.length,
     },
     {
       value: "pending",
-      label: "รออนุมัติ",
+      label: "pending",
       icon: Clock,
       count: borrowHistory.filter((r) => r.status === "pending").length,
     },
     {
       value: "approved",
-      label: "อนุมัติแล้ว",
+      label: "approved",
       icon: CheckCircle,
       count: borrowHistory.filter((r) => r.status === "approved").length,
     },
     {
       value: "pending_return",
-      label: "รอตรวจสอบคืน",
+      label: "pending_return",
       icon: RotateCcw,
       count: borrowHistory.filter((r) => r.status === "pending_return").length,
     },
     {
       value: "returned",
-      label: "คืนแล้ว",
+      label: "returned",
       icon: CheckCircle,
       count: borrowHistory.filter((r) => r.status === "returned").length,
     },
     {
       value: "overdue",
-      label: "เกินกำหนด",
+      label: "overdue",
       icon: AlertCircle,
       count: borrowHistory.filter((r) => r.status === "overdue").length,
     },
     {
       value: "rejected",
-      label: "ถูกปฏิเสธ",
+      label: "rejected",
       icon: XCircle,
       count: borrowHistory.filter((r) => r.status === "rejected").length,
     },
@@ -266,17 +266,17 @@ const History = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case "pending":
-        return "รออนุมัติ";
+        return "pending";
       case "approved":
-        return "อนุมัติแล้ว";
+        return "approved";
       case "pending_return":
-        return "รอตรวจสอบคืน";
+        return "pending_return";
       case "returned":
-        return "คืนแล้ว";
+        return "returned";
       case "overdue":
-        return "เกินกำหนด";
+        return "overdue";
       case "rejected":
-        return "ถูกปฏิเสธ";
+        return "rejected";
       default:
         return "Unknown status";
     }
@@ -327,7 +327,7 @@ const History = () => {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 sm:mb-6">
               <div>
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2">
-                  ประวัติการยืมอุปกรณ์
+                  Equipment Borrowing History
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600">
                   Track the status and history of all your equipment borrowing
@@ -353,7 +353,7 @@ const History = () => {
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
                 >
                   <Plus className="w-4 h-4 sm:w-5 sm:h-5" size={18} />
-                  ยืมอุปกรณ์ใหม่
+                  Borrow New Equipment
                 </a>
               </div>
             </div>

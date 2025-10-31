@@ -12,7 +12,9 @@
       "Bash(npm run dev:*)",
       "Bash(psql:*)",
       "Bash(find:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "WebFetch(domain:holidayapi.com)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
