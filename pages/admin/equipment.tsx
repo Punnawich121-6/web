@@ -50,6 +50,7 @@ const AdminEquipmentPage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [equipmentLoading, setEquipmentLoading] = useState(false);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -59,12 +60,22 @@ const AdminEquipmentPage = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-      if (session?.user) {
-        await fetchUserData(session.user);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user || null);
+
+        if (session?.user) {
+          // Fetch user data and equipment in parallel
+          const userDataPromise = fetchUserData(session.user);
+          userDataPromise.then((userData) => {
+            if (userData?.role === "ADMIN") {
+              fetchEquipment();
+            }
+          });
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     checkSession();
@@ -73,25 +84,23 @@ const AdminEquipmentPage = () => {
       async (_event, session) => {
         setUser(session?.user || null);
         if (session?.user) {
-          await fetchUserData(session.user);
+          const userData = await fetchUserData(session.user);
+          if (userData?.role === "ADMIN") {
+            fetchEquipment();
+          }
+        } else {
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (userData?.role === "ADMIN") {
-      fetchEquipment();
-    }
-  }, [userData]);
-
-  const fetchUserData = async (currentUser: User) => {
+  const fetchUserData = async (currentUser: User): Promise<UserData | null> => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      if (!session) return null;
 
       const token = session.access_token;
       const response = await fetch('/api/user', {
@@ -106,13 +115,17 @@ const AdminEquipmentPage = () => {
       if (response.ok) {
         const result = await response.json();
         setUserData(result.data);
+        return result.data;
       }
+      return null;
     } catch (error) {
       console.error('Error fetching user data:', error);
+      return null;
     }
   };
 
   const fetchEquipment = async () => {
+    setEquipmentLoading(true);
     try {
       const response = await fetch('/api/equipment');
       const result = await response.json();
@@ -125,6 +138,8 @@ const AdminEquipmentPage = () => {
     } catch (err) {
       setError('Failed to fetch equipment');
       console.error('Error fetching equipment:', err);
+    } finally {
+      setEquipmentLoading(false);
     }
   };
 
@@ -406,13 +421,19 @@ const AdminEquipmentPage = () => {
           </div>
 
           {/* Equipment Grid */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-          >
-            {filteredEquipment.map((item, index) => (
+          {equipmentLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 text-lg">Loading equipment...</p>
+            </div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+            >
+              {filteredEquipment.map((item, index) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -483,10 +504,11 @@ const AdminEquipmentPage = () => {
                   </div>
                 </div>
               </motion.div>
-            ))}
-          </motion.div>
+              ))}
+            </motion.div>
+          )}
 
-          {filteredEquipment.length === 0 && (
+          {!equipmentLoading && filteredEquipment.length === 0 && (
             <div className="text-center py-12">
               <Package className="mx-auto mb-4 text-gray-400" size={48} />
               <p className="text-gray-500 text-lg">
