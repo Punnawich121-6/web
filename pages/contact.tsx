@@ -15,6 +15,7 @@ const DeveloperCard = ({
   github,
   linkedin,
   imagePlaceholder,
+  avatarUrl,
 }: {
   name: string;
   role: string;
@@ -24,6 +25,7 @@ const DeveloperCard = ({
   github?: string;
   linkedin?: string;
   imagePlaceholder: string;
+  avatarUrl?: string;
 }) => {
   return (
     <motion.div
@@ -33,8 +35,16 @@ const DeveloperCard = ({
       whileHover={{ y: -10, scale: 1.02 }}
       className="group p-4 sm:p-6 lg:p-8 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100"
     >
-      <div className="relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 mx-auto mb-4 sm:mb-6 rounded-full bg-gray-100 flex items-center justify-center text-4xl sm:text-5xl text-gray-400 font-bold group-hover:scale-105 transition-transform duration-300">
-        <span>{imagePlaceholder}</span>
+      <div className="relative w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 mx-auto mb-4 sm:mb-6 rounded-full bg-gray-100 flex items-center justify-center text-4xl sm:text-5xl text-gray-400 font-bold group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span>{imagePlaceholder}</span>
+        )}
         <div className="absolute inset-0 rounded-full bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </div>
 
@@ -116,7 +126,50 @@ const DeveloperCard = ({
   );
 };
 
+interface GitHubProfile {
+  name: string;
+  avatar_url: string;
+  html_url: string;
+  bio?: string;
+}
+
 export default function ContactPage() {
+  const [githubProfile1, setGithubProfile1] = useState<GitHubProfile | null>(null);
+  const [githubProfile2, setGithubProfile2] = useState<GitHubProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGithubProfiles = async () => {
+      try {
+        // Fetch both profiles in parallel
+        const [response1, response2] = await Promise.all([
+          fetch('/api/github-profile?username=DolDolPeeradol'),
+          fetch('/api/github-profile?username=Punnawich121-6')
+        ]);
+
+        if (response1.ok) {
+          const result1 = await response1.json();
+          if (result1.success && result1.data) {
+            setGithubProfile1(result1.data);
+          }
+        }
+
+        if (response2.ok) {
+          const result2 = await response2.json();
+          if (result2.success && result2.data) {
+            setGithubProfile2(result2.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching GitHub profiles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGithubProfiles();
+  }, []);
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-900 transition-colors duration-300">
       <LibraryNavbar />
@@ -143,34 +196,48 @@ export default function ContactPage() {
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 max-w-6xl mx-auto">
-            <DeveloperCard
-              name="Name1"
-              role="Frontend"
-              description="Creator of Time2Use"
-              skills={[
-                "Next.js",
-                "HTML",
-                "CSS"
-
-              ]}
-              email="email"
-              github="https://github.com/your-username"
-              linkedin="https://linkedin.com/in/your-profile"
-              imagePlaceholder="1"
-            />
-            <DeveloperCard
-              name="Name2"
-              role="Fullstack"
-              description="Web development assistant"
-              skills={[
-                "Javascript",
-                "Git",
-              ]}
-              email="email"
-              github="https://github.com/partner-username"
-              linkedin="https://linkedin.com/in/partner-profile"
-              imagePlaceholder="2"
-            />
+            {loading ? (
+              <div className="lg:col-span-2 text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading profiles...</p>
+              </div>
+            ) : (
+              <>
+                <DeveloperCard
+                  name={githubProfile1?.name || "Name1"}
+                  role="Full Stack"
+                  description="Full Stack Developer"
+                  skills={[
+                    "Next.js",
+                    "HTML",
+                    "CSS",
+                    "Javascript",
+                    "Git",
+                    "Python",
+                    "Java"
+                  ]}
+                  email="dolpeeradol@gmail.com"
+                  github={githubProfile1?.html_url || "https://github.com/DolDolPeeradol"}
+                  linkedin="https://www.linkedin.com/in/peeradol-thanyatheeraphong-0b74b7377/?originalSubdomain=th"
+                  imagePlaceholder="1"
+                  avatarUrl={githubProfile1?.avatar_url}
+                />
+                <DeveloperCard
+                  name={githubProfile2?.name || "Name2"}
+                  role="Frontend"
+                  description="Web development assistant"
+                  skills={[
+                    "HTML",
+                    "CSS",
+                  ]}
+                  email="email"
+                  github={githubProfile2?.html_url || "https://github.com/Punnawich121-6"}
+                  linkedin="https://linkedin.com/in/partner-profile"
+                  imagePlaceholder="2"
+                  avatarUrl={githubProfile2?.avatar_url}
+                />
+              </>
+            )}
           </div>
 
           <motion.div
