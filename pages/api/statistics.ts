@@ -115,13 +115,13 @@ export default async function handler(
 
       for (let i = 5; i >= 0; i--) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const monthKey = date.toLocaleDateString('th-TH', { year: 'numeric', month: 'short' });
+        const monthKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
         monthlyData[monthKey] = 0;
       }
 
       recentRequests.data?.forEach((req: any) => {
         const reqDate = new Date(req.created_at);
-        const monthKey = reqDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'short' });
+        const monthKey = reqDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
         if (monthlyData.hasOwnProperty(monthKey)) {
           monthlyData[monthKey] += 1;
         }

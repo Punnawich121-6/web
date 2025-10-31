@@ -253,7 +253,7 @@ const AdminAnalytics = () => {
                           <div key={index}>
                             <div className="flex justify-between text-xs sm:text-sm mb-1">
                               <span className="text-gray-700">{item.month}</span>
-                              <span className="font-medium text-gray-900">{item.count} ครั้ง</span>
+                              <span className="font-medium text-gray-900">{item.count} times</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
