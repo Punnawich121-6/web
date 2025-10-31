@@ -13,16 +13,28 @@ export default async function handler(
 ) {
   try {
     if (req.method === 'GET') {
-      // ✅ PERFORMANCE FIX: Remove borrowings join to drastically reduce data transfer
-      // Equipment list doesn't need borrowing details - only basic equipment info
+      // ✅ PERFORMANCE FIX: Optimized query with minimal data
+      // - No borrowings join (saves significant data transfer)
+      // - No creator join for list view (only needed for detail view)
+      // - Only essential fields selected
       const { data: equipment, error } = await supabaseAdmin
         .from('equipment')
         .select(`
-          *,
-          creator:users!equipment_created_by_fkey (
-            display_name,
-            email
-          )
+          id,
+          name,
+          category,
+          description,
+          image,
+          status,
+          total_quantity,
+          available_quantity,
+          specifications,
+          location,
+          serial_number,
+          condition,
+          created_at,
+          updated_at,
+          created_by
         `)
         .order('created_at', { ascending: false });
 
@@ -45,16 +57,15 @@ export default async function handler(
         location: item.location,
         serialNumber: item.serial_number,
         condition: item.condition,
-        purchaseDate: item.purchase_date,
         createdAt: item.created_at,
         updatedAt: item.updated_at,
         createdBy: item.created_by,
-        creator: item.creator,
-        // If needed, borrowings can be fetched separately via /api/equipment/[id]/borrowings
+        // Creator info removed from list view for better performance
+        // If needed, fetch it separately or in detail view
       }));
 
-      // Add HTTP caching header (5 minutes)
-      res.setHeader('Cache-Control', 'private, max-age=300, s-maxage=300, stale-while-revalidate=600');
+      // Add HTTP caching header (2 minutes for fresher data, 10 minutes stale-while-revalidate)
+      res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=120, stale-while-revalidate=600');
 
       res.status(200).json({ success: true, data: filteredEquipment || [] });
     } else if (req.method === 'POST') {

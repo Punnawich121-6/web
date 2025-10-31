@@ -31,11 +31,7 @@ interface Equipment {
   location: string;
   serialNumber: string;
   condition?: string;
-  creator?: {
-    displayName?: string;
-    email: string;
-  };
-  borrowings?: any[];
+  createdBy?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -56,6 +52,7 @@ const AdminEquipmentPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [equipmentLoading, setEquipmentLoading] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -113,6 +110,7 @@ const AdminEquipmentPage = () => {
   };
 
   const fetchEquipment = async () => {
+    setEquipmentLoading(true);
     try {
       const response = await fetch('/api/equipment');
       const result = await response.json();
@@ -125,6 +123,8 @@ const AdminEquipmentPage = () => {
     } catch (err) {
       setError('Failed to fetch equipment');
       console.error('Error fetching equipment:', err);
+    } finally {
+      setEquipmentLoading(false);
     }
   };
 
@@ -406,13 +406,31 @@ const AdminEquipmentPage = () => {
           </div>
 
           {/* Equipment Grid */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-          >
-            {filteredEquipment.map((item, index) => (
+          {equipmentLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-pulse">
+                  <div className="aspect-video bg-gray-200"></div>
+                  <div className="p-4 sm:p-5">
+                    <div className="h-6 bg-gray-200 rounded mb-3"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      <div className="h-4 bg-gray-200 rounded"></div>
+                      <div className="h-4 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+            >
+              {filteredEquipment.map((item, index) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -452,12 +470,8 @@ const AdminEquipmentPage = () => {
                       <MapPin size={14} className="mr-1" />
                       {item.location}
                     </div>
-                    <div>
+                    <div className="col-span-2">
                       Available: {item.availableQuantity}/{item.totalQuantity}
-                    </div>
-                    <div className="flex items-center">
-                      <UserIcon size={14} className="mr-1" />
-                      {item.creator?.displayName || item.creator?.email}
                     </div>
                   </div>
 
@@ -484,9 +498,10 @@ const AdminEquipmentPage = () => {
                 </div>
               </motion.div>
             ))}
-          </motion.div>
+            </motion.div>
+          )}
 
-          {filteredEquipment.length === 0 && (
+          {!equipmentLoading && filteredEquipment.length === 0 && (
             <div className="text-center py-12">
               <Package className="mx-auto mb-4 text-gray-400" size={48} />
               <p className="text-gray-500 text-lg">
