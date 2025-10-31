@@ -159,7 +159,7 @@ export default function Equipment_Catalog() {
                 onClick={fetchEquipment}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >
-                ลองใหม่
+                Try Again
               </button>
             </div>
           </div>
@@ -220,10 +220,10 @@ export default function Equipment_Catalog() {
           </div>
           <div className="mt-4 sm:mt-6 text-xs sm:text-sm lg:text-base text-gray-600 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <span>
-              Equipment found {filteredEquipment.length} List
+              Found {filteredEquipment.length} equipment
             </span>
             <span>
-              หน้า {currentPage} จาก {totalPages}
+              Page {currentPage} of {totalPages}
             </span>
           </div>
         </div>
@@ -295,7 +295,7 @@ export default function Equipment_Catalog() {
                     {equipment.category}
                   </span>
                   <div className="text-xs sm:text-sm text-gray-600">
-                    พร้อมใช้: {equipment.availableQuantity}/{equipment.totalQuantity}
+                    Available: {equipment.availableQuantity}/{equipment.totalQuantity}
                   </div>
                 </div>
 

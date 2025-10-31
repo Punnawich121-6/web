@@ -159,15 +159,15 @@ const EquipmentCatalogUser = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case "AVAILABLE":
-        return "พร้อมใช้งาน";
+        return "Available";
       case "BORROWED":
-        return "ถูกยืม";
+        return "Borrowed";
       case "MAINTENANCE":
-        return "ซ่อมบำรุง";
+        return "Maintenance";
       case "RETIRED":
-        return "เลิกใช้งาน";
+        return "Retired";
       default:
-        return "ไม่ทราบสถานะ";
+        return "Unknown";
     }
   };
 
@@ -212,7 +212,7 @@ const EquipmentCatalogUser = () => {
                   onClick={fetchEquipment}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
-                  ลองใหม่
+                  Try Again
                 </button>
               </div>
             </div>
@@ -235,10 +235,10 @@ const EquipmentCatalogUser = () => {
             className="text-center mb-6 sm:mb-8"
           >
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-              เลือกอุปกรณ์ที่ต้องการยืม
+              Select the equipment you want to borrow
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600">
-              เลือกอุปกรณ์จากแคตตาล็อกและเพิ่มลงในตะกร้า
+              Select equipment from the catalog and add to cart
             </p>
           </motion.div>
 
@@ -354,7 +354,7 @@ const EquipmentCatalogUser = () => {
 
                   <div className="mb-3">
                     <div className="flex justify-between text-xs sm:text-sm mb-1">
-                      <span>พร้อมใช้งาน:</span>
+                      <span>Available:</span>
                       <span className="font-medium">
                         {item.availableQuantity}/{item.totalQuantity}
                       </span>

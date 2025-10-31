@@ -76,15 +76,15 @@ export default function Equipment_Catalog() {
   const getStatusText = (status: string) => {
     switch (status) {
       case "AVAILABLE":
-        return "พร้อมใช้งาน";
+        return "Available";
       case "BORROWED":
-        return "ถูกยืม";
+        return "Borrowed";
       case "MAINTENANCE":
-        return "ซ่อมบำรุง";
+        return "Maintenance";
       case "RETIRED":
-        return "เลิกใช้งาน";
+        return "Retired";
       default:
-        return "ไม่ทราบสถานะ";
+        return "Unknown";
     }
   };
 
@@ -159,7 +159,7 @@ export default function Equipment_Catalog() {
                 onClick={fetchEquipment}
                 className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 min-h-[44px] text-sm sm:text-base"
               >
-                ลองใหม่
+                Try Again
               </button>
             </div>
           </div>
@@ -179,7 +179,7 @@ export default function Equipment_Catalog() {
             Equipment <span className="text-red-600">Catalog</span>
           </h1>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 px-4">
-            ค้นหาและดูรายละเอียดอุปกรณ์ที่สามารถยืมได้
+            Search and view details of equipment available for borrowing
           </p>
         </div>
 
@@ -218,10 +218,10 @@ export default function Equipment_Catalog() {
           </div>
           <div className="mt-4 sm:mt-6 text-xs sm:text-sm lg:text-base text-gray-600 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <span>
-              พบอุปกรณ์ {filteredEquipment.length} รายการ
+              Found {filteredEquipment.length} equipment
             </span>
             <span>
-              หน้า {currentPage} จาก {totalPages}
+              Page {currentPage} of {totalPages}
             </span>
           </div>
         </div>
@@ -239,7 +239,7 @@ export default function Equipment_Catalog() {
                     .length
                 }
               </div>
-              <div className="text-sm sm:text-base lg:text-lg text-green-800 font-semibold">พร้อมใช้งาน</div>
+              <div className="text-sm sm:text-base lg:text-lg text-green-800 font-semibold">Available</div>
             </div>
             <div className="text-center p-4 sm:p-6 bg-red-50 rounded-xl border-2 border-red-200">
               <div className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-red-600 mb-2">
@@ -248,7 +248,7 @@ export default function Equipment_Catalog() {
                     .length
                 }
               </div>
-              <div className="text-sm sm:text-base lg:text-lg text-red-800 font-semibold">ถูกยืม</div>
+              <div className="text-sm sm:text-base lg:text-lg text-red-800 font-semibold">Borrowed</div>
             </div>
             <div className="text-center p-4 sm:p-6 bg-yellow-50 rounded-xl border-2 border-yellow-200 sm:col-span-2 lg:col-span-1">
               <div className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-yellow-600 mb-2">
@@ -257,7 +257,7 @@ export default function Equipment_Catalog() {
                     .length
                 }
               </div>
-              <div className="text-sm sm:text-base lg:text-lg text-yellow-800 font-semibold">ซ่อมบำรุง</div>
+              <div className="text-sm sm:text-base lg:text-lg text-yellow-800 font-semibold">Maintenance</div>
             </div>
           </div>
         </div>
@@ -297,7 +297,7 @@ export default function Equipment_Catalog() {
                 {/* Availability Status */}
                 <div className="mb-3 sm:mb-4">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs sm:text-sm text-gray-600">พร้อมใช้งาน:</span>
+                    <span className="text-xs sm:text-sm text-gray-600">Available:</span>
                     <span className={`text-xs sm:text-sm font-bold ${
                       equipment.availableQuantity === 0
                         ? "text-red-600"
@@ -329,7 +329,7 @@ export default function Equipment_Catalog() {
                   </div>
                   {equipment.availableQuantity === 0 && (
                     <p className="text-xs text-red-600 mt-1 font-medium">
-                      ⚠️ ไม่มีให้ยืมในขณะนี้
+                      ⚠️ Not Available
                     </p>
                   )}
                   {equipment.availableQuantity > 0 && equipment.availableQuantity <= equipment.totalQuantity * 0.3 && (
@@ -367,9 +367,9 @@ export default function Equipment_Catalog() {
           <div className="text-center py-12 sm:py-16 lg:py-20 bg-white rounded-xl shadow-lg mb-6 sm:mb-8 px-4">
             <Package className="mx-auto text-gray-300 mb-4 w-16 h-16 sm:w-20 sm:h-20" />
             <h3 className="text-xl sm:text-2xl font-semibold text-gray-600 mb-2">
-              ไม่พบอุปกรณ์ที่ค้นหา
+              Equipment not found
             </h3>
-            <p className="text-sm sm:text-base lg:text-lg text-gray-500">ลองเปลี่ยนคำค้นหาหรือฟิลเตอร์ดู</p>
+            <p className="text-sm sm:text-base lg:text-lg text-gray-500">Try changing the search term or filter</p>
           </div>
         )}
 

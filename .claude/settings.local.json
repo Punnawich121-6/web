@@ -16,7 +16,8 @@
       "WebFetch(domain:holidayapi.com)",
       "WebSearch",
       "Bash(for file in /Users/dolpeeradol/Documents/CoE/Webapp/web/pages/api/*.ts /Users/dolpeeradol/Documents/CoE/Webapp/web/pages/api/**/*.ts)",
-      "Bash(do echo \"=== $file ===\" head -30 \"$file\")"
+      "Bash(do echo \"=== $file ===\" head -30 \"$file\")",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

@@ -13,7 +13,6 @@ import {
   Search,
   Filter,
   MapPin,
-  User as UserIcon,
   Calendar,
   AlertCircle,
 } from "lucide-react";
@@ -31,11 +30,7 @@ interface Equipment {
   location: string;
   serialNumber: string;
   condition?: string;
-  creator?: {
-    displayName?: string;
-    email: string;
-  };
-  borrowings?: any[];
+  createdBy?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -422,9 +417,21 @@ const AdminEquipmentPage = () => {
 
           {/* Equipment Grid */}
           {equipmentLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 text-lg">Loading equipment...</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <div key={n} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-pulse">
+                  <div className="aspect-video bg-gray-200"></div>
+                  <div className="p-4 sm:p-5">
+                    <div className="h-6 bg-gray-200 rounded mb-3"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      <div className="h-4 bg-gray-200 rounded"></div>
+                      <div className="h-4 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <motion.div
@@ -473,12 +480,8 @@ const AdminEquipmentPage = () => {
                       <MapPin size={14} className="mr-1" />
                       {item.location}
                     </div>
-                    <div>
+                    <div className="col-span-2">
                       Available: {item.availableQuantity}/{item.totalQuantity}
-                    </div>
-                    <div className="flex items-center">
-                      <UserIcon size={14} className="mr-1" />
-                      {item.creator?.displayName || item.creator?.email}
                     </div>
                   </div>
 
