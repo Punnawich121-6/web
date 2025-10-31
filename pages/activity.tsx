@@ -135,17 +135,17 @@ const Activity = () => {
   const getStatusText = (status: string) => {
     switch (status.toUpperCase()) {
       case "PENDING":
-        return "รออนุมัติ";
+        return "PENDING";
       case "APPROVED":
-        return "อนุมัติแล้ว";
+        return "APPROVED";
       case "ACTIVE":
-        return "กำลังยืม";
+        return "ACTIVE";
       case "RETURNED":
-        return "คืนแล้ว";
+        return "RETURNED";
       case "REJECTED":
-        return "ปฏิเสธ";
+        return "REJECTED";
       case "OVERDUE":
-        return "เกินกำหนด";
+        return "OVERDUE";
       default:
         return status;
     }
@@ -200,7 +200,7 @@ const Activity = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
+          <p className="text-gray-600 text-xl">Loading...</p>
         </div>
       </div>
     );
@@ -223,10 +223,10 @@ const Activity = () => {
               </div>
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
-                  กิจกรรมทั้งระบบ
+                  Whole system activities
                 </h1>
                 <p className="text-sm sm:text-base lg:text-lg text-gray-600">
-                  ดูกิจกรรมการยืม-คืนอุปกรณ์ทั้งหมด
+                  View all equipment borrowing and returning activities
                 </p>
               </div>
             </div>
@@ -240,23 +240,23 @@ const Activity = () => {
             className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6"
           >
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4">
-              <p className="text-xs sm:text-sm text-gray-600 mb-1">ทั้งหมด</p>
+              <p className="text-xs sm:text-sm text-gray-600 mb-1">All</p>
               <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.total}</p>
             </div>
             <div className="bg-yellow-50 rounded-lg shadow-sm border border-yellow-200 p-3 sm:p-4">
-              <p className="text-xs sm:text-sm text-yellow-700 mb-1">รออนุมัติ</p>
+              <p className="text-xs sm:text-sm text-yellow-700 mb-1">Pending approval</p>
               <p className="text-2xl sm:text-3xl font-bold text-yellow-900">{stats.pending}</p>
             </div>
             <div className="bg-green-50 rounded-lg shadow-sm border border-green-200 p-3 sm:p-4">
-              <p className="text-xs sm:text-sm text-green-700 mb-1">กำลังยืม</p>
+              <p className="text-xs sm:text-sm text-green-700 mb-1">Borrowing</p>
               <p className="text-2xl sm:text-3xl font-bold text-green-900">{stats.approved}</p>
             </div>
             <div className="bg-blue-50 rounded-lg shadow-sm border border-blue-200 p-3 sm:p-4">
-              <p className="text-xs sm:text-sm text-blue-700 mb-1">คืนแล้ว</p>
+              <p className="text-xs sm:text-sm text-blue-700 mb-1">Returned</p>
               <p className="text-2xl sm:text-3xl font-bold text-blue-900">{stats.returned}</p>
             </div>
             <div className="bg-red-50 rounded-lg shadow-sm border border-red-200 p-3 sm:p-4 col-span-2 sm:col-span-3 lg:col-span-1">
-              <p className="text-xs sm:text-sm text-red-700 mb-1">ปฏิเสธ</p>
+              <p className="text-xs sm:text-sm text-red-700 mb-1">Reject</p>
               <p className="text-2xl sm:text-3xl font-bold text-red-900">{stats.rejected}</p>
             </div>
           </motion.div>
@@ -277,7 +277,7 @@ const Activity = () => {
                 />
                 <input
                   type="text"
-                  placeholder="ค้นหาอุปกรณ์หรือผู้ยืม..."
+                  placeholder="Search equipment or borrowers..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm sm:text-base"

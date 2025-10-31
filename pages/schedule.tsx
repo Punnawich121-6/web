@@ -367,7 +367,7 @@ export default function Schedule() {
 
                 {/* Color Legend */}
                 <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">สถานะการยืม</h4>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Borrowing Status</h4>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-100 border border-green-300 rounded flex-shrink-0"></div>
@@ -414,7 +414,7 @@ export default function Schedule() {
                           month: 'long',
                           year: 'numeric'
                         })
-                      : "เลือกวันที่"}
+                      : "Select Date"}
                   </span>
                 </h3>
 

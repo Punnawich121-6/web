@@ -115,7 +115,7 @@ const Profile = () => {
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       console.error('Error saving profile:', error);
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      alert('An error occurred while saving data');
     } finally {
       setSaving(false);
     }
@@ -217,7 +217,7 @@ const Profile = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="mb-4 sm:mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm sm:text-base"
                 >
-                  บันทึกข้อมูลสำเร็จ!
+                  Data saved successfully!
                 </motion.div>
               )}
 
@@ -227,7 +227,7 @@ const Profile = () => {
                   <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                     <div className="flex items-center gap-2">
                       <UserIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                      ชื่อที่แสดง
+                      Display Name
                     </div>
                   </label>
                   <input
@@ -235,7 +235,7 @@ const Profile = () => {
                     value={formData.displayName}
                     onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
                     className="text-black w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors touch-manipulation"
-                    placeholder="กรอกชื่อที่ต้องการแสดง"
+                    placeholder="Enter the name you want to display"
                   />
                 </div>
 
@@ -262,7 +262,7 @@ const Profile = () => {
                 {userProfile && (
                   <div className="pt-5 sm:pt-6 border-t border-gray-200">
                     <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
-                      ข้อมูลบัญชี
+                      Account Information
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                       <div className="bg-gray-50 rounded-lg p-4 sm:p-5">
@@ -293,7 +293,7 @@ const Profile = () => {
                     className="w-full sm:flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:bg-red-400 text-white font-medium py-3.5 sm:py-3 text-sm sm:text-base rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 touch-manipulation"
                   >
                     <Save className="w-4 h-4 sm:w-5 sm:h-5" />
-                    {saving ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
+                    {saving ? 'Saving...' : 'Save Data'}
                   </button>
                   <button
                     type="button"

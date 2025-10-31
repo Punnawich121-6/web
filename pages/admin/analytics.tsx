@@ -109,7 +109,7 @@ const AdminAnalytics = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
+          <p className="text-gray-600 text-xl">Loading...</p>
         </div>
       </div>
     );
@@ -133,7 +133,7 @@ const AdminAnalytics = () => {
                   Analytics Dashboard
                 </h1>
                 <p className="text-base sm:text-xl text-gray-600">
-                  วิเคราะห์และสถิติการยืมอุปกรณ์ทั้งหมด
+                  Analysis and statistics of total equipment borrowing
                 </p>
               </div>
               <motion.a
@@ -142,7 +142,7 @@ const AdminAnalytics = () => {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base"
               >
                 <Activity size={18} />
-                <span>กลับไป Dashboard</span>
+                <span>Back to Dashboard</span>
               </motion.a>
             </div>
           </motion.div>
@@ -165,7 +165,7 @@ const AdminAnalytics = () => {
                       <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                         {statistics.overview.total}
                       </p>
-                      <p className="text-xs sm:text-sm text-gray-600">ทั้งหมด</p>
+                      <p className="text-xs sm:text-sm text-gray-600">All</p>
                     </div>
                   </div>
                 </div>
@@ -179,7 +179,7 @@ const AdminAnalytics = () => {
                       <p className="text-2xl sm:text-3xl font-bold text-yellow-600">
                         {statistics.overview.pending}
                       </p>
-                      <p className="text-xs sm:text-sm text-gray-600">รออนุมัติ</p>
+                      <p className="text-xs sm:text-sm text-gray-600">Pending Approval</p>
                     </div>
                   </div>
                 </div>
@@ -193,7 +193,7 @@ const AdminAnalytics = () => {
                       <p className="text-2xl sm:text-3xl font-bold text-green-600">
                         {statistics.overview.approved}
                       </p>
-                      <p className="text-xs sm:text-sm text-gray-600">อนุมัติแล้ว</p>
+                      <p className="text-xs sm:text-sm text-gray-600">Approved</p>
                     </div>
                   </div>
                 </div>
@@ -207,7 +207,7 @@ const AdminAnalytics = () => {
                       <p className="text-2xl sm:text-3xl font-bold text-blue-600">
                         {statistics.overview.returned}
                       </p>
-                      <p className="text-xs sm:text-sm text-gray-600">คืนแล้ว</p>
+                      <p className="text-xs sm:text-sm text-gray-600">Returned</p>
                     </div>
                   </div>
                 </div>
@@ -221,7 +221,7 @@ const AdminAnalytics = () => {
                       <p className="text-2xl sm:text-3xl font-bold text-red-600">
                         {statistics.overview.rejected}
                       </p>
-                      <p className="text-xs sm:text-sm text-gray-600">ปฏิเสธ</p>
+                      <p className="text-xs sm:text-sm text-gray-600">Rejected</p>
                     </div>
                   </div>
                 </div>
@@ -240,8 +240,8 @@ const AdminAnalytics = () => {
                     <div className="flex items-center justify-between mb-4 sm:mb-6">
                       <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
                         <TrendingUp className="text-red-600" size={24} />
-                        <span className="hidden sm:inline">แนวโน้มการยืม (6 เดือนล่าสุด)</span>
-                        <span className="sm:hidden">แนวโน้มการยืม</span>
+                        <span className="hidden sm:inline">Borrowing Trends (Last 6 Months))</span>
+                        <span className="sm:hidden">Borrowing Trends</span>
                       </h3>
                     </div>
                     <div className="space-y-3">
@@ -279,8 +279,8 @@ const AdminAnalytics = () => {
                     <div className="flex items-center justify-between mb-4 sm:mb-6">
                       <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
                         <BarChart3 className="text-blue-600" size={24} />
-                        <span className="hidden sm:inline">อุปกรณ์ที่ถูกยืมมากที่สุด</span>
-                        <span className="sm:hidden">Top อุปกรณ์</span>
+                        <span className="hidden sm:inline">Most borrowed equipment</span>
+                        <span className="sm:hidden">Top equipment</span>
                       </h3>
                     </div>
                     <div className="space-y-3 sm:space-y-4">

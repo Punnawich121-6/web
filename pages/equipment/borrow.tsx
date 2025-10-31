@@ -53,13 +53,13 @@ export default function Borrow_Equipment() {
                 href="#"
                 className="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium"
               >
-                แคตตาล็อกอุปกรณ์
+                Equipment Catalog
               </a>
               <a
                 href="#"
                 className="text-gray-900 hover:text-blue-600 px-3 py-2 text-sm font-medium"
               >
-                การยืมของฉัน
+                My Borrowings
               </a>
               <a
                 href="#"
@@ -102,13 +102,13 @@ export default function Borrow_Equipment() {
               href="#"
               className="text-gray-900 hover:text-blue-600 block px-3 py-2 text-base font-medium"
             >
-              แคตตาล็อกอุปกรณ์
+              Equipment Catalog
             </a>
             <a
               href="#"
               className="text-gray-900 hover:text-blue-600 block px-3 py-2 text-base font-medium"
             >
-              การยืมของฉัน
+              My Borrowings
             </a>
             <a
               href="#"
@@ -139,7 +139,7 @@ export default function Borrow_Equipment() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Simulate form submission
-    alert("ส่งคำขอยืมสำเร็จ! เจ้าหน้าที่จะติดต่อกลับภายใน 24 ชั่วโมง");
+    alert("Request submitted successfully! Staff will contact you within 24 hours");
     console.log("Form data:", formData);
   };
 
@@ -161,10 +161,10 @@ export default function Borrow_Equipment() {
           {/* Header */}
           <div className="text-center mb-6 sm:mb-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-              ฟอร์มขอยืมอุปกรณ์
+              Equipment Borrow Request Form
             </h1>
             <p className="text-gray-600 text-sm sm:text-base lg:text-lg">
-              กรอกข้อมูลเพื่อขอยืมอุปกรณ์ที่ต้องการ
+              Fill in the information to request the equipment you want
             </p>
           </div>
 
@@ -173,10 +173,10 @@ export default function Borrow_Equipment() {
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 sm:p-6">
               <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center">
                 <Package className="mr-2 sm:mr-3 w-6 h-6 sm:w-7 sm:h-7" size={28} />
-                แบบฟอร์มขอยืมอุปกรณ์
+                แบบEquipment Borrow Request Form
               </h2>
               <p className="text-blue-100 mt-2 text-sm sm:text-base">
-                กรุณากรอกข้อมูลให้ครบถ้วนเพื่อความสะดวกในการดำเนินการ
+                Please fill in all information for smooth processing
               </p>
             </div>
 
@@ -185,7 +185,7 @@ export default function Borrow_Equipment() {
               <div>
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
                   <User className="mr-2 w-5 h-5 sm:w-6 sm:h-6" size={20} />
-                  ข้อมูลผู้ยืม
+                  Borrower Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
@@ -198,7 +198,7 @@ export default function Borrow_Equipment() {
                       value={formData.borrowerName}
                       onChange={handleInputChange}
                       className="w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base touch-manipulation"
-                      placeholder="กรุณากรอกชื่อ-นามสกุล"
+                      placeholder="Please enter your full name"
                       required
                     />
                   </div>
@@ -282,12 +282,12 @@ export default function Borrow_Equipment() {
               <div>
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
                   <Package className="mr-2 w-5 h-5 sm:w-6 sm:h-6" size={20} />
-                  ข้อมูลอุปกรณ์ที่ต้องการยืม
+                  Equipment Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-                      รหัสอุปกรณ์ <span className="text-red-500">*</span>
+                      Equipment Code <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -301,7 +301,7 @@ export default function Borrow_Equipment() {
                   </div>
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-                      ชื่ออุปกรณ์ <span className="text-red-500">*</span>
+                      Equipment Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -315,7 +315,7 @@ export default function Borrow_Equipment() {
                   </div>
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-                      จำนวนที่ต้องการ <span className="text-red-500">*</span>
+                      Quantity Needed <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -335,12 +335,12 @@ export default function Borrow_Equipment() {
               <div>
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
                   <Calendar className="mr-2 w-5 h-5 sm:w-6 sm:h-6" size={20} />
-                  วันที่ยืม - คืน
+                  Borrow - Return Date
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-                      วันที่ต้องการยืม <span className="text-red-500">*</span>
+                      Borrow Date <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
@@ -353,7 +353,7 @@ export default function Borrow_Equipment() {
                   </div>
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-                      วันที่กำหนดคืน <span className="text-red-500">*</span>
+                      Return Date <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
@@ -371,12 +371,12 @@ export default function Borrow_Equipment() {
               <div>
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
                   <FileText className="mr-2 w-5 h-5 sm:w-6 sm:h-6" size={20} />
-                  วัตถุประสงค์และหมายเหตุ
+                  Purpose and Notes
                 </h3>
                 <div className="space-y-4 sm:space-y-6">
                   <div>
                     <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-                      วัตถุประสงค์ในการยืม{" "}
+                      Purpose of Borrowing{" "}
                       <span className="text-red-500">*</span>
                     </label>
                     <textarea
@@ -418,17 +418,17 @@ export default function Borrow_Equipment() {
                     </h4>
                     <ul className="text-xs sm:text-sm text-yellow-700 space-y-1">
                       <li>
-                        • ผู้ยืมต้องดูแลอุปกรณ์ให้อยู่ในสภาพดีและคืนตามกำหนดเวลา
+                        • Borrower must take care of the equipment and return it on time
                       </li>
                       <li>
-                        • หากอุปกรณ์เสียหายหรือสูญหาย
-                        ผู้ยืมจะต้องรับผิดชอบค่าซ่อมแซมหรือทดแทน
+                        • If the equipment is damaged or lost
+                        borrower is responsible for repair or replacement costs
                       </li>
                       <li>
-                        • การยืมเกิน 7 วัน ต้องได้รับอนุมัติจากอาจารย์ผู้ดูแล
+                        • Borrowing for more than 7 days requires supervisor approval
                       </li>
                       <li>
-                        • สำรองสิทธิ์ในการปฏิเสธการยืมหากไม่เป็นไปตามเงื่อนไข
+                        • We reserve the right to refuse borrowing if conditions are not met
                       </li>
                     </ul>
                     <div className="flex items-center mt-3">
@@ -457,14 +457,14 @@ export default function Borrow_Equipment() {
                   className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base min-h-[44px] touch-manipulation"
                 >
                   <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" size={20} />
-                  <span>ส่งคำขอยืมอุปกรณ์</span>
+                  <span>Submit Borrow Request</span>
                 </button>
               </div>
 
               {/* Help Text */}
               <div className="text-center text-xs sm:text-sm text-gray-500 border-t pt-4 sm:pt-6">
                 <p>
-                  หากมีคำถามหรือต้องการความช่วยเหลือ กรุณาติดต่อ:{" "}
+                  If you have questions or need help, please contact:{" "}
                   <span className="font-medium">
                     equipment@university.ac.th
                   </span>{" "}

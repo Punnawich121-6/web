@@ -159,7 +159,7 @@ const Dashboard = () => {
   },
   {
     title: "ประวัติการยืม/คืนของ",
-    description: "ดูประวัติและสถานะการยืมทั้งหมด และ ยื่นคำร้องขอคืนของก่อนกำหนด",
+    description: "View all borrowing history and status, and submit early return requests",
     icon: History,
     href: "/Borrowing_History",
     // เปลี่ยนเป็นสีเทาเข้ม
@@ -216,7 +216,7 @@ const Dashboard = () => {
             <p className="text-base sm:text-lg lg:text-xl text-gray-600">
               {/* Display appropriate subtitle based on admin status */}
               {isAdmin
-                ? 'ภาพรวมและสถิติการยืมอุปกรณ์ทั้งหมด'
+                ? 'Overview and statistics of all equipment borrowing'
                 : `ยินดีต้อนรับ, ${userData?.displayName || user?.email?.split('@')[0] || 'ผู้ใช้งาน'}`}
             </p>
           </motion.div>
@@ -238,7 +238,7 @@ const Dashboard = () => {
               transition={{ delay: 0.1 }}
               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8"
             >
-              {/* Card: ทั้งหมด */}
+              {/* Card: Total */}
               <div className="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
                 <div className="flex items-center gap-2 sm:gap-3 mb-2">
                   <div className="p-1.5 sm:p-2 bg-gray-100 rounded-lg flex-shrink-0">
@@ -248,7 +248,7 @@ const Dashboard = () => {
                     <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                       {statistics.overview.total}
                     </p>
-                    <p className="text-sm sm:text-base text-gray-600">ทั้งหมด</p>
+                    <p className="text-sm sm:text-base text-gray-600">Total</p>
                   </div>
                 </div>
               </div>

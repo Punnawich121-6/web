@@ -53,34 +53,19 @@ const DayDetailModal = ({
   if (!isVisible) return null;
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const monthNames = [
-      "มกราคม",
-      "กุมภาพันธ์",
-      "มีนาคม",
-      "เมษายน",
-      "พฤษภาคม",
-      "มิถุนายน",
-      "กรกฎาคม",
-      "สิงหาคม",
-      "กันยายน",
-      "ตุลาคม",
-      "พฤศจิกายน",
-      "ธันวาคม",
-    ];
-    const dayNames = [
-      "อาทิตย์",
-      "จันทร์",
-      "อังคาร",
-      "พุธ",
-      "พฤหัสบดี",
-      "ศุกร์",
-      "เสาร์",
-    ];
+    // dateStr is 'YYYY-MM-DD'
+    // Parse as local date to avoid timezone issues
+    const parts = dateStr.split("-").map((part) => parseInt(part, 10));
+    // new Date(year, monthIndex, day)
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
 
-    return `วัน${dayNames[date.getDay()]}ที่ ${date.getDate()} ${
-      monthNames[date.getMonth()]
-    } ${date.getFullYear() + 543}`;
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return new Intl.DateTimeFormat("en-US", options).format(date);
   };
 
   return (
@@ -102,7 +87,9 @@ const DayDetailModal = ({
           {/* Header */}
           <div className="bg-gradient-to-r from-red-600 via-red-500 to-rose-500 text-white p-4 sm:p-6 rounded-t-3xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg sm:text-2xl font-bold">{formatDate(date)}</h2>
+              <h2 className="text-lg sm:text-2xl font-bold">
+                {formatDate(date)}
+              </h2>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-white/20 rounded-xl transition-colors flex-shrink-0"
@@ -136,10 +123,10 @@ const DayDetailModal = ({
                     </div>
                     <div className="text-red-600 text-sm">
                       {holiday.type === "national"
-                        ? "วันหยุดราชการ"
+                        ? "National Holiday"
                         : holiday.type === "religious"
-                        ? "วันสำคัญทางพุทธศาสนา"
-                        : "วันพิเศษ"}
+                        ? "Religious Holiday"
+                        : "Special Day"}
                     </div>
                   </div>
                 </div>
@@ -150,7 +137,7 @@ const DayDetailModal = ({
             {events.length > 0 ? (
               <div className="space-y-3 sm:space-y-4">
                 <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
-                  กิจกรรม ({events.length} รายการ)
+                  Events ({events.length} {events.length > 1 ? "items" : "item"})
                 </h3>
 
                 {events.map((event, index) => (
@@ -183,12 +170,12 @@ const DayDetailModal = ({
                           }`}
                         >
                           {event.type === "borrowed"
-                            ? "การยืม"
+                            ? "Borrowed"
                             : event.type === "requested"
-                            ? "คำขอ"
+                            ? "Requested"
                             : event.type === "maintenance"
-                            ? "บำรุงรักษา"
-                            : "จอง"}
+                            ? "Maintenance"
+                            : "Reserved"}
                         </div>
 
                         {event.priority && (
@@ -202,10 +189,10 @@ const DayDetailModal = ({
                             }`}
                           >
                             {event.priority === "high"
-                              ? "สำคัญ"
+                              ? "High"
                               : event.priority === "medium"
-                              ? "ปานกลาง"
-                              : "ต่ำ"}
+                              ? "Medium"
+                              : "Low"}
                           </span>
                         )}
                       </div>
@@ -213,18 +200,18 @@ const DayDetailModal = ({
 
                     <div className="space-y-2 text-gray-700">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">อุปกรณ์:</span>
+                        <span className="font-medium">Equipment:</span>
                         <span>{event.equipmentName}</span>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">ผู้ยืม:</span>
+                        <span className="font-medium">Borrower:</span>
                         <span>{event.borrowerName}</span>
                       </div>
 
                       {event.startTime && event.endTime && (
                         <div className="flex items-center gap-2">
-                          <span className="font-medium">เวลา:</span>
+                          <span className="font-medium">Time:</span>
                           <span>
                             {event.startTime} - {event.endTime}
                           </span>
@@ -233,7 +220,7 @@ const DayDetailModal = ({
 
                       {event.details && (
                         <div className="flex items-start gap-2">
-                          <span className="font-medium">รายละเอียด:</span>
+                          <span className="font-medium">Details:</span>
                           <span>{event.details}</span>
                         </div>
                       )}
@@ -259,7 +246,7 @@ const DayDetailModal = ({
                       />
                     </svg>
                   </div>
-                  <p className="text-gray-500">ไม่มีกิจกรรมในวันนี้</p>
+                  <p className="text-gray-500">No events for this day.</p>
                 </div>
               )
             )}
@@ -295,28 +282,28 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
   const [currentApiProvider, setCurrentApiProvider] = useState<string>("");
 
   const monthNames = [
-    "มกราคม",
-    "กุมภาพันธ์",
-    "มีนาคม",
-    "เมษายน",
-    "พฤษภาคม",
-    "มิถุนายน",
-    "กรกฎาคม",
-    "สิงหาคม",
-    "กันยายน",
-    "ตุลาคม",
-    "พฤศจิกายน",
-    "ธันวาคม",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
-  const dayNames = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const dayNamesLong = [
-    "อาทิตย์",
-    "จันทร์",
-    "อังคาร",
-    "พุธ",
-    "พฤหัสบดี",
-    "ศุกร์",
-    "เสาร์",
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
   ];
 
   const fetchFromHolidayAPI = async (year: number): Promise<Holiday[]> => {
@@ -418,7 +405,7 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
 
     // If all APIs fail, show error and empty holidays
     console.warn("All holiday APIs failed");
-    setHolidayError("ไม่สามารถโหลดข้อมูลวันหยุดได้");
+    setHolidayError("Could not load holiday data.");
     setHolidays([]);
     setCurrentApiProvider("API Error");
     setLoadingHolidays(false);
@@ -579,10 +566,10 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
             </div>
             <div className="text-xs text-red-600 mt-1 capitalize">
               {holiday.type === "national"
-                ? "วันหยุดราชการ"
+                ? "National Holiday"
                 : holiday.type === "religious"
-                ? "วันสำคัญทางพุทธศาสนา"
-                : "วันพิเศษ"}
+                ? "Religious Holiday"
+                : "Special Day"}
             </div>
           </div>
         )}
@@ -590,7 +577,7 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
         {dayEvents.length > 0 && (
           <div className="space-y-2">
             <div className="text-sm font-medium text-slate-600">
-              กิจกรรม ({dayEvents.length} รายการ)
+              Events ({dayEvents.length} {dayEvents.length > 1 ? "items" : "item"})
             </div>
 
             <div className="text-sm text-slate-700 space-y-1">
@@ -609,19 +596,19 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
                   ></div>
                   <span className="truncate">
                     {event.type === "borrowed"
-                      ? "ยืม"
+                      ? "Borrow"
                       : event.type === "requested"
-                      ? "คำขอ"
+                      ? "Request"
                       : event.type === "maintenance"
-                      ? "บำรุง"
-                      : "จอง"}{" "}
+                      ? "Maint."
+                      : "Reserve"}{" "}
                     - {event.equipmentName}
                   </span>
                 </div>
               ))}
               {dayEvents.length > 2 && (
                 <div className="text-xs text-slate-500">
-                  และอีก {dayEvents.length - 2} รายการ
+                  and {dayEvents.length - 2} more
                 </div>
               )}
             </div>
@@ -646,7 +633,7 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                 />
               </svg>
-              คลิกเพื่อดูรายละเอียด
+              Click to see details
             </div>
           </div>
         )}
@@ -664,22 +651,22 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
       >
         {[
           {
-            title: "รายการยืม",
+            title: "Borrowed Items",
             value: events.filter((e) => e.type === "borrowed").length,
             color: "green",
           },
           {
-            title: "คำขอรออนุมัติ",
+            title: "Pending Requests",
             value: events.filter((e) => e.type === "requested").length,
             color: "red",
           },
           {
-            title: "บำรุงรักษา",
+            title: "Maintenance",
             value: events.filter((e) => e.type === "maintenance").length,
             color: "orange",
           },
           {
-            title: "จองล่วงหน้า",
+            title: "Reservations",
             value: events.filter((e) => e.type === "reserved").length,
             color: "rose",
           },
@@ -806,7 +793,7 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
                 onClick={goToToday}
                 className="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 transition-all font-medium"
               >
-                วันนี้
+                Today
               </button>
             </div>
           </div>
@@ -816,23 +803,23 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 text-xs sm:text-sm">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-green-200 border-2 border-green-400 rounded-lg"></div>
-              <span className="text-slate-700">การยืม</span>
+              <span className="text-slate-700">Borrowed</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-red-200 border-2 border-red-400 rounded-lg"></div>
-              <span className="text-slate-700">คำขอ</span>
+              <span className="text-slate-700">Requested</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-orange-200 border-2 border-orange-400 rounded-lg"></div>
-              <span className="text-slate-700">บำรุงรักษา</span>
+              <span className="text-slate-700">Maintenance</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-rose-200 border-2 border-rose-400 rounded-lg"></div>
-              <span className="text-slate-700">จอง</span>
+              <span className="text-slate-700">Reserved</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-red-100 border-2 border-red-300 rounded-lg"></div>
-              <span className="text-slate-700">วันหยุด</span>
+              <span className="text-slate-700">Holiday</span>
             </div>
           </div>
         </div>
@@ -864,7 +851,9 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
                 >
                   {day && (
                     <>
-                      <div className="text-sm sm:text-lg font-semibold mb-1">{day}</div>
+                      <div className="text-sm sm:text-lg font-semibold mb-1">
+                        {day}
+                      </div>
                       {isToday(day) && highlightToday && (
                         <div className="absolute top-1 left-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                       )}
@@ -885,19 +874,9 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
                                       ? "bg-orange-500"
                                       : "bg-rose-500"
                                   }`}
-                                />
+                                ></div>
                               ))}
-                            {getEventsForDay(day).length > 3 && (
-                              <div className="w-2 h-2 rounded-full bg-slate-400 text-xs flex items-center justify-center">
-                                +
-                              </div>
-                            )}
                           </div>
-                        </div>
-                      )}
-                      {showWeekNumbers && index % 7 === 0 && (
-                        <div className="absolute -left-6 top-1/2 transform -translate-y-1/2 text-xs text-slate-500">
-                          W{getWeekNumber(day)}
                         </div>
                       )}
                     </>
@@ -907,93 +886,100 @@ const AdvancedCalendarTable: React.FC<CalendarTableProps> = ({
             </AnimatePresence>
           </div>
         </div>
-
-        <AnimatePresence>
-          {hoveredDay && renderTooltip(hoveredDay)}
-        </AnimatePresence>
       </div>
 
-      {/* Day Detail Modal */}
-      {selectedDate && (
-        <DayDetailModal
-          date={selectedDate}
-          events={getEventsForDay(parseInt(selectedDate.split("-")[2]))}
-          holiday={getHolidayForDay(parseInt(selectedDate.split("-")[2]))}
-          isVisible={!!selectedDate}
-          onClose={() => setSelectedDate(null)}
-        />
-      )}
+      <AnimatePresence>
+        {hoveredDay && renderTooltip(hoveredDay)}
+      </AnimatePresence>
+
+      <DayDetailModal
+        isVisible={!!selectedDate}
+        onClose={() => setSelectedDate(null)}
+        date={selectedDate || todayString}
+        events={selectedDate ? getEventsForDay(new Date(selectedDate + "T00:00:00").getDate()) : []}
+        holiday={selectedDate ? getHolidayForDay(new Date(selectedDate + "T00:00:00").getDate()) : null}
+      />
     </div>
   );
 };
 
-// --- Main App Component ---
-const App: React.FC = () => {
-  const [events, setEvents] = useState<BookingEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// --- Main Page Component (Example Usage) ---
+// This is a placeholder to make the file complete.
+// You would fetch your actual booking data here.
+const CalendarPage = () => {
+  const [mockEvents, setMockEvents] = useState<BookingEvent[]>([]);
 
   useEffect(() => {
-    fetchBookingEvents();
+    // Example data
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(
+      today.getMonth() + 1
+    ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    const tomorrowStr = `${tomorrow.getFullYear()}-${String(
+      tomorrow.getMonth() + 1
+    ).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`;
+    
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+    const nextWeekStr = `${nextWeek.getFullYear()}-${String(
+      nextWeek.getMonth() + 1
+    ).padStart(2, "0")}-${String(nextWeek.getDate()).padStart(2, "0")}`;
+
+
+    setMockEvents([
+      {
+        id: "1",
+        date: todayStr,
+        type: "borrowed",
+        equipmentName: "Canon EOS R5",
+        borrowerName: "John Doe",
+        startTime: "09:00",
+        endTime: "11:00",
+        priority: "medium",
+      },
+      {
+        id: "2",
+        date: todayStr,
+        type: "requested",
+        equipmentName: "Sony A7 IV",
+        borrowerName: "Jane Smith",
+        details: "For student project.",
+        priority: "high",
+      },
+      {
+        id: "3",
+        date: tomorrowStr,
+        type: "maintenance",
+        equipmentName: "Studio Lights (Set A)",
+        borrowerName: "Tech Team",
+        details: "Replacing bulbs.",
+      },
+      {
+        id: "4",
+        date: nextWeekStr,
+        type: "reserved",
+        equipmentName: "Green Screen",
+        borrowerName: "Film Club",
+        startTime: "13:00",
+        endTime: "17:00",
+      },
+    ]);
   }, []);
 
-  const fetchBookingEvents = async () => {
-    try {
-      setLoading(true);
-      // For now, we'll use empty array since the booking API might not be fully implemented
-      // In the future, this would fetch from /api/bookings or /api/borrow
-      setEvents([]);
-    } catch (err) {
-      setError('Failed to fetch booking events');
-      console.error('Error fetching booking events:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDateClick = (date: string) => {
-    console.log("Date clicked:", date);
-  };
-
-  const handleEventClick = (event: BookingEvent) => {
-    console.log("Event clicked:", event);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-red-50">
-      <LibraryNavbar />
-      <div className="max-w-full px-4 sm:px-6 pt-20 sm:pt-24">
-        {loading ? (
-          <div className="flex justify-center items-center min-h-[400px]">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 text-xl">กำลังโหลดตารางการจอง...</p>
-            </div>
-          </div>
-        ) : error ? (
-          <div className="text-center py-12">
-            <p className="text-red-600 text-xl mb-4">เกิดข้อผิดพลาด: {error}</p>
-            <button
-              onClick={fetchBookingEvents}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-            >
-              ลองใหม่
-            </button>
-          </div>
-        ) : (
-          <AdvancedCalendarTable
-            events={events}
-            currentMonth={new Date().getMonth()}
-            currentYear={new Date().getFullYear()}
-            onDateClick={handleDateClick}
-            onEventClick={handleEventClick}
-            showWeekNumbers={true}
-            highlightToday={true}
-          />
-        )}
-      </div>
+    <div className="min-h-screen bg-slate-100">
+      <LibraryNavbar /> {/* Assuming this component exists */}
+      <main className="p-4">
+        <AdvancedCalendarTable
+          events={mockEvents}
+          calendarificApiKey="YOUR_CALENDARIFIC_API_KEY_HERE" // Add your key
+        />
+      </main>
     </div>
   );
 };
 
-export default App;
+export default CalendarPage;

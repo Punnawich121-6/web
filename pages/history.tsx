@@ -151,7 +151,7 @@ const History = () => {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       if (!token) {
-        alert("กรุณาเข้าสู่ระบบใหม่อีกครั้ง");
+        alert("Please log in again");
         return;
       }
 
@@ -178,7 +178,7 @@ const History = () => {
       }
     } catch (error) {
       console.error('Error returning item:', error);
-      alert("เกิดข้อผิดพลาดในการคืนอุปกรณ์ กรุณาลองใหม่อีกครั้ง");
+      alert("An error occurred while returning equipment. Please try again");
     } finally {
       setReturnLoading(false);
     }
@@ -278,7 +278,7 @@ const History = () => {
       case "rejected":
         return "ถูกปฏิเสธ";
       default:
-        return "ไม่ทราบสถานะ";
+        return "Unknown status";
     }
   };
 
@@ -330,7 +330,7 @@ const History = () => {
                   ประวัติการยืมอุปกรณ์
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600">
-                  ติดตามสถานะและประวัติการยืมอุปกรณ์ทั้งหมดของคุณ
+                  Track the status and history of all your equipment borrowing
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 lg:mt-0">
@@ -402,7 +402,7 @@ const History = () => {
               />
               <input
                 type="text"
-                placeholder="ค้นหาตามชื่ออุปกรณ์, รหัส, หรือวัตถุประสงค์..."
+                placeholder="Search by equipment name, code, or purpose..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm sm:text-base lg:text-lg touch-manipulation"
@@ -430,8 +430,8 @@ const History = () => {
                 </h3>
                 <p className="text-gray-600 mb-4 text-sm sm:text-base lg:text-lg">
                   {selectedStatus === "all"
-                    ? "คุณยังไม่เคยยืมอุปกรณ์ หรือลองเปลี่ยนคำค้นหา"
-                    : `ไม่พบรายการที่มีสถานะ "${
+                    ? "You have not borrowed any equipment yet, or try changing your search"
+                    : `No items found with status "${
                         statusOptions.find((s) => s.value === selectedStatus)
                           ?.label
                       }"`}
@@ -488,7 +488,7 @@ const History = () => {
                               <button
                                 onClick={() => setSelectedRecord(record)}
                                 className="text-red-600 hover:text-red-700 p-1 min-h-[44px] min-w-[44px] touch-manipulation flex items-center justify-center"
-                                title="ดูรายละเอียด"
+                                title="View Details"
                               >
                                 <Eye className="w-4 h-4 sm:w-5 sm:h-5" size={18} />
                               </button>
@@ -553,7 +553,7 @@ const History = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                    รายละเอียดการยืม
+                    Borrowing Details
                   </h3>
                   <p className="text-gray-600 text-sm sm:text-base lg:text-lg">
                     #{selectedRecord.id}
@@ -607,7 +607,7 @@ const History = () => {
                   </h5>
                   <div className="space-y-2 text-sm sm:text-base">
                     <div className="flex justify-between">
-                      <span>วันที่ยืม:</span>
+                      <span>Borrow Date:</span>
                       <span className="font-medium">
                         {selectedRecord.borrowDate}
                       </span>
@@ -620,7 +620,7 @@ const History = () => {
                     </div>
                     {selectedRecord.actualReturnDate && (
                       <div className="flex justify-between">
-                        <span>วันที่คืนจริง:</span>
+                        <span>Actual Return Date:</span>
                         <span className="font-medium">
                           {selectedRecord.actualReturnDate}
                         </span>
@@ -631,7 +631,7 @@ const History = () => {
 
                 <div>
                   <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">
-                    สถานะ
+                    Status
                   </h5>
                   <span
                     className={`inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full text-sm sm:text-base font-medium border ${getStatusColor(
@@ -659,7 +659,7 @@ const History = () => {
               {selectedRecord.notes && (
                 <div>
                   <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">
-                    หมายเหตุ
+                    Note
                   </h5>
                   <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-sm sm:text-base lg:text-lg">
                     {selectedRecord.notes}
@@ -694,13 +694,13 @@ const History = () => {
           >
             <div className="p-4 sm:p-6">
               <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
-                ยืนยันการคืนอุปกรณ์
+                Confirm Equipment Return
               </h3>
               <p className="text-gray-600 mb-4 text-sm sm:text-base">
                 คุณต้องการส่งคำขอคืนอุปกรณ์ <strong>{recordToReturn.equipmentName}</strong> ใช่หรือไม่?
               </p>
               <p className="text-sm sm:text-base text-yellow-700 bg-yellow-50 p-3 rounded-lg mb-4">
-                หมายเหตุ: หลังจากส่งคำขอ เจ้าหน้าที่จะตรวจสอบสภาพอุปกรณ์และอนุมัติการคืน
+                Note: หลังจากส่งคำขอ เจ้าหน้าที่จะตรวจสอบสภาพอุปกรณ์และอนุมัติการคืน
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
@@ -726,7 +726,7 @@ const History = () => {
                   ) : (
                     <>
                       <RotateCcw className="w-4 h-4" size={16} />
-                      <span>ยืนยันคืนอุปกรณ์</span>
+                      <span>Confirm Return</span>
                     </>
                   )}
                 </button>

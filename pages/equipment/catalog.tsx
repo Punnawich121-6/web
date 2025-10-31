@@ -159,7 +159,7 @@ const EquipmentCatalogUser = () => {
   const addToCart = (equipment: Equipment) => {
     // Check if equipment is available
     if (equipment.availableQuantity === 0) {
-      alert('❌ ขออภัย อุปกรณ์นี้ไม่มีให้ยืมในขณะนี้');
+      alert('❌ Sorry, this equipment is not available for borrowing at the moment');
       return;
     }
 
@@ -177,7 +177,7 @@ const EquipmentCatalogUser = () => {
           )
         );
       } else {
-        alert(`⚠️ คุณได้เพิ่มจำนวนสูงสุดแล้ว (${equipment.availableQuantity} ชิ้น)`);
+        alert(`⚠️ You have reached the maximum quantity (${equipment.availableQuantity} items)`);
       }
     } else {
       setCart((prev) => [...prev, { equipment, quantity: 1 }]);
@@ -221,7 +221,7 @@ const EquipmentCatalogUser = () => {
       case "AVAILABLE":
         return "พร้อมใช้งาน";
       case "BORROWED":
-        return "ถูกยืม";
+        return "Borrowed";
       case "MAINTENANCE":
         return "ซ่อมบำรุง";
       case "RETIRED":
@@ -249,7 +249,7 @@ const EquipmentCatalogUser = () => {
             <div className="flex justify-center items-center min-h-[400px]">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-                <p className="text-gray-600 text-xl">กำลังโหลดอุปกรณ์...</p>
+                <p className="text-gray-600 text-xl">Loading equipment...</p>
               </div>
             </div>
           </div>
@@ -295,10 +295,10 @@ const EquipmentCatalogUser = () => {
             className="text-center mb-6 sm:mb-8"
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-              เลือกอุปกรณ์ที่ต้องการยืม
+              Select Equipment to Borrow
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-600">
-              เลือกอุปกรณ์จากแคตตาล็อกและเพิ่มลงในตะกร้า
+              Select equipment from the catalog and add to cart
             </p>
           </motion.div>
 
@@ -313,7 +313,7 @@ const EquipmentCatalogUser = () => {
                 />
                 <input
                   type="text"
-                  placeholder="ค้นหาอุปกรณ์..."
+                  placeholder="Search equipment..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm sm:text-base touch-manipulation"
@@ -422,7 +422,7 @@ const EquipmentCatalogUser = () => {
                           ? "text-yellow-600"
                           : "text-green-600"
                       }`}>
-                        {item.availableQuantity}/{item.totalQuantity} ชิ้น
+                        {item.availableQuantity}/{item.totalQuantity} items
                         {item.availableQuantity === 0 && (
                           <span className="ml-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
                             หมด
@@ -446,7 +446,7 @@ const EquipmentCatalogUser = () => {
                     </div>
                     {item.availableQuantity === 0 && (
                       <p className="text-sm text-red-600 mt-1 font-medium">
-                        ⚠️ ไม่มีให้ยืมในขณะนี้
+                        ⚠️ Not available
                       </p>
                     )}
                     {item.availableQuantity > 0 && item.availableQuantity <= item.totalQuantity * 0.3 && (
@@ -518,7 +518,7 @@ const EquipmentCatalogUser = () => {
                             (cartItem) => cartItem.equipment.id === item.id
                           ) ? (
                             (cart.find((cartItem) => cartItem.equipment.id === item.id)?.quantity || 0) >= item.availableQuantity
-                              ? "ถึงจำนวนสูงสุด"
+                              ? "Max quantity"
                               : "เพิ่ม"
                           ) : (
                             "เพิ่มลงตะกร้า"
@@ -535,7 +535,7 @@ const EquipmentCatalogUser = () => {
           {filteredEquipment.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">
-                ไม่พบอุปกรณ์ที่ตรงกับการค้นหา
+                No equipment found matching your search
               </p>
             </div>
           )}
@@ -580,7 +580,7 @@ const EquipmentCatalogUser = () => {
                     onClick={() => setIsCartOpen(false)}
                     className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
                   >
-                    เลือกอุปกรณ์
+                    Select Equipment
                   </button>
                 </div>
               ) : (
@@ -640,7 +640,7 @@ const EquipmentCatalogUser = () => {
                         onClick={() => setIsCartOpen(false)}
                         className="w-full sm:flex-1 px-4 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
                       >
-                        เลือกอุปกรณ์เพิ่ม
+                        Select Equipmentเพิ่ม
                       </button>
                       <a
                         href="/Book_Detail"

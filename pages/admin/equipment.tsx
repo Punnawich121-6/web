@@ -131,13 +131,13 @@ const AdminEquipmentPage = () => {
   const handleAddEquipment = async (equipmentData: any): Promise<void> => {
     try {
       if (!user) {
-        setError('กรุณาเข้าสู่ระบบก่อน');
+        setError('Please log in first');
         return;
       }
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        setError('Session หมดอายุ กรุณาเข้าสู่ระบบใหม่');
+        setError('Session expired. Please log in again.');
         return;
       }
 
@@ -159,11 +159,11 @@ const AdminEquipmentPage = () => {
         // Clear any previous errors
         setError(null);
       } else {
-        setError(result.error || 'ไม่สามารถเพิ่มอุปกรณ์ได้');
+        setError(result.error || 'Failed to add equipment');
         throw new Error(result.error);
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'ไม่สามารถเพิ่มอุปกรณ์ได้';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to add equipment';
       setError(errorMessage);
       console.error('Error adding equipment:', err);
       throw err; // Re-throw to handle in modal
@@ -173,13 +173,13 @@ const AdminEquipmentPage = () => {
   const handleUpdateEquipment = async (id: string, equipmentData: any): Promise<void> => {
     try {
       if (!user) {
-        setError('กรุณาเข้าสู่ระบบก่อน');
+        setError('Please log in first');
         return;
       }
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        setError('Session หมดอายุ กรุณาเข้าสู่ระบบใหม่');
+        setError('Session expired. Please log in again.');
         return;
       }
 
@@ -203,11 +203,11 @@ const AdminEquipmentPage = () => {
         // Clear any previous errors
         setError(null);
       } else {
-        setError(result.error || 'ไม่สามารถแก้ไขอุปกรณ์ได้');
+        setError(result.error || 'Failed to update equipment');
         throw new Error(result.error);
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'ไม่สามารถแก้ไขอุปกรณ์ได้';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update equipment';
       setError(errorMessage);
       console.error('Error updating equipment:', err);
       throw err; // Re-throw to handle in modal
@@ -217,7 +217,7 @@ const AdminEquipmentPage = () => {
   const handleDeleteEquipment = async (id: string) => {
     try {
       if (!user) return;
-      if (!confirm('คุณแน่ใจหรือไม่ที่จะลบอุปกรณ์นี้?')) return;
+      if (!confirm('Are you sure you want to delete this equipment?')) return;
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -248,15 +248,15 @@ const AdminEquipmentPage = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case "AVAILABLE":
-        return "พร้อมใช้งาน";
+        return "Available";
       case "BORROWED":
-        return "ถูกยืม";
+        return "Borrowed";
       case "MAINTENANCE":
-        return "ซ่อมบำรุง";
+        return "Maintenance";
       case "RETIRED":
-        return "เลิกใช้งาน";
+        return "Retired";
       default:
-        return "ไม่ทราบสถานะ";
+        return "Unknown";
     }
   };
 
@@ -275,7 +275,7 @@ const AdminEquipmentPage = () => {
     }
   };
 
-  const categories = ["all", "อิเล็กทรอนิกส์", "เครื่องเสียง", "เครื่องจักร"];
+  const categories = ["all", "Electronics", "Audio", "Machinery"];
 
   const filteredEquipment = equipment.filter((item) => {
     const matchesSearch =
@@ -293,7 +293,7 @@ const AdminEquipmentPage = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
+          <p className="text-gray-600 text-xl">Loading...</p>
         </div>
       </div>
     );
@@ -301,17 +301,17 @@ const AdminEquipmentPage = () => {
 
   if (!user || userData?.role !== "ADMIN") {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
         <LibraryNavbar />
         <div className="container mx-auto px-4 py-8 pt-32">
           <div className="flex justify-center items-center min-h-[400px]">
             <div className="text-center">
               <AlertCircle className="mx-auto mb-4 text-red-600" size={48} />
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                ไม่มีสิทธิ์เข้าถึง
+                Access Denied
               </h2>
               <p className="text-gray-600">
-                หน้านี้เฉพาะสำหรับผู้ดูแลระบบเท่านั้น
+                This page is for administrators only.
               </p>
             </div>
           </div>
@@ -321,10 +321,10 @@ const AdminEquipmentPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
       <LibraryNavbar />
 
-      <div className="pt-20 sm:pt-24 pb-8">
+      <div className="pt-24 sm:pt-28 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* Header */}
           <motion.div
@@ -335,10 +335,10 @@ const AdminEquipmentPage = () => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-                  จัดการอุปกรณ์
+                  Manage Equipment
                 </h1>
                 <p className="text-base sm:text-lg lg:text-xl text-gray-600">
-                  เพิ่ม แก้ไข และจัดการอุปกรณ์ในระบบ
+                  Add, edit, and manage all equipment in the system.
                 </p>
               </div>
               <motion.button
@@ -348,7 +348,7 @@ const AdminEquipmentPage = () => {
                 whileTap={{ scale: 0.98 }}
               >
                 <Plus size={20} />
-                <span>เพิ่มอุปกรณ์</span>
+                <span>Add Equipment</span>
               </motion.button>
             </div>
           </motion.div>
@@ -375,7 +375,7 @@ const AdminEquipmentPage = () => {
                 />
                 <input
                   type="text"
-                  placeholder="ค้นหาอุปกรณ์, รหัสอุปกรณ์..."
+                  placeholder="Search equipment, serial number..."
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all text-sm sm:text-base"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -391,7 +391,7 @@ const AdminEquipmentPage = () => {
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
-                  <option value="all">หมวดหมู่ทั้งหมด</option>
+                  <option value="all">All Categories</option>
                   {categories.slice(1).map((category) => (
                     <option key={category} value={category}>
                       {category}
@@ -401,7 +401,7 @@ const AdminEquipmentPage = () => {
               </div>
             </div>
             <div className="mt-4 text-sm text-gray-600">
-              พบอุปกรณ์ {filteredEquipment.length} รายการ
+              Found {filteredEquipment.length} items
             </div>
           </div>
 
@@ -453,7 +453,7 @@ const AdminEquipmentPage = () => {
                       {item.location}
                     </div>
                     <div>
-                      พร้อมใช้: {item.availableQuantity}/{item.totalQuantity}
+                      Available: {item.availableQuantity}/{item.totalQuantity}
                     </div>
                     <div className="flex items-center">
                       <UserIcon size={14} className="mr-1" />
@@ -464,7 +464,7 @@ const AdminEquipmentPage = () => {
                   <div className="flex items-center justify-between">
                     <div className="text-xs text-gray-500">
                       <Calendar size={12} className="inline mr-1" />
-                      {new Date(item.createdAt).toLocaleDateString('th-TH')}
+                      {new Date(item.createdAt).toLocaleDateString('en-US')}
                     </div>
                     <div className="flex gap-2">
                       <button
@@ -490,7 +490,7 @@ const AdminEquipmentPage = () => {
             <div className="text-center py-12">
               <Package className="mx-auto mb-4 text-gray-400" size={48} />
               <p className="text-gray-500 text-lg">
-                ไม่พบอุปกรณ์ที่ตรงกับการค้นหา
+                No equipment found matching your search.
               </p>
             </div>
           )}
@@ -527,7 +527,7 @@ const EquipmentModal = ({
 }) => {
   const [formData, setFormData] = useState({
     name: equipment?.name || '',
-    category: equipment?.category || 'อิเล็กทรอนิกส์',
+    category: equipment?.category || 'Electronics',
     description: equipment?.description || '',
     image: equipment?.image || '',
     location: equipment?.location || '',
@@ -549,14 +549,14 @@ const EquipmentModal = ({
       // Validate file type
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
       if (!allowedTypes.includes(file.type)) {
-        alert('กรุณาเลือกไฟล์รูปภาพที่ถูกต้อง (JPEG, PNG, WebP, GIF)');
+        alert('Please select a valid image file (JPEG, PNG, WebP, GIF)');
         return;
       }
 
       // Validate file size (5MB max)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        alert('ไฟล์รูปภาพมีขนาดใหญ่เกินไป กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 5MB');
+        alert('Image file is too large. Please select a file under 5MB.');
         return;
       }
 
@@ -610,7 +610,7 @@ const EquipmentModal = ({
       await onSave(submitData);
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + (error as Error).message);
+      alert('Error saving data: ' + (error as Error).message);
     } finally {
       setIsSubmitting(false);
       setUploadingImage(false);
@@ -630,7 +630,7 @@ const EquipmentModal = ({
       >
         <div className="p-4 sm:p-6 border-b border-gray-200">
           <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
-            {equipment ? 'แก้ไขอุปกรณ์' : 'เพิ่มอุปกรณ์ใหม่'}
+            {equipment ? 'Edit Equipment' : 'Add New Equipment'}
           </h3>
         </div>
 
@@ -638,7 +638,7 @@ const EquipmentModal = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                ชื่ออุปกรณ์ *
+                Equipment Name *
               </label>
               <input
                 type="text"
@@ -650,7 +650,7 @@ const EquipmentModal = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                หมวดหมู่ *
+                Category *
               </label>
               <select
                 required
@@ -658,16 +658,16 @@ const EquipmentModal = ({
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm sm:text-base"
               >
-                <option value="อิเล็กทรอนิกส์">อิเล็กทรอนิกส์</option>
-                <option value="เครื่องเสียง">เครื่องเสียง</option>
-                <option value="เครื่องจักร">เครื่องจักร</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Audio">Audio</option>
+                <option value="Machinery">Machinery</option>
               </select>
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              คำอธิบาย *
+              Description *
             </label>
             <textarea
               required
@@ -681,7 +681,7 @@ const EquipmentModal = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                รหัสอุปกรณ์ *
+                Serial Number *
               </label>
               <input
                 type="text"
@@ -693,7 +693,7 @@ const EquipmentModal = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                สถานที่ *
+                Location *
               </label>
               <input
                 type="text"
@@ -708,7 +708,7 @@ const EquipmentModal = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                จำนวนทั้งหมด *
+                Total Quantity *
               </label>
               <input
                 type="number"
@@ -721,7 +721,7 @@ const EquipmentModal = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                จำนวนที่พร้อมใช้ *
+                Available Quantity *
               </label>
               <input
                 type="number"
@@ -735,7 +735,7 @@ const EquipmentModal = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                สถานะ *
+                Status *
               </label>
               <select
                 required
@@ -743,10 +743,10 @@ const EquipmentModal = ({
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               >
-                <option value="AVAILABLE">พร้อมใช้งาน</option>
-                <option value="BORROWED">ถูกยืม</option>
-                <option value="MAINTENANCE">ซ่อมบำรุง</option>
-                <option value="RETIRED">เลิกใช้งาน</option>
+                <option value="AVAILABLE">Available</option>
+                <option value="BORROWED">Borrowed</option>
+                <option value="MAINTENANCE">Maintenance</option>
+                <option value="RETIRED">Retired</option>
               </select>
             </div>
           </div>
@@ -754,7 +754,7 @@ const EquipmentModal = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                รูปภาพอุปกรณ์
+                Equipment Image
               </label>
               <input
                 type="file"
@@ -763,7 +763,7 @@ const EquipmentModal = ({
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm sm:text-base"
               />
               <p className="text-xs text-gray-500 mt-1">
-                รองรับไฟล์: JPEG, PNG, WebP, GIF (ขนาดไม่เกิน 5MB)
+                Supports: JPEG, PNG, WebP, GIF (Max 5MB)
               </p>
               {imagePreview && (
                 <div className="mt-3">
@@ -777,7 +777,7 @@ const EquipmentModal = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                สภาพ
+                Condition
               </label>
               <input
                 type="text"
@@ -790,13 +790,13 @@ const EquipmentModal = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              คุณสมบัติ
+              Specifications
             </label>
             <textarea
               value={formData.specifications}
               onChange={(e) => setFormData({ ...formData, specifications: e.target.value })}
               rows={4}
-              placeholder="ระบุคุณสมบัติของอุปกรณ์ เช่น ขนาด, น้ำหนัก, สี, แบรนด์ ฯลฯ"
+              placeholder="Enter equipment specifications, e.g., size, weight, color, brand, etc."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
@@ -808,7 +808,7 @@ const EquipmentModal = ({
               disabled={isSubmitting}
               className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
-              ยกเลิก
+              Cancel
             </button>
             <button
               type="submit"
@@ -818,15 +818,15 @@ const EquipmentModal = ({
               {uploadingImage ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  <span>กำลังอัปโหลดรูปภาพ...</span>
+                  <span>Uploading image...</span>
                 </>
               ) : isSubmitting ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  <span>กำลังบันทึก...</span>
+                  <span>Saving...</span>
                 </>
               ) : (
-                equipment ? 'บันทึกการแก้ไข' : 'เพิ่มอุปกรณ์'
+                equipment ? 'Save Changes' : 'Add Equipment'
               )}
             </button>
           </div>
