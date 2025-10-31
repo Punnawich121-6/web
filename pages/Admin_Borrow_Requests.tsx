@@ -187,13 +187,13 @@ const AdminBorrowRequests = () => {
         // Refresh the requests list
         await fetchBorrowRequests();
         setSelectedRequest(null);
-        alert(action === 'approve' ? 'คำขออนุมัติแล้ว!' : 'คำขอถูกปฏิเสธแล้ว!');
+        alert(action === 'approve' ? 'Request approved successfully!' : 'Request rejected!');
       } else {
-        alert('เกิดข้อผิดพลาด: ' + result.error);
+        alert('Error occurred: ' + result.error);
       }
     } catch (error) {
       console.error('Error handling request action:', error);
-      alert('เกิดข้อผิดพลาดในการดำเนินการ');
+      alert('An error occurred during processing');
     } finally {
       setActionLoading(null);
     }
@@ -222,13 +222,13 @@ const AdminBorrowRequests = () => {
         // Refresh the requests list
         await fetchBorrowRequests();
         setSelectedRequest(null);
-        alert('ยืนยันการคืนอุปกรณ์แล้ว!');
+        alert('Equipment return confirmed!');
       } else {
-        alert('เกิดข้อผิดพลาด: ' + result.error);
+        alert('Error occurred: ' + result.error);
       }
     } catch (error) {
       console.error('Error confirming return:', error);
-      alert('เกิดข้อผิดพลาดในการยืนยันการคืน');
+      alert('An error occurred while confirming return');
     } finally {
       setActionLoading(null);
     }
@@ -238,14 +238,14 @@ const AdminBorrowRequests = () => {
   const requestOptions = [
     {
       value: "PENDING",
-      label: "รออนุมัติ",
+      label: "Pending Approval",
       icon: Clock,
       color: "bg-yellow-100 text-yellow-800 border-yellow-200",
       count: borrowRequests.filter((r) => r.status === "PENDING").length,
     },
     {
       value: "PENDING_RETURN",
-      label: "รอตรวจสอบการคืน",
+      label: "Pending Return Verification",
       icon: RotateCcw,
       color: "bg-purple-100 text-purple-800 border-purple-200",
       count: borrowRequests.filter((r) => r.status === "PENDING_RETURN").length,
@@ -256,35 +256,35 @@ const AdminBorrowRequests = () => {
   const statusOptions = [
     {
       value: "APPROVED",
-      label: "อนุมัติแล้ว",
+      label: "Approved",
       icon: CheckCircle,
       color: "bg-green-100 text-green-800 border-green-200",
       count: borrowRequests.filter((r) => r.status === "APPROVED").length,
     },
     {
       value: "ACTIVE",
-      label: "กำลังยืม",
+      label: "Borrowing",
       icon: Package,
       color: "bg-blue-100 text-blue-800 border-blue-200",
       count: borrowRequests.filter((r) => r.status === "ACTIVE").length,
     },
     {
       value: "RETURNED",
-      label: "คืนแล้ว",
+      label: "Returned",
       icon: CheckCircle,
       color: "bg-gray-100 text-gray-800 border-gray-200",
       count: borrowRequests.filter((r) => r.status === "RETURNED").length,
     },
     {
       value: "REJECTED",
-      label: "ปฏิเสธ",
+      label: "Rejected",
       icon: XCircle,
       color: "bg-red-100 text-red-800 border-red-200",
       count: borrowRequests.filter((r) => r.status === "REJECTED").length,
     },
     {
       value: "OVERDUE",
-      label: "เกินกำหนด",
+      label: "Overdue",
       icon: AlertTriangle,
       color: "bg-orange-100 text-orange-800 border-orange-200",
       count: borrowRequests.filter((r) => r.status === "OVERDUE").length,
@@ -319,7 +319,7 @@ const AdminBorrowRequests = () => {
   const getStatusText = (status: string) => {
     const allOptions = [...requestOptions, ...statusOptions];
     const option = allOptions.find(opt => opt.value === status);
-    return option ? option.label : "ไม่ทราบสถานะ";
+    return option ? option.label : "Unknown Status";
   };
 
   if (loading) {
@@ -327,7 +327,7 @@ const AdminBorrowRequests = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
+          <p className="text-gray-600 text-xl">Loading...</p>
         </div>
       </div>
     );
@@ -349,7 +349,7 @@ const AdminBorrowRequests = () => {
               <div>
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                   <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
-                    จัดการคำขอยืมอุปกรณ์
+                    Manage Equipment Borrow Requests
                   </h1>
                   {totalPendingActions > 0 && (
                     <motion.div
@@ -376,7 +376,7 @@ const AdminBorrowRequests = () => {
                   )}
                 </div>
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mt-1 sm:mt-2">
-                  อนุมัติหรือปฏิเสธคำขอยืมอุปกรณ์จากผู้ใช้
+                  Approve or reject equipment borrow requests from users
                 </p>
               </div>
             </div>
@@ -390,7 +390,7 @@ const AdminBorrowRequests = () => {
             className="mb-6 sm:mb-8"
           >
             <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">คำขอที่ต้องดำเนินการ</h2>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Requests Requiring Action</h2>
               {totalPendingActions > 0 && (
                 <span className="bg-red-500 text-white rounded-full px-2 py-0.5 sm:px-3 sm:py-1 text-xs sm:text-sm font-bold">
                   {totalPendingActions}
@@ -447,7 +447,7 @@ const AdminBorrowRequests = () => {
             transition={{ delay: 0.2 }}
             className="mb-6 sm:mb-8"
           >
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">สถานะทั้งหมด</h2>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">All Status</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
               {statusOptions.map((option, index) => (
                 <motion.button
@@ -486,7 +486,7 @@ const AdminBorrowRequests = () => {
               />
               <input
                 type="text"
-                placeholder="ค้นหาตามชื่ออุปกรณ์, ผู้ใช้, หรือวัตถุประสงค์..."
+                placeholder="Search by equipment name, user, or purpose..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm sm:text-base lg:text-lg"
@@ -504,16 +504,16 @@ const AdminBorrowRequests = () => {
             {dataLoading ? (
               <div className="p-12 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-                <p className="text-gray-600 text-xl">กำลังโหลดคำขอ...</p>
+                <p className="text-gray-600 text-xl">Loading requests...</p>
               </div>
             ) : filteredRequests.length === 0 ? (
               <div className="p-8 sm:p-12 text-center">
                 <Package className="mx-auto mb-3 sm:mb-4 text-gray-400" size={40} />
                 <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-1 sm:mb-2">
-                  ไม่พบคำขอ
+                  No Requests Found
                 </h3>
                 <p className="text-gray-600 text-sm sm:text-base lg:text-lg">
-                  ไม่มีคำขอที่มีสถานะ "{getStatusText(selectedStatus)}" ในขณะนี้
+                  There are currently no requests with status "{getStatusText(selectedStatus)}"
                 </p>
               </div>
             ) : (
@@ -550,7 +550,7 @@ const AdminBorrowRequests = () => {
                                 {request.equipment.name}
                               </h3>
                               <p className="text-xs sm:text-sm lg:text-base text-gray-500">
-                                {request.equipment.category} | รหัส: {request.equipment.serialNumber}
+                                {request.equipment.category} | Code: {request.equipment.serialNumber}
                               </p>
                               <p className="text-xs sm:text-sm lg:text-base text-gray-700 mt-1">
                                 <UserIcon size={14} className="inline mr-1" />
@@ -569,7 +569,7 @@ const AdminBorrowRequests = () => {
                               <button
                                 onClick={() => setSelectedRequest(request)}
                                 className="text-red-600 hover:text-red-700 p-2 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
-                                title="ดูรายละเอียด"
+                                title="View Details"
                               >
                                 <Eye size={16} className="sm:w-5 sm:h-5" />
                               </button>
@@ -579,20 +579,20 @@ const AdminBorrowRequests = () => {
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm lg:text-base text-gray-600 mb-2 sm:mb-3">
                             <div className="flex items-center gap-1.5 sm:gap-2">
                               <Calendar size={14} />
-                              <span>ยืม: {new Date(request.startDate).toLocaleDateString('th-TH')}</span>
+                              <span>Borrow: {new Date(request.startDate).toLocaleDateString('en-US')}</span>
                             </div>
                             <div className="flex items-center gap-1.5 sm:gap-2">
                               <Clock size={14} />
-                              <span>คืน: {new Date(request.endDate).toLocaleDateString('th-TH')}</span>
+                              <span>Return: {new Date(request.endDate).toLocaleDateString('en-US')}</span>
                             </div>
                             <div className="flex items-center gap-1.5 sm:gap-2">
                               <Package size={14} />
-                              <span>จำนวน: {request.quantity} ชิ้น</span>
+                              <span>Quantity: {request.quantity} pcs</span>
                             </div>
                           </div>
 
                           <p className="text-gray-700 text-xs sm:text-sm lg:text-base mb-2 sm:mb-3">
-                            <span className="font-medium">วัตถุประสงค์:</span> {request.purpose}
+                            <span className="font-medium">Purpose:</span> {request.purpose}
                           </p>
 
                           {request.status === 'PENDING' && (
@@ -607,11 +607,11 @@ const AdminBorrowRequests = () => {
                                 ) : (
                                   <Check size={16} />
                                 )}
-                                อนุมัติ
+                                Approve
                               </button>
                               <button
                                 onClick={() => {
-                                  const reason = prompt('เหตุผลในการปฏิเสธ (ไม่จำเป็น):');
+                                  const reason = prompt('Reason for rejection (optional):');
                                   if (reason !== null) {
                                     handleRequestAction(request.id, 'reject', reason);
                                   }
@@ -620,7 +620,7 @@ const AdminBorrowRequests = () => {
                                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-sm sm:text-base touch-manipulation min-h-[44px]"
                               >
                                 <X size={16} />
-                                ปฏิเสธ
+                                Reject
                               </button>
                             </div>
                           )}
@@ -637,7 +637,7 @@ const AdminBorrowRequests = () => {
                                 ) : (
                                   <CheckCircle size={16} />
                                 )}
-                                ยืนยันการคืน
+                                Confirm Return
                               </button>
                             </div>
                           )}
@@ -668,7 +668,7 @@ const AdminBorrowRequests = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1 min-w-0">
                   <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
-                    รายละเอียดคำขอยืม
+                    Borrow Request Details
                   </h3>
                   <p className="text-gray-600 text-sm sm:text-base lg:text-lg break-all">#{selectedRequest.id}</p>
                 </div>
@@ -703,19 +703,19 @@ const AdminBorrowRequests = () => {
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm sm:text-base">
                     <div>
-                      <span className="font-medium text-gray-700">หมวดหมู่:</span>
+                      <span className="font-medium text-gray-700">Category:</span>
                       <p className="text-gray-600">{selectedRequest.equipment.category}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">รหัสอุปกรณ์:</span>
+                      <span className="font-medium text-gray-700">Equipment Code:</span>
                       <p className="text-gray-600 break-all">{selectedRequest.equipment.serialNumber}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">จำนวน:</span>
-                      <p className="text-gray-600">{selectedRequest.quantity} ชิ้น</p>
+                      <span className="font-medium text-gray-700">Quantity:</span>
+                      <p className="text-gray-600">{selectedRequest.quantity} pcs</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">สถานะ:</span>
+                      <span className="font-medium text-gray-700">Status:</span>
                       <span
                         className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs sm:text-sm font-medium border ${getStatusColor(
                           selectedRequest.status
@@ -731,7 +731,7 @@ const AdminBorrowRequests = () => {
 
               {/* User Info */}
               <div>
-                <h5 className="font-medium text-gray-700 mb-2 sm:mb-3 text-base sm:text-lg">ข้อมูลผู้ขอยืม</h5>
+                <h5 className="font-medium text-gray-700 mb-2 sm:mb-3 text-base sm:text-lg">Borrower Information</h5>
                 <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm sm:text-base">
                     <div className="flex items-center gap-2">
@@ -749,33 +749,33 @@ const AdminBorrowRequests = () => {
               {/* Dates */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">ระยะเวลายืม</h5>
+                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">Borrow Period</h5>
                   <div className="space-y-2 text-sm sm:text-base">
                     <div className="flex justify-between gap-2">
-                      <span>วันที่ยืม:</span>
+                      <span>Borrow Date:</span>
                       <span className="font-medium text-right">
-                        {new Date(selectedRequest.startDate).toLocaleDateString('th-TH')}
+                        {new Date(selectedRequest.startDate).toLocaleDateString('en-US')}
                       </span>
                     </div>
                     <div className="flex justify-between gap-2">
-                      <span>กำหนดคืน:</span>
+                      <span>Due Date:</span>
                       <span className="font-medium text-right">
-                        {new Date(selectedRequest.endDate).toLocaleDateString('th-TH')}
+                        {new Date(selectedRequest.endDate).toLocaleDateString('en-US')}
                       </span>
                     </div>
                     {selectedRequest.returnRequestedAt && (
                       <div className="flex justify-between gap-2">
-                        <span className="text-purple-700">ขอคืนเมื่อ:</span>
+                        <span className="text-purple-700">Return Requested:</span>
                         <span className="font-medium text-purple-700 text-right">
-                          {new Date(selectedRequest.returnRequestedAt).toLocaleDateString('th-TH')} {new Date(selectedRequest.returnRequestedAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(selectedRequest.returnRequestedAt).toLocaleDateString('en-US')} {new Date(selectedRequest.returnRequestedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                     )}
                     {selectedRequest.actualReturnDate && (
                       <div className="flex justify-between gap-2">
-                        <span>วันที่คืนจริง:</span>
+                        <span>Actual Return Date:</span>
                         <span className="font-medium text-right">
-                          {new Date(selectedRequest.actualReturnDate).toLocaleDateString('th-TH')}
+                          {new Date(selectedRequest.actualReturnDate).toLocaleDateString('en-US')}
                         </span>
                       </div>
                     )}
@@ -783,25 +783,25 @@ const AdminBorrowRequests = () => {
                 </div>
 
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">ข้อมูลคำขอ</h5>
+                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">Request Information</h5>
                   <div className="space-y-2 text-sm sm:text-base">
                     <div className="flex justify-between gap-2">
-                      <span>วันที่ขอ:</span>
+                      <span>Requested Date:</span>
                       <span className="font-medium text-right">
-                        {new Date(selectedRequest.createdAt).toLocaleDateString('th-TH')}
+                        {new Date(selectedRequest.createdAt).toLocaleDateString('en-US')}
                       </span>
                     </div>
                     {selectedRequest.approver && (
                       <>
                         <div className="flex justify-between gap-2">
-                          <span>ผู้อนุมัติ:</span>
+                          <span>Approved By:</span>
                           <span className="font-medium text-right">{selectedRequest.approver.displayName}</span>
                         </div>
                         {selectedRequest.approvedAt && (
                           <div className="flex justify-between gap-2">
-                            <span>วันที่อนุมัติ:</span>
+                            <span>Approved Date:</span>
                             <span className="font-medium text-right">
-                              {new Date(selectedRequest.approvedAt).toLocaleDateString('th-TH')}
+                              {new Date(selectedRequest.approvedAt).toLocaleDateString('en-US')}
                             </span>
                           </div>
                         )}
@@ -813,7 +813,7 @@ const AdminBorrowRequests = () => {
 
               {/* Purpose */}
               <div>
-                <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">วัตถุประสงค์</h5>
+                <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">Purpose</h5>
                 <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-sm sm:text-base lg:text-lg">
                   {selectedRequest.purpose}
                 </p>
@@ -822,7 +822,7 @@ const AdminBorrowRequests = () => {
               {/* Notes */}
               {selectedRequest.notes && (
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">หมายเหตุ</h5>
+                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">Notes</h5>
                   <p className="text-gray-600 bg-gray-50 p-3 rounded-lg text-sm sm:text-base lg:text-lg">
                     {selectedRequest.notes}
                   </p>
@@ -832,7 +832,7 @@ const AdminBorrowRequests = () => {
               {/* Rejection Reason */}
               {selectedRequest.rejectionReason && (
                 <div>
-                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">เหตุผลการปฏิเสธ</h5>
+                  <h5 className="font-medium text-gray-700 mb-2 text-base sm:text-lg">Rejection Reason</h5>
                   <p className="text-red-600 bg-red-50 p-3 rounded-lg text-sm sm:text-base lg:text-lg">
                     {selectedRequest.rejectionReason}
                   </p>
@@ -845,7 +845,7 @@ const AdminBorrowRequests = () => {
                 onClick={() => setSelectedRequest(null)}
                 className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base touch-manipulation min-h-[44px]"
               >
-                ปิด
+                Close
               </button>
 
               {selectedRequest.status === 'PENDING' && (
@@ -860,11 +860,11 @@ const AdminBorrowRequests = () => {
                     ) : (
                       <Check size={16} />
                     )}
-                    อนุมัติ
+                    Approve
                   </button>
                   <button
                     onClick={() => {
-                      const reason = prompt('เหตุผลในการปฏิเสธ (ไม่จำเป็น):');
+                      const reason = prompt('Reason for rejection (optional):');
                       if (reason !== null) {
                         handleRequestAction(selectedRequest.id, 'reject', reason);
                       }
@@ -873,7 +873,7 @@ const AdminBorrowRequests = () => {
                     className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-sm sm:text-base touch-manipulation min-h-[44px]"
                   >
                     <X size={16} />
-                    ปฏิเสธ
+                    Reject
                   </button>
                 </div>
               )}
@@ -890,7 +890,7 @@ const AdminBorrowRequests = () => {
                     ) : (
                       <CheckCircle size={16} />
                     )}
-                    ยืนยันการคืน
+                    Confirm Return
                   </button>
                 </div>
               )}

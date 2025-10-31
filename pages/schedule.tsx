@@ -142,19 +142,19 @@ export default function Schedule() {
   const getStatusText = (status: string) => {
     switch (status) {
       case "APPROVED":
-        return "อนุมัติแล้ว";
+        return "Approved";
       case "ACTIVE":
-        return "กำลังยืม";
+        return "Borrowing";
       case "PENDING":
-        return "รออนุมัติ";
+        return "Pending";
       case "REJECTED":
-        return "ปฏิเสธ";
+        return "Rejected";
       case "RETURNED":
-        return "คืนแล้ว";
+        return "Returned";
       case "OVERDUE":
-        return "เกินกำหนด";
+        return "Overdue";
       default:
-        return "ไม่ทราบสถานะ";
+        return "Unknown Status";
     }
   };
 
@@ -281,7 +281,7 @@ export default function Schedule() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
+          <p className="text-gray-600 text-xl">Loading...</p>
         </div>
       </div>
     );
@@ -300,10 +300,10 @@ export default function Schedule() {
             className="mb-6 sm:mb-8"
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              ตารางการยืมอุปกรณ์
+              Equipment Borrowing Schedule
             </h1>
             <p className="text-base sm:text-lg text-gray-600">
-              ดูว่าวันไหนมีการยืมหรือคืนอุปกรณ์
+              View which days have equipment borrowing or returns
             </p>
           </motion.div>
 
@@ -338,7 +338,7 @@ export default function Schedule() {
                       onClick={today}
                       className="px-4 sm:px-5 py-2 sm:py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm sm:text-base touch-manipulation flex-1 sm:flex-initial"
                     >
-                      วันนี้
+                      Today
                     </button>
                     <button
                       onClick={nextMonth}
@@ -352,10 +352,10 @@ export default function Schedule() {
 
                 {/* Days of Week */}
                 <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 sm:mb-3">
-                  {['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'].map((day, idx) => (
+                  {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day, idx) => (
                     <div key={day} className="text-center text-xs sm:text-sm font-bold text-gray-700 py-1 sm:py-2">
                       <span className="hidden sm:inline">{day}</span>
-                      <span className="sm:hidden">{['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'][idx]}</span>
+                      <span className="sm:hidden">{['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'][idx]}</span>
                     </div>
                   ))}
                 </div>
@@ -371,19 +371,19 @@ export default function Schedule() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-100 border border-green-300 rounded flex-shrink-0"></div>
-                      <span className="text-xs sm:text-sm text-gray-700">กำลังยืม</span>
+                      <span className="text-xs sm:text-sm text-gray-700">Borrowing</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-100 border border-blue-300 rounded flex-shrink-0"></div>
-                      <span className="text-xs sm:text-sm text-gray-700">คืนแล้ว</span>
+                      <span className="text-xs sm:text-sm text-gray-700">Returned</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 sm:w-4 sm:h-4 bg-amber-100 border border-amber-300 rounded flex-shrink-0"></div>
-                      <span className="text-xs sm:text-sm text-gray-700">รออนุมัติ</span>
+                      <span className="text-xs sm:text-sm text-gray-700">Pending</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gray-100 border border-gray-300 rounded flex-shrink-0"></div>
-                      <span className="text-xs sm:text-sm text-gray-700">อื่นๆ</span>
+                      <span className="text-xs sm:text-sm text-gray-700">Others</span>
                     </div>
                   </div>
                 </div>
@@ -391,7 +391,7 @@ export default function Schedule() {
                 {/* Swipe hint for mobile */}
                 <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200 sm:hidden">
                   <p className="text-xs text-gray-500 text-center">
-                    เลื่อนซ้าย-ขวาเพื่อเปลี่ยนเดือน
+                    Swipe left-right to change month
                   </p>
                 </div>
               </motion.div>
@@ -441,7 +441,7 @@ export default function Schedule() {
                             )}
                             <div className="flex items-center gap-2">
                               <Package size={14} className="flex-shrink-0 sm:w-4 sm:h-4" />
-                              <span className="truncate">{event.equipment.category} • จำนวน {event.quantity} ชิ้น</span>
+                              <span className="truncate">{event.equipment.category} • Quantity: {event.quantity} pcs</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Clock size={14} className="flex-shrink-0 sm:w-4 sm:h-4" />
@@ -449,16 +449,16 @@ export default function Schedule() {
                             </div>
                             <div className="pt-2 border-t border-gray-200 mt-2 space-y-1">
                               <p className="text-xs text-gray-500">
-                                ยืม: {new Date(event.startDate).toLocaleDateString('th-TH')}
+                                Borrow: {new Date(event.startDate).toLocaleDateString('en-US')}
                               </p>
                               <p className="text-xs text-gray-500">
-                                คืน: {new Date(event.endDate).toLocaleDateString('th-TH')}
+                                Return: {new Date(event.endDate).toLocaleDateString('en-US')}
                               </p>
                             </div>
                             {user && event.purpose && event.purpose !== 'การยืมอุปกรณ์' && (
                               <div className="pt-2 border-t border-gray-200 mt-2">
                                 <p className="text-xs text-gray-500 break-words">
-                                  <span className="font-medium">วัตถุประสงค์:</span> {event.purpose}
+                                  <span className="font-medium">Purpose:</span> {event.purpose}
                                 </p>
                               </div>
                             )}
@@ -468,15 +468,15 @@ export default function Schedule() {
                     ) : (
                       <div className="text-center py-8 sm:py-12">
                         <CalendarIcon className="mx-auto mb-3 text-gray-400" size={40} />
-                        <p className="text-gray-500 text-sm sm:text-base">ไม่มีกิจกรรมในวันนี้</p>
+                        <p className="text-gray-500 text-sm sm:text-base">No activities on this day</p>
                       </div>
                     )}
                   </div>
                 ) : (
                   <div className="text-center py-12 sm:py-16">
                     <CalendarIcon className="mx-auto mb-3 sm:mb-4 text-gray-400" size={48} />
-                    <p className="text-gray-500 text-base sm:text-lg">คลิกที่วันในปฏิทิน</p>
-                    <p className="text-gray-400 text-xs sm:text-sm mt-1">เพื่อดูรายละเอียด</p>
+                    <p className="text-gray-500 text-base sm:text-lg">Click on a day in the calendar</p>
+                    <p className="text-gray-400 text-xs sm:text-sm mt-1">to view details</p>
                   </div>
                 )}
               </motion.div>

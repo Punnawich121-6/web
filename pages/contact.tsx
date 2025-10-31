@@ -137,8 +137,8 @@ export default function ContactPage() {
               <span className="text-red-600">Contact Us</span>
             </h1>
             <p className="text-base sm:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-gray-600 max-w-3xl mx-auto px-4">
-              พบกับทีมผู้จัดทำ TimeToUse
-              ระบบยืม-คืนอุปกรณ์ที่ทันสมัยและมีประสิทธิภาพ
+              Meet the TimeToUse team,
+              a modern and efficient equipment borrowing and returning system
             </p>
           </motion.div>
 
@@ -146,12 +146,12 @@ export default function ContactPage() {
             <DeveloperCard
               name="Name1"
               role="Frontend"
-              description="ผู้คิดค้น Time2Use"
+              description="Creator of Time2Use"
               skills={[
                 "Next.js",
                 "HTML",
                 "CSS"
-                
+
               ]}
               email="email"
               github="https://github.com/your-username"
@@ -161,7 +161,7 @@ export default function ContactPage() {
             <DeveloperCard
               name="Name2"
               role="Fullstack"
-              description="คนช่วยเขียนเว็บ"
+              description="Web development assistant"
               skills={[
                 "Javascript",
                 "Git",
@@ -183,8 +183,7 @@ export default function ContactPage() {
               <span className="text-red-600">About TimeToUse Project</span>
             </h2>
             <p className="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed max-w-4xl mx-auto">
-              TimeToUse
-              เป็นโปรเจคที่พัฒนาขึ้นเพื่อแก้ไขปัญหาการจัดการอุปกรณ์ในองค์กร
+              TimeToUse is a project developed to solve equipment management problems in organizations
             </p>
 
             <div className="mt-6 sm:mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
@@ -221,7 +220,7 @@ export default function ContactPage() {
                   whileTap={{ scale: 0.95 }}
                   className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-red-600 text-white font-bold shadow-xl hover:shadow-2xl hover:bg-red-700 transition-all duration-300 text-base sm:text-lg"
                 >
-                  กลับหน้าหลัก
+                  Back to Home
                 </motion.button>
               </Link>
 
@@ -231,7 +230,7 @@ export default function ContactPage() {
                   whileTap={{ scale: 0.95 }}
                   className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-white border-2 border-gray-200 text-gray-700 font-bold shadow-lg hover:shadow-xl transition-all duration-300 text-base sm:text-lg"
                 >
-                  ดูปฏิทิน
+                  View Calendar
                 </motion.button>
               </Link>
             </div>

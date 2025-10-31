@@ -146,40 +146,37 @@ const Dashboard = () => {
 
  const quickActions = [
   {
-    title: "เริ่มจองอุปกรณ์",
-    description: "เลือกอุปกรณ์ที่ต้องการยืมจากแคตตาล็อก",
+    title: "Start Booking Equipment",
+    description: "Select the equipment you want to borrow from the catalog",
     icon: ShoppingCart,
     href: "/equipment/catalog",
-    // สีแดง (สีหลัก)
     color: "bg-gradient-to-r from-red-600 to-red-700",
     hoverColor: "hover:from-red-700 hover:to-red-800",
-    textColor: "text-white", // สีข้อความสำหรับพื้นหลังเข้ม
-    iconBgColor: "bg-red-700", // สีพื้นหลังไอคอนที่เข้มกว่าเล็กน้อย
-    descriptionColor: "text-red-100", // สีข้อความรองที่อ่อนลง
+    textColor: "text-white",
+    iconBgColor: "bg-red-700",
+    descriptionColor: "text-red-100",
   },
   {
-    title: "ประวัติการยืม/คืนของ",
+    title: "Borrowing/Return History",
     description: "View all borrowing history and status, and submit early return requests",
     icon: History,
     href: "/Borrowing_History",
-    // เปลี่ยนเป็นสีเทาเข้ม
     color: "bg-gradient-to-r from-gray-700 to-gray-800",
     hoverColor: "hover:from-gray-800 hover:to-gray-900",
-    textColor: "text-white", // สีข้อความสำหรับพื้นหลังเข้ม
-    iconBgColor: "bg-gray-800", // สีพื้นหลังไอคอนที่เข้มกว่าเล็กน้อย
-    descriptionColor: "text-gray-300", // สีข้อความรองที่อ่อนลง
+    textColor: "text-white",
+    iconBgColor: "bg-gray-800",
+    descriptionColor: "text-gray-300",
   },
   {
-    title: "ปฏิทินการยืม",
-    description: "ดูปฏิทินและกำหนดการยืมอุปกรณ์",
+    title: "Borrowing Calendar",
+    description: "View calendar and equipment borrowing schedule",
     icon: Calendar,
     href: "/schedule",
-    // เปลี่ยนเป็นสีเทากลาง
     color: "bg-gradient-to-r from-gray-500 to-gray-600",
     hoverColor: "hover:from-gray-600 hover:to-gray-700",
-    textColor: "text-white", // สีข้อความสำหรับพื้นหลังเข้ม
-    iconBgColor: "bg-gray-600", // สีพื้นหลังไอคอนที่เข้มกว่าเล็กน้อย
-    descriptionColor: "text-gray-200", // สีข้อความรองที่อ่อนลง
+    textColor: "text-white",
+    iconBgColor: "bg-gray-600",
+    descriptionColor: "text-gray-200",
   },
 ];
 
@@ -188,7 +185,7 @@ const Dashboard = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
+          <p className="text-gray-600 text-xl">Loading...</p>
         </div>
       </div>
     );
@@ -217,7 +214,7 @@ const Dashboard = () => {
               {/* Display appropriate subtitle based on admin status */}
               {isAdmin
                 ? 'Overview and statistics of all equipment borrowing'
-                : `ยินดีต้อนรับ, ${userData?.displayName || user?.email?.split('@')[0] || 'ผู้ใช้งาน'}`}
+                : `Welcome, ${userData?.displayName || user?.email?.split('@')[0] || 'User'}`}
             </p>
           </motion.div>
 
@@ -263,7 +260,7 @@ const Dashboard = () => {
                     <p className="text-2xl sm:text-3xl font-bold text-yellow-600">
                       {statistics.overview.pending}
                     </p>
-                    <p className="text-sm sm:text-base text-gray-600">รออนุมัติ</p>
+                    <p className="text-sm sm:text-base text-gray-600">Pending</p>
                   </div>
                 </div>
               </div>
@@ -278,7 +275,7 @@ const Dashboard = () => {
                     <p className="text-2xl sm:text-3xl font-bold text-green-600">
                       {statistics.overview.approved}
                     </p>
-                    <p className="text-sm sm:text-base text-gray-600">อนุมัติแล้ว</p>
+                    <p className="text-sm sm:text-base text-gray-600">Approved</p>
                   </div>
                 </div>
               </div>
@@ -293,7 +290,7 @@ const Dashboard = () => {
                     <p className="text-2xl sm:text-3xl font-bold text-blue-600">
                       {statistics.overview.returned}
                     </p>
-                    <p className="text-sm sm:text-base text-gray-600">คืนแล้ว</p>
+                    <p className="text-sm sm:text-base text-gray-600">Returned</p>
                   </div>
                 </div>
               </div>
@@ -309,7 +306,7 @@ const Dashboard = () => {
                       <p className="text-2xl sm:text-3xl font-bold text-red-600">
                         {statistics.overview.rejected}
                       </p>
-                      <p className="text-sm sm:text-base text-gray-600">ปฏิเสธ</p>
+                      <p className="text-sm sm:text-base text-gray-600">Rejected</p>
                     </div>
                   </div>
                 </div>
@@ -317,7 +314,7 @@ const Dashboard = () => {
             </motion.div>
           ) : (
               // Optional: Show a message if stats failed to load or user isn't logged in
-              !statsLoading && <p className="text-gray-500 mb-8">ไม่สามารถโหลดข้อมูลสถิติได้</p>
+              !statsLoading && <p className="text-gray-500 mb-8">Unable to load statistics</p>
           )}
 
           {/* Admin Analytics - Only render if admin and stats are loaded */}
@@ -334,7 +331,7 @@ const Dashboard = () => {
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                       <TrendingUp className="text-red-600" size={24} />
-                      แนวโน้มการยืม (6 เดือนล่าสุด)
+                      Borrowing Trends (Last 6 Months)
                     </h3>
                   </div>
                   <div className="space-y-3">
@@ -346,7 +343,7 @@ const Dashboard = () => {
                         <div key={index}>
                           <div className="flex justify-between text-sm mb-1">
                             <span className="text-gray-700">{item.month}</span>
-                            <span className="font-medium text-gray-900">{item.count} ครั้ง</span>
+                            <span className="font-medium text-gray-900">{item.count} times</span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
@@ -361,7 +358,7 @@ const Dashboard = () => {
                 </motion.div>
               ) : (
                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-center text-gray-500">
-                       ไม่มีข้อมูลแนวโน้มการยืม
+                       No borrowing trend data available
                    </div>
               )}
 
@@ -376,7 +373,7 @@ const Dashboard = () => {
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                       <BarChart3 className="text-blue-600" size={24} />
-                      อุปกรณ์ที่ถูกยืมมากที่สุด
+                      Most Borrowed Equipment
                     </h3>
                   </div>
                   <div className="space-y-4">
@@ -396,7 +393,7 @@ const Dashboard = () => {
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-red-600">{item.count}</p>
-                          <p className="text-xs text-gray-600">ครั้ง</p>
+                          <p className="text-xs text-gray-600">times</p>
                         </div>
                       </div>
                     ))}
@@ -404,7 +401,7 @@ const Dashboard = () => {
                 </motion.div>
                 ) : (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-center text-gray-500">
-                        ไม่มีข้อมูลอุปกรณ์ยอดนิยม
+                        No popular equipment data available
                     </div>
                 )}
             </div>
@@ -417,7 +414,7 @@ const Dashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: isAdmin && statistics ? 0.4 : 0.2 }} // Adjust delay based on whether admin sections are shown
             >
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">การดำเนินการด่วน</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Quick Actions</h2>
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {quickActions.map((action, index) => (
                   <motion.a

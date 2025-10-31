@@ -166,7 +166,7 @@ export default function Page(): JSX.Element {
           >
             <div className="flex flex-col items-center space-y-3">
               <p className="text-gray-500 text-sm uppercase tracking-wider font-medium">
-                เลื่อนลงเพื่ออ่านข้อมูลเพิ่มเติม
+                Scroll down for more information
               </p>
               <motion.div
                 animate={{ y: [0, 8, 0] }}
@@ -205,13 +205,13 @@ export default function Page(): JSX.Element {
                 </p>
               </div>
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6">
-                <span className="text-gray-900">ขั้นตอน</span>
+                <span className="text-gray-900">How to</span>
                 <span className="bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent">
-                  การใช้งาน
+                  {" "}Use the System
                 </span>
               </h2>
               <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                กระบวนการยืม-คืนอุปกรณ์ที่เป็นระบบและโปร่งใส!
+                A systematic and transparent equipment borrowing and returning process!
               </p>
             </motion.div>
 
@@ -219,33 +219,33 @@ export default function Page(): JSX.Element {
               {[
                 {
                   step: "1",
-                  title: "เข้าสู่ระบบ",
-                  desc: "ลงทะเบียนและเข้าสู่ระบบด้วยบัญชีผู้ใช้งาน",
+                  title: "Sign In",
+                  desc: "Register and sign in with your user account",
                 },
                 {
                   step: "2",
-                  title: "เลือกอุปกรณ์",
-                  desc: "ค้นหาและเลือกอุปกรณ์ที่ต้องการใช้งาน",
+                  title: "Select Equipment",
+                  desc: "Search and select the equipment you need",
                 },
                 {
                   step: "3",
-                  title: "กรอกรายละเอียด",
-                  desc: "ระบุวัตถุประสงค์และระยะเวลาการใช้งาน",
+                  title: "Fill in Details",
+                  desc: "Specify the purpose and duration of use",
                 },
                 {
                   step: "4",
-                  title: "ส่งคำขอ",
-                  desc: "ยื่นคำขอและรอการอนุมัติจากผู้ดูแลระบบ",
+                  title: "Submit Request",
+                  desc: "Submit your request and wait for admin approval",
                 },
                 {
                   step: "5",
-                  title: "รับการอนุมัติ",
-                  desc: "ตรวจสอบสถานะและรอการแจ้งเตือน",
+                  title: "Get Approval",
+                  desc: "Check status and wait for notification",
                 },
                 {
                   step: "6",
-                  title: "รับอุปกรณ์",
-                  desc: "รับอุปกรณ์ที่คณะตามเวลาที่กำหนด",
+                  title: "Pick Up Equipment",
+                  desc: "Collect the equipment at the faculty at the scheduled time",
                 },
               ].map((item, index) => (
                 <motion.div
@@ -269,7 +269,7 @@ export default function Page(): JSX.Element {
                         </div>
                       </div>
                       <div className="text-sm sm:text-base font-bold text-red-600 uppercase tracking-wide bg-red-50 px-4 py-2 rounded-full border border-red-200/50">
-                        ขั้นตอนที่ {item.step}
+                        Step {item.step}
                       </div>
                     </div>
                     <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 uppercase tracking-wide group-hover:text-red-600 transition-colors">
@@ -309,28 +309,28 @@ export default function Page(): JSX.Element {
               </div>
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6">
                 <span className="bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent">
-                  ความสามารถ
+                  System
                 </span>
-                <span className="text-gray-900">ของระบบ</span>
+                <span className="text-gray-900"> Features</span>
               </h2>
               <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                ระบบที่ครอบคลุมทุกความต้องการในการจัดการอุปกรณ์ขององค์กร
+                A comprehensive system that covers all your organization's equipment management needs
               </p>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
               {[
                 {
-                  title: "จัดการได้อย่างเป็นระบบ",
+                  title: "Systematic Management",
                   desc: "A centralized system that helps manage equipment efficiently",
                 },
                 {
-                  title: "ปฏิทินแบบเรียลไทม์",
-                  desc: "ป้องกันการจองซ้ำด้วยระบบปฏิทินที่อัปเดตทันที",
+                  title: "Real-Time Calendar",
+                  desc: "Prevent double bookings with an instantly updated calendar system",
                 },
                 {
-                  title: "รายงานและสถิติ",
-                  desc: "ข้อมูลครบถ้วนสำหรับการตัดสินใจและวางแผนการจัดซื้อ",
+                  title: "Reports and Statistics",
+                  desc: "Comprehensive data for decision-making and procurement planning",
                 },
               ].map((feature, index) => (
                 <motion.div
@@ -395,15 +395,14 @@ export default function Page(): JSX.Element {
                   Ready to Start
                 </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                  <span className="text-gray-900">เริ่มใช้งานระบบ</span>
+                  <span className="text-gray-900">Start Using the System</span>
                   <br />
                   <span className="bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent">
-                    ได้ทันที
+                    Right Now
                   </span>
                 </h2>
                 <p className="text-lg sm:text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  Ready to provide an efficient and easy-to-use equipment management system
-                  เพื่อองค์กรของคุณ
+                  Ready to provide an efficient and easy-to-use equipment management system for your organization
                 </p>
                 <motion.a
                   href="/auth"
@@ -413,7 +412,7 @@ export default function Page(): JSX.Element {
                 >
                   <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl opacity-30 blur group-hover:opacity-50 transition-all duration-300"></div>
                   <button className="relative px-10 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-xl text-lg flex items-center gap-3">
-                    <span>เข้าสู่ระบบ</span>
+                    <span>Sign In</span>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -451,13 +450,13 @@ export default function Page(): JSX.Element {
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-red-600 transition-colors">
-                        ตรวจสอบอุปกรณ์
+                        Check Equipment
                       </h3>
-                      <p className="text-gray-600">ตรวจสอบอุปกรณ์ที่มีพร้อมใช้งาน</p>
+                      <p className="text-gray-600">Check available equipment</p>
                     </div>
                     <a href="/Equipment_Catalog" className="block">
                       <button className="w-full px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-semibold rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl">
-                        ทำการตรวจสอบ
+                        Check Now
                       </button>
                     </a>
                   </div>
@@ -491,15 +490,15 @@ export default function Page(): JSX.Element {
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-red-600 transition-colors">
-                        ดูตารางการใช้งาน
+                        View Usage Schedule
                       </h3>
                       <p className="text-gray-600">
-                        ตรวจสอบความพร้อมของอุปกรณ์และวางแผนการใช้งาน
+                        Check equipment availability and plan usage
                       </p>
                     </div>
                     <a href="/table" className="block">
                       <button className="w-full px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-semibold rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl">
-                        ดูตารางเวลา
+                        View Schedule
                       </button>
                     </a>
                   </div>
@@ -511,11 +510,11 @@ export default function Page(): JSX.Element {
                 <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8 text-xs sm:text-sm text-gray-500 px-4">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
-                    <span>ระบบพร้อมใช้งาน 24/7</span>
+                    <span>System available 24/7</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                    <span>อุปกรณ์หลากหลายประเภท</span>
+                    <span>Various types of equipment</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-purple-500 rounded-full flex-shrink-0"></div>

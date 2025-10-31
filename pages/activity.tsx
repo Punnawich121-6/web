@@ -223,10 +223,10 @@ const Activity = () => {
               </div>
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
-                  Whole system activities
+                  System-Wide Activities
                 </h1>
                 <p className="text-sm sm:text-base lg:text-lg text-gray-600">
-                  View all equipment borrowing and returning activities
+                  View all equipment borrowing and return activities
                 </p>
               </div>
             </div>
@@ -244,7 +244,7 @@ const Activity = () => {
               <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.total}</p>
             </div>
             <div className="bg-yellow-50 rounded-lg shadow-sm border border-yellow-200 p-3 sm:p-4">
-              <p className="text-xs sm:text-sm text-yellow-700 mb-1">Pending approval</p>
+              <p className="text-xs sm:text-sm text-yellow-700 mb-1">Pending Approval</p>
               <p className="text-2xl sm:text-3xl font-bold text-yellow-900">{stats.pending}</p>
             </div>
             <div className="bg-green-50 rounded-lg shadow-sm border border-green-200 p-3 sm:p-4">
@@ -256,7 +256,7 @@ const Activity = () => {
               <p className="text-2xl sm:text-3xl font-bold text-blue-900">{stats.returned}</p>
             </div>
             <div className="bg-red-50 rounded-lg shadow-sm border border-red-200 p-3 sm:p-4 col-span-2 sm:col-span-3 lg:col-span-1">
-              <p className="text-xs sm:text-sm text-red-700 mb-1">Reject</p>
+              <p className="text-xs sm:text-sm text-red-700 mb-1">Rejected</p>
               <p className="text-2xl sm:text-3xl font-bold text-red-900">{stats.rejected}</p>
             </div>
           </motion.div>
@@ -295,12 +295,12 @@ const Activity = () => {
                   onChange={(e) => setSelectedStatus(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none bg-white text-sm sm:text-base"
                 >
-                  <option value="all">ทุกสถานะ</option>
-                  <option value="PENDING">รออนุมัติ</option>
-                  <option value="APPROVED">อนุมัติแล้ว</option>
-                  <option value="ACTIVE">กำลังยืม</option>
-                  <option value="RETURNED">คืนแล้ว</option>
-                  <option value="REJECTED">ปฏิเสธ</option>
+                  <option value="all">All Status</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="APPROVED">Approved</option>
+                  <option value="ACTIVE">Borrowing</option>
+                  <option value="RETURNED">Returned</option>
+                  <option value="REJECTED">Rejected</option>
                 </select>
               </div>
             </div>
@@ -310,15 +310,15 @@ const Activity = () => {
           {dataLoading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">กำลังโหลดข้อมูล...</p>
+              <p className="text-gray-600">Loading data...</p>
             </div>
           ) : filteredActivities.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-lg shadow-sm border border-gray-200">
               <ActivityIcon className="mx-auto mb-4 text-gray-400" size={64} />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                ไม่พบกิจกรรม
+                No Activities Found
               </h3>
-              <p className="text-gray-600">ยังไม่มีกิจกรรมในระบบ</p>
+              <p className="text-gray-600">There are no activities in the system yet</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:gap-4">
@@ -357,7 +357,7 @@ const Activity = () => {
                             {record.equipment.category} • {record.equipment.serialNumber}
                           </p>
                           <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                            จำนวน: <span className="font-medium">{record.quantity}</span> ชิ้น
+                            Quantity: <span className="font-medium">{record.quantity}</span> pcs
                           </p>
                         </div>
                         <span
@@ -383,11 +383,11 @@ const Activity = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
                         <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600">
                           <Calendar size={14} className="flex-shrink-0" />
-                          <span>ยืม: <span className="font-medium">{new Date(record.startDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}</span></span>
+                          <span>Borrow: <span className="font-medium">{new Date(record.startDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span></span>
                         </div>
                         <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600">
                           <Clock size={14} className="flex-shrink-0" />
-                          <span>คืน: <span className="font-medium">{new Date(record.endDate).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}</span></span>
+                          <span>Return: <span className="font-medium">{new Date(record.endDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span></span>
                         </div>
                       </div>
 
@@ -395,7 +395,7 @@ const Activity = () => {
                       {record.purpose && (
                         <div className="mb-3">
                           <p className="text-xs sm:text-sm text-gray-600">
-                            <span className="font-medium text-gray-700">วัตถุประสงค์:</span> {record.purpose}
+                            <span className="font-medium text-gray-700">Purpose:</span> {record.purpose}
                           </p>
                         </div>
                       )}
@@ -406,7 +406,7 @@ const Activity = () => {
                         className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-lg font-medium flex items-center justify-center gap-1.5 transition-all duration-200 min-h-[40px] touch-manipulation"
                       >
                         <Eye size={16} />
-                        ดูรายละเอียดเพิ่มเติม
+                        View Details
                       </button>
                     </div>
                   </div>
@@ -435,14 +435,14 @@ const Activity = () => {
             <div className="sticky top-0 bg-white border-b border-gray-200 p-4 sm:p-6 flex items-start justify-between z-10">
               <div className="flex-1 min-w-0">
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
-                  รายละเอียดการยืม
+                  Borrowing Details
                 </h2>
                 <p className="text-xs sm:text-sm text-gray-500">ID: {selectedRecord.id}</p>
               </div>
               <button
                 onClick={() => setSelectedRecord(null)}
                 className="text-gray-400 hover:text-gray-600 ml-2 flex-shrink-0 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
-                title="ปิด"
+                title="Close"
               >
                 <XCircle size={24} />
               </button>
@@ -483,13 +483,13 @@ const Activity = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">จำนวนที่ยืม</p>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Quantity Borrowed</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {selectedRecord.quantity} <span className="text-base font-normal text-gray-600">ชิ้น</span>
+                      {selectedRecord.quantity} <span className="text-base font-normal text-gray-600">pcs</span>
                     </p>
                   </div>
                   <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">สถานะ</p>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Status</p>
                     <span
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${getStatusColor(
                         selectedRecord.status
@@ -503,7 +503,7 @@ const Activity = () => {
 
                 {/* User Info */}
                 <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-                  <p className="text-xs sm:text-sm text-blue-700 font-medium mb-2">ข้อมูลผู้ยืม</p>
+                  <p className="text-xs sm:text-sm text-blue-700 font-medium mb-2">Borrower Information</p>
                   <div className="flex items-start gap-2">
                     <UserIcon size={18} className="text-blue-600 flex-shrink-0 mt-0.5" />
                     <div>
@@ -518,7 +518,7 @@ const Activity = () => {
                   <div className="bg-white border border-gray-200 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-1">
                       <Calendar size={16} className="text-green-600" />
-                      <p className="text-xs sm:text-sm text-gray-600 font-medium">วันที่ยืม</p>
+                      <p className="text-xs sm:text-sm text-gray-600 font-medium">Borrow Date</p>
                     </div>
                     <p className="font-semibold text-gray-900">
                       {formatDate(selectedRecord.startDate)}
@@ -527,7 +527,7 @@ const Activity = () => {
                   <div className="bg-white border border-gray-200 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-1">
                       <Clock size={16} className="text-orange-600" />
-                      <p className="text-xs sm:text-sm text-gray-600 font-medium">กำหนดคืน</p>
+                      <p className="text-xs sm:text-sm text-gray-600 font-medium">Due Date</p>
                     </div>
                     <p className="font-semibold text-gray-900">
                       {formatDate(selectedRecord.endDate)}
@@ -537,7 +537,7 @@ const Activity = () => {
 
                 {selectedRecord.purpose && (
                   <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
-                    <p className="text-xs sm:text-sm text-gray-600 font-medium mb-2">วัตถุประสงค์</p>
+                    <p className="text-xs sm:text-sm text-gray-600 font-medium mb-2">Purpose</p>
                     <p className="text-sm sm:text-base text-gray-900">{selectedRecord.purpose}</p>
                   </div>
                 )}
@@ -546,7 +546,7 @@ const Activity = () => {
                 <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 p-4 sm:p-6 rounded-lg">
                   <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <Clock size={20} className="text-red-600" />
-                    Timeline กิจกรรม
+                    Activity Timeline
                   </h4>
                   <div className="space-y-4 relative">
                     {/* Vertical Line */}
@@ -559,11 +559,11 @@ const Activity = () => {
                         </div>
                         <div className="flex-1 bg-white p-3 rounded-lg border border-gray-200">
                           <p className="font-semibold text-gray-900 text-sm sm:text-base">
-                            สร้างคำขอยืม
+                            Borrow Request Created
                           </p>
                           <p className="text-xs sm:text-sm text-gray-600">
                             {formatTimestamp(selectedRecord.createdAt)?.date}{" "}
-                            เวลา {formatTimestamp(selectedRecord.createdAt)?.time} น.
+                            at {formatTimestamp(selectedRecord.createdAt)?.time}
                           </p>
                         </div>
                       </div>
@@ -591,16 +591,16 @@ const Activity = () => {
                         }`}>
                           <p className="font-semibold text-gray-900 text-sm sm:text-base">
                             {selectedRecord.status === "REJECTED"
-                              ? "❌ ปฏิเสธคำขอ"
-                              : "✅ อนุมัติคำขอ"}
+                              ? "❌ Request Rejected"
+                              : "✅ Request Approved"}
                           </p>
                           <p className="text-xs sm:text-sm text-gray-600">
                             {formatTimestamp(selectedRecord.approvedAt)?.date}{" "}
-                            เวลา {formatTimestamp(selectedRecord.approvedAt)?.time} น.
+                            at {formatTimestamp(selectedRecord.approvedAt)?.time}
                           </p>
                           {selectedRecord.approvedBy && (
                             <p className="text-xs sm:text-sm text-gray-700 mt-1">
-                              <span className="font-medium">โดย:</span> {selectedRecord.approvedBy.displayName}
+                              <span className="font-medium">By:</span> {selectedRecord.approvedBy.displayName}
                             </p>
                           )}
                         </div>
@@ -614,11 +614,11 @@ const Activity = () => {
                         </div>
                         <div className="flex-1 bg-purple-50 p-3 rounded-lg border border-purple-200">
                           <p className="font-semibold text-gray-900 text-sm sm:text-base">
-                            🎉 คืนอุปกรณ์แล้ว
+                            🎉 Equipment Returned
                           </p>
                           <p className="text-xs sm:text-sm text-gray-600">
                             {formatTimestamp(selectedRecord.actualReturnDate)?.date}{" "}
-                            เวลา {formatTimestamp(selectedRecord.actualReturnDate)?.time} น.
+                            at {formatTimestamp(selectedRecord.actualReturnDate)?.time}
                           </p>
                         </div>
                       </div>
@@ -627,7 +627,7 @@ const Activity = () => {
                     {selectedRecord.rejectionReason && (
                       <div className="bg-red-50 border border-red-200 p-3 sm:p-4 rounded-lg ml-11">
                         <p className="text-xs sm:text-sm font-semibold text-red-900 mb-1.5">
-                          💬 เหตุผลที่ปฏิเสธ:
+                          💬 Rejection Reason:
                         </p>
                         <p className="text-xs sm:text-sm text-red-800 leading-relaxed">
                           {selectedRecord.rejectionReason}
@@ -645,7 +645,7 @@ const Activity = () => {
                 onClick={() => setSelectedRecord(null)}
                 className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200 text-sm sm:text-base touch-manipulation min-h-[44px]"
               >
-                ปิดหน้าต่าง
+                Close
               </button>
             </div>
           </motion.div>
