@@ -160,7 +160,7 @@ const Dashboard = () => {
     title: "Borrowing/Return History",
     description: "View all borrowing history and status, and submit early return requests",
     icon: History,
-    href: "/Borrowing_History",
+    href: "/history",
     color: "bg-gradient-to-r from-gray-700 to-gray-800",
     hoverColor: "hover:from-gray-800 hover:to-gray-900",
     textColor: "text-white",

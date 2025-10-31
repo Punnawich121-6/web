@@ -135,11 +135,11 @@ const Profile = () => {
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'ADMIN':
-        return 'ผู้ดูแลระบบ';
+        return 'ADMIN';
       case 'MODERATOR':
-        return 'ผู้ช่วยดูแลระบบ';
+        return 'MODERATOR';
       default:
-        return 'ผู้ใช้งานทั่วไป';
+        return 'USER';
     }
   };
 
@@ -167,10 +167,10 @@ const Profile = () => {
             className="mb-6 sm:mb-8"
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              โปรไฟล์ของฉัน
+              My Profile
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-600">
-              จัดการข้อมูลส่วนตัวของคุณ
+              Manage Profile
             </p>
           </motion.div>
 
@@ -244,7 +244,7 @@ const Profile = () => {
                   <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                     <div className="flex items-center gap-2">
                       <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-                      อีเมล
+                      Email
                     </div>
                   </label>
                   <input
@@ -254,7 +254,7 @@ const Profile = () => {
                     className="w-full px-4 py-3 sm:py-3.5 text-sm sm:text-base border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                   />
                   <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-gray-500">
-                    อีเมลไม่สามารถเปลี่ยนแปลงได้
+                    Email cannot be changed
                   </p>
                 </div>
 
@@ -266,15 +266,15 @@ const Profile = () => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                       <div className="bg-gray-50 rounded-lg p-4 sm:p-5">
-                        <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-1.5">บทบาท</p>
+                        <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-1.5">Role</p>
                         <p className="text-sm sm:text-base font-medium text-gray-900">
                           {getRoleBadge(userProfile.role)}
                         </p>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-4 sm:p-5">
-                        <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-1.5">สมัครสมาชิกเมื่อ</p>
+                        <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-1.5">Member since</p>
                         <p className="text-sm sm:text-base font-medium text-gray-900">
-                          {new Date(userProfile.created_at).toLocaleDateString('th-TH', {
+                          {new Date(userProfile.created_at).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'

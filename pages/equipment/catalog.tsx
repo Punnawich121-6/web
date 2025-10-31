@@ -141,10 +141,10 @@ const EquipmentCatalogUser = () => {
 
   // Get categories from actual data
   const categories = [
-    { id: "all", name: "ทั้งหมด", icon: Filter },
-    { id: "อิเล็กทรอนิกส์", name: "อิเล็กทรอนิกส์", icon: Camera },
-    { id: "เครื่องเสียง", name: "เครื่องเสียง", icon: Mic },
-    { id: "เครื่องจักร", name: "เครื่องจักร", icon: Laptop },
+    { id: "all", name: "ALL", icon: Filter },
+    { id: "อิเล็กทรอนิกส์", name: "Electronics", icon: Camera },
+    { id: "เครื่องเสียง", name: "Audio Equipment", icon: Mic },
+    { id: "เครื่องจักร", name: "Machinery", icon: Laptop },
   ];
 
   const filteredEquipment = equipmentData.filter((item) => {
@@ -329,7 +329,7 @@ const EquipmentCatalogUser = () => {
               whileTap={{ scale: 0.98 }}
             >
               <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" size={20} />
-              <span>ตะกร้า ({cartItemCount})</span>
+              <span>Cart ({cartItemCount})</span>
               {cartItemCount > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
