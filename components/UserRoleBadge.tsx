@@ -91,19 +91,19 @@ export default function UserRoleBadge() {
       case 'ADMIN':
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-            👑 Admin
+            👑 ผู้ดูแลระบบ
           </span>
         );
       case 'MODERATOR':
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            ⭐ Moderator
+            ⭐ ผู้ดูแล
           </span>
         );
       case 'USER':
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            👤 User
+            👤 ผู้ใช้
           </span>
         );
       default:

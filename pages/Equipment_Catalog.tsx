@@ -60,10 +60,10 @@ export default function Equipment_Catalog() {
       if (result.success) {
         setEquipmentData(result.data);
       } else {
-        setError(result.error || 'Failed to fetch equipment');
+        setError(result.error || 'ไม่สามารถโหลดข้อมูลอุปกรณ์ได้');
       }
     } catch (err) {
-      setError('Failed to fetch equipment');
+      setError('ไม่สามารถโหลดข้อมูลอุปกรณ์ได้');
       console.error('Error fetching equipment:', err);
     } finally {
       setLoading(false);
@@ -76,15 +76,15 @@ export default function Equipment_Catalog() {
   const getStatusText = (status: string) => {
     switch (status) {
       case "AVAILABLE":
-        return "Available";
+        return "พร้อมใช้";
       case "BORROWED":
-        return "Borrowed";
+        return "ถูกยืม";
       case "MAINTENANCE":
-        return "Maintenance";
+        return "ซ่อมบำรุง";
       case "RETIRED":
-        return "Retired";
+        return "เลิกใช้";
       default:
-        return "Unknown";
+        return "ไม่ทราบสถานะ";
     }
   };
 
@@ -159,7 +159,7 @@ export default function Equipment_Catalog() {
                 onClick={fetchEquipment}
                 className="w-full sm:w-auto px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 min-h-[44px] text-sm sm:text-base"
               >
-                Try Again
+                ลองอีกครั้ง
               </button>
             </div>
           </div>
@@ -176,10 +176,10 @@ export default function Equipment_Catalog() {
         {/* Header */}
         <div className="text-center mb-8 sm:mb-10 lg:mb-12">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-800 mb-2 tracking-wide uppercase">
-            Equipment <span className="text-red-600">Catalog</span>
+            รายการ<span className="text-red-600">อุปกรณ์</span>
           </h1>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 px-4">
-            Search and view details of equipment available for borrowing
+            ค้นหาและดูรายละเอียดอุปกรณ์ที่พร้อมให้ยืม
           </p>
         </div>
 
@@ -218,10 +218,10 @@ export default function Equipment_Catalog() {
           </div>
           <div className="mt-4 sm:mt-6 text-xs sm:text-sm lg:text-base text-gray-600 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <span>
-              Found {filteredEquipment.length} equipment
+              พบ {filteredEquipment.length} รายการ
             </span>
             <span>
-              Page {currentPage} of {totalPages}
+              หน้า {currentPage} จาก {totalPages}
             </span>
           </div>
         </div>
@@ -229,7 +229,7 @@ export default function Equipment_Catalog() {
         {/* Statistics - MOVED HERE */}
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
           <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-4 sm:mb-6 text-center uppercase tracking-wide">
-            <span className="text-red-600">Statistics</span>
+            <span className="text-red-600">สถิติ</span>
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
             <div className="text-center p-4 sm:p-6 bg-green-50 rounded-xl border-2 border-green-200">
@@ -239,7 +239,7 @@ export default function Equipment_Catalog() {
                     .length
                 }
               </div>
-              <div className="text-sm sm:text-base lg:text-lg text-green-800 font-semibold">Available</div>
+              <div className="text-sm sm:text-base lg:text-lg text-green-800 font-semibold">พร้อมใช้</div>
             </div>
             <div className="text-center p-4 sm:p-6 bg-red-50 rounded-xl border-2 border-red-200">
               <div className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-red-600 mb-2">
@@ -248,7 +248,7 @@ export default function Equipment_Catalog() {
                     .length
                 }
               </div>
-              <div className="text-sm sm:text-base lg:text-lg text-red-800 font-semibold">Borrowed</div>
+              <div className="text-sm sm:text-base lg:text-lg text-red-800 font-semibold">ถูกยืม</div>
             </div>
             <div className="text-center p-4 sm:p-6 bg-yellow-50 rounded-xl border-2 border-yellow-200 sm:col-span-2 lg:col-span-1">
               <div className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-yellow-600 mb-2">
@@ -257,7 +257,7 @@ export default function Equipment_Catalog() {
                     .length
                 }
               </div>
-              <div className="text-sm sm:text-base lg:text-lg text-yellow-800 font-semibold">Maintenance</div>
+              <div className="text-sm sm:text-base lg:text-lg text-yellow-800 font-semibold">ซ่อมบำรุง</div>
             </div>
           </div>
         </div>
@@ -297,7 +297,7 @@ export default function Equipment_Catalog() {
                 {/* Availability Status */}
                 <div className="mb-3 sm:mb-4">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs sm:text-sm text-gray-600">Available:</span>
+                    <span className="text-xs sm:text-sm text-gray-600">ว่าง:</span>
                     <span className={`text-xs sm:text-sm font-bold ${
                       equipment.availableQuantity === 0
                         ? "text-red-600"
@@ -329,7 +329,7 @@ export default function Equipment_Catalog() {
                   </div>
                   {equipment.availableQuantity === 0 && (
                     <p className="text-xs text-red-600 mt-1 font-medium">
-                      ⚠️ Not Available
+                      ⚠️ ไม่ว่าง
                     </p>
                   )}
                   {equipment.availableQuantity > 0 && equipment.availableQuantity <= equipment.totalQuantity * 0.3 && (
@@ -367,9 +367,9 @@ export default function Equipment_Catalog() {
           <div className="text-center py-12 sm:py-16 lg:py-20 bg-white rounded-xl shadow-lg mb-6 sm:mb-8 px-4">
             <Package className="mx-auto text-gray-300 mb-4 w-16 h-16 sm:w-20 sm:h-20" />
             <h3 className="text-xl sm:text-2xl font-semibold text-gray-600 mb-2">
-              Equipment not found
+              ไม่พบอุปกรณ์
             </h3>
-            <p className="text-sm sm:text-base lg:text-lg text-gray-500">Try changing the search term or filter</p>
+            <p className="text-sm sm:text-base lg:text-lg text-gray-500">ลองเปลี่ยนคำค้นหาหรือตัวกรอง</p>
           </div>
         )}
 

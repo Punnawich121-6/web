@@ -110,20 +110,20 @@ const LibraryNavbar = () => {
   }, [isProfileMenuOpen]);
 
   const navItems = [
-    { href: "/schedule", label: "Schedule" },
-    { href: "/activity", label: "Activity" },
-    { href: "/equipment/catalog", label: "Catalog" },
-    { href: "/contact", label: "Contact" },
+    { href: "/schedule", label: "ตารางเวลา" },
+    { href: "/activity", label: "กิจกรรม" },
+    { href: "/equipment/catalog", label: "รายการอุปกรณ์" },
+    { href: "/contact", label: "ติดต่อ" },
   ];
 
   const userNavItems = [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/history", label: "My History" },
+    { href: "/dashboard", label: "แดชบอร์ด" },
+    { href: "/history", label: "ประวัติของฉัน" },
   ];
 
   const adminNavItems = [
-    { href: "/admin/equipment", label: "Admin Panel" },
-    { href: "/Admin_Borrow_Requests", label: "Manage Requests" },
+    { href: "/admin/equipment", label: "แผงผู้ดูแล" },
+    { href: "/Admin_Borrow_Requests", label: "จัดการคำขอ" },
   ];
 
   return (
@@ -157,7 +157,7 @@ const LibraryNavbar = () => {
                 Time2Use
               </span>
               <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                Equipment System
+                ระบบจัดการอุปกรณ์
               </span>
             </div>
           </motion.a>
@@ -254,7 +254,7 @@ const LibraryNavbar = () => {
               {loading ? (
                 <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl border border-gray-200">
                   <div className="w-4 h-4 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full animate-pulse"></div>
-                  <span className="text-gray-500 text-sm font-medium">Loading...</span>
+                  <span className="text-gray-500 text-sm font-medium">กำลังโหลด...</span>
                 </div>
               ) : user ? (
                 <div className="relative">
@@ -282,7 +282,7 @@ const LibraryNavbar = () => {
                       </p>
                       <div className="flex items-center gap-1.5">
                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                        <p className="text-xs text-gray-500 font-medium">Online</p>
+                        <p className="text-xs text-gray-500 font-medium">ออนไลน์</p>
                       </div>
                     </div>
                     <motion.svg
@@ -333,7 +333,7 @@ const LibraryNavbar = () => {
                             <svg className="w-4 h-4 text-gray-400 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
-                            Profile Settings
+                            การตั้งค่าโปรไฟล์
                           </a>
                         </div>
 
@@ -345,7 +345,7 @@ const LibraryNavbar = () => {
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
-                            Sign Out
+                            ออกจากระบบ
                           </button>
                         </div>
                       </motion.div>
@@ -364,7 +364,7 @@ const LibraryNavbar = () => {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                     </svg>
-                    Login / Register
+                    เข้าสู่ระบบ / สมัครสมาชิก
                   </motion.a>
                 </div>
               )}
@@ -466,7 +466,7 @@ const LibraryNavbar = () => {
                   {loading ? (
                     <div className="flex items-center gap-2 px-4 py-2 mx-2 bg-gray-50 rounded-xl border border-gray-200">
                       <div className="w-4 h-4 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full animate-pulse"></div>
-                      <span className="text-gray-500 text-sm font-medium">Loading...</span>
+                      <span className="text-gray-500 text-sm font-medium">กำลังโหลด...</span>
                     </div>
                   ) : user ? (
                     <div className="space-y-2 px-2">
@@ -484,7 +484,7 @@ const LibraryNavbar = () => {
                             </p>
                             <div className="flex items-center gap-1.5">
                               <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                              <p className="text-xs text-gray-500 font-medium">Online</p>
+                              <p className="text-xs text-gray-500 font-medium">ออนไลน์</p>
                             </div>
                           </div>
                         </div>
@@ -496,7 +496,7 @@ const LibraryNavbar = () => {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        Profile Settings
+                        การตั้งค่าโปรไฟล์
                       </a>
                       <button
                         onClick={handleSignOut}
@@ -505,7 +505,7 @@ const LibraryNavbar = () => {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
-                        Sign Out
+                        ออกจากระบบ
                       </button>
                     </div>
                   ) : (
@@ -517,7 +517,7 @@ const LibraryNavbar = () => {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
-                        Login / Register
+                        เข้าสู่ระบบ / สมัครสมาชิก
                       </a>
                     </div>
                   )}

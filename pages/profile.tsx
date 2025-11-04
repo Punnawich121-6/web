@@ -167,10 +167,10 @@ const Profile = () => {
             className="mb-6 sm:mb-8"
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              My Profile
+              โปรไฟล์ของฉัน
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-600">
-              Manage Profile
+              จัดการโปรไฟล์
             </p>
           </motion.div>
 

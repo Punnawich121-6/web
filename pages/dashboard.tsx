@@ -146,8 +146,8 @@ const Dashboard = () => {
 
  const quickActions = [
   {
-    title: "Start Booking Equipment",
-    description: "Select the equipment you want to borrow from the catalog",
+    title: "เริ่มจองอุปกรณ์",
+    description: "เลือกอุปกรณ์ที่ต้องการยืมจากรายการ",
     icon: ShoppingCart,
     href: "/equipment/catalog",
     color: "bg-gradient-to-r from-red-600 to-red-700",
@@ -157,8 +157,8 @@ const Dashboard = () => {
     descriptionColor: "text-red-100",
   },
   {
-    title: "Borrowing/Return History",
-    description: "View all borrowing history and status, and submit early return requests",
+    title: "ประวัติการยืม/คืน",
+    description: "ดูประวัติและสถานะการยืมทั้งหมด และส่งคำขอคืนก่อนกำหนด",
     icon: History,
     href: "/history",
     color: "bg-gradient-to-r from-gray-700 to-gray-800",
@@ -168,8 +168,8 @@ const Dashboard = () => {
     descriptionColor: "text-gray-300",
   },
   {
-    title: "Borrowing Calendar",
-    description: "View calendar and equipment borrowing schedule",
+    title: "ปฏิทินการยืม",
+    description: "ดูปฏิทินและตารางการยืมอุปกรณ์",
     icon: Calendar,
     href: "/schedule",
     color: "bg-gradient-to-r from-gray-500 to-gray-600",
@@ -185,7 +185,7 @@ const Dashboard = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-xl">Loading...</p>
+          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
         </div>
       </div>
     );
@@ -208,13 +208,13 @@ const Dashboard = () => {
           >
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
               {/* Display appropriate header based on admin status */}
-              {isAdmin ? 'Admin Dashboard' : 'Dashboard'}
+              {isAdmin ? 'แดชบอร์ดผู้ดูแล' : 'แดชบอร์ด'}
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600">
               {/* Display appropriate subtitle based on admin status */}
               {isAdmin
-                ? 'Overview and statistics of all equipment borrowing'
-                : `Welcome, ${userData?.displayName || user?.email?.split('@')[0] || 'User'}`}
+                ? 'ภาพรวมและสถิติการยืมอุปกรณ์ทั้งหมด'
+                : `ยินดีต้อนรับ, ${userData?.displayName || user?.email?.split('@')[0] || 'ผู้ใช้'}`}
             </p>
           </motion.div>
 
@@ -245,7 +245,7 @@ const Dashboard = () => {
                     <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                       {statistics.overview.total}
                     </p>
-                    <p className="text-sm sm:text-base text-gray-600">Total</p>
+                    <p className="text-sm sm:text-base text-gray-600">ทั้งหมด</p>
                   </div>
                 </div>
               </div>
@@ -260,7 +260,7 @@ const Dashboard = () => {
                     <p className="text-2xl sm:text-3xl font-bold text-yellow-600">
                       {statistics.overview.pending}
                     </p>
-                    <p className="text-sm sm:text-base text-gray-600">Pending</p>
+                    <p className="text-sm sm:text-base text-gray-600">รออนุมัติ</p>
                   </div>
                 </div>
               </div>
@@ -275,7 +275,7 @@ const Dashboard = () => {
                     <p className="text-2xl sm:text-3xl font-bold text-green-600">
                       {statistics.overview.approved}
                     </p>
-                    <p className="text-sm sm:text-base text-gray-600">Approved</p>
+                    <p className="text-sm sm:text-base text-gray-600">อนุมัติแล้ว</p>
                   </div>
                 </div>
               </div>
@@ -290,7 +290,7 @@ const Dashboard = () => {
                     <p className="text-2xl sm:text-3xl font-bold text-blue-600">
                       {statistics.overview.returned}
                     </p>
-                    <p className="text-sm sm:text-base text-gray-600">Returned</p>
+                    <p className="text-sm sm:text-base text-gray-600">คืนแล้ว</p>
                   </div>
                 </div>
               </div>
@@ -306,7 +306,7 @@ const Dashboard = () => {
                       <p className="text-2xl sm:text-3xl font-bold text-red-600">
                         {statistics.overview.rejected}
                       </p>
-                      <p className="text-sm sm:text-base text-gray-600">Rejected</p>
+                      <p className="text-sm sm:text-base text-gray-600">ปฏิเสธ</p>
                     </div>
                   </div>
                 </div>
@@ -314,7 +314,7 @@ const Dashboard = () => {
             </motion.div>
           ) : (
               // Optional: Show a message if stats failed to load or user isn't logged in
-              !statsLoading && <p className="text-gray-500 mb-8">Unable to load statistics</p>
+              !statsLoading && <p className="text-gray-500 mb-8">ไม่สามารถโหลดสถิติได้</p>
           )}
 
           {/* Admin Analytics - Only render if admin and stats are loaded */}
@@ -331,7 +331,7 @@ const Dashboard = () => {
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                       <TrendingUp className="text-red-600" size={24} />
-                      Borrowing Trends (Last 6 Months)
+                      แนวโน้มการยืม (6 เดือนที่ผ่านมา)
                     </h3>
                   </div>
                   <div className="space-y-3">
@@ -343,7 +343,7 @@ const Dashboard = () => {
                         <div key={index}>
                           <div className="flex justify-between text-sm mb-1">
                             <span className="text-gray-700">{item.month}</span>
-                            <span className="font-medium text-gray-900">{item.count} times</span>
+                            <span className="font-medium text-gray-900">{item.count} ครั้ง</span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
@@ -358,7 +358,7 @@ const Dashboard = () => {
                 </motion.div>
               ) : (
                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-center text-gray-500">
-                       No borrowing trend data available
+                       ไม่มีข้อมูลแนวโน้มการยืม
                    </div>
               )}
 
@@ -373,7 +373,7 @@ const Dashboard = () => {
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                       <BarChart3 className="text-blue-600" size={24} />
-                      Most Borrowed Equipment
+                      อุปกรณ์ที่ถูกยืมมากที่สุด
                     </h3>
                   </div>
                   <div className="space-y-4">
@@ -393,7 +393,7 @@ const Dashboard = () => {
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-red-600">{item.count}</p>
-                          <p className="text-xs text-gray-600">times</p>
+                          <p className="text-xs text-gray-600">ครั้ง</p>
                         </div>
                       </div>
                     ))}
@@ -401,7 +401,7 @@ const Dashboard = () => {
                 </motion.div>
                 ) : (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-center text-gray-500">
-                        No popular equipment data available
+                        ไม่มีข้อมูลอุปกรณ์ยอดนิยม
                     </div>
                 )}
             </div>
@@ -414,7 +414,7 @@ const Dashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: isAdmin && statistics ? 0.4 : 0.2 }} // Adjust delay based on whether admin sections are shown
             >
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">เมนูด่วน</h2>
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {quickActions.map((action, index) => (
                   <motion.a

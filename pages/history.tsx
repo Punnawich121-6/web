@@ -338,10 +338,10 @@ const History = () => {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4 sm:mb-6">
               <div>
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2">
-                  Equipment Borrowing History
+                  ประวัติการยืมอุปกรณ์
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600">
-                  Track the status and history of all your equipment borrowing
+                  ติดตามสถานะและประวัติการยืมอุปกรณ์ทั้งหมดของคุณ
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 lg:mt-0">
@@ -350,7 +350,7 @@ const History = () => {
                   className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base min-h-[44px] touch-manipulation"
                 >
                   <Home className="w-4 h-4 sm:w-5 sm:h-5" size={18} />
-                  Dashboard
+                  แดชบอร์ด
                 </a>
                 <a
                   href="/schedule"
@@ -708,10 +708,10 @@ const History = () => {
                 Confirm Equipment Return
               </h3>
               <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                Do you want to submit a return request for the equipment? <strong>{recordToReturn.equipmentName}</strong> Yes or No?
+                คุณต้องการส่งคำขอคืนอุปกรณ์ <strong>{recordToReturn.equipmentName}</strong> หรือไม่?
               </p>
               <p className="text-sm sm:text-base text-yellow-700 bg-yellow-50 p-3 rounded-lg mb-4">
-                Note: After submitting the request, the staff will inspect the condition of the equipment and approve the return
+                หมายเหตุ: หลังจากส่งคำขอ เจ้าหน้าที่จะตรวจสอบสภาพอุปกรณ์และอนุมัติการคืน
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
@@ -722,7 +722,7 @@ const History = () => {
                   disabled={returnLoading}
                   className="w-full sm:flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px] touch-manipulation"
                 >
-                  Cancel
+                  ยกเลิก
                 </button>
                 <button
                   onClick={handleReturnItem}
@@ -732,7 +732,7 @@ const History = () => {
                   {returnLoading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                      <span>Submitting request...</span>
+                      <span>กำลังส่งคำขอ...</span>
                     </>
                   ) : (
                     <>

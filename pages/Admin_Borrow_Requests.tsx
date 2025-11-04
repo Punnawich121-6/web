@@ -238,14 +238,14 @@ const AdminBorrowRequests = () => {
   const requestOptions = [
     {
       value: "PENDING",
-      label: "Pending Approval",
+      label: "รออนุมัติ",
       icon: Clock,
       color: "bg-yellow-100 text-yellow-800 border-yellow-200",
       count: borrowRequests.filter((r) => r.status === "PENDING").length,
     },
     {
       value: "PENDING_RETURN",
-      label: "Pending Return Verification",
+      label: "รอตรวจสอบการคืน",
       icon: RotateCcw,
       color: "bg-purple-100 text-purple-800 border-purple-200",
       count: borrowRequests.filter((r) => r.status === "PENDING_RETURN").length,
@@ -256,35 +256,35 @@ const AdminBorrowRequests = () => {
   const statusOptions = [
     {
       value: "APPROVED",
-      label: "Approved",
+      label: "อนุมัติแล้ว",
       icon: CheckCircle,
       color: "bg-green-100 text-green-800 border-green-200",
       count: borrowRequests.filter((r) => r.status === "APPROVED").length,
     },
     {
       value: "ACTIVE",
-      label: "Borrowing",
+      label: "กำลังยืม",
       icon: Package,
       color: "bg-blue-100 text-blue-800 border-blue-200",
       count: borrowRequests.filter((r) => r.status === "ACTIVE").length,
     },
     {
       value: "RETURNED",
-      label: "Returned",
+      label: "คืนแล้ว",
       icon: CheckCircle,
       color: "bg-gray-100 text-gray-800 border-gray-200",
       count: borrowRequests.filter((r) => r.status === "RETURNED").length,
     },
     {
       value: "REJECTED",
-      label: "Rejected",
+      label: "ปฏิเสธ",
       icon: XCircle,
       color: "bg-red-100 text-red-800 border-red-200",
       count: borrowRequests.filter((r) => r.status === "REJECTED").length,
     },
     {
       value: "OVERDUE",
-      label: "Overdue",
+      label: "เกินกำหนด",
       icon: AlertTriangle,
       color: "bg-orange-100 text-orange-800 border-orange-200",
       count: borrowRequests.filter((r) => r.status === "OVERDUE").length,
@@ -327,7 +327,7 @@ const AdminBorrowRequests = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-xl">Loading...</p>
+          <p className="text-gray-600 text-xl">กำลังโหลด...</p>
         </div>
       </div>
     );
@@ -349,7 +349,7 @@ const AdminBorrowRequests = () => {
               <div>
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                   <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
-                    Manage Equipment Borrow Requests
+                    จัดการคำขอยืมอุปกรณ์
                   </h1>
                   {totalPendingActions > 0 && (
                     <motion.div
@@ -376,7 +376,7 @@ const AdminBorrowRequests = () => {
                   )}
                 </div>
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mt-1 sm:mt-2">
-                  Approve or reject equipment borrow requests from users
+                  อนุมัติหรือปฏิเสธคำขอยืมอุปกรณ์จากผู้ใช้
                 </p>
               </div>
             </div>
@@ -486,7 +486,7 @@ const AdminBorrowRequests = () => {
               />
               <input
                 type="text"
-                placeholder="Search by equipment name, user, or purpose..."
+                placeholder="ค้นหาด้วยชื่ออุปกรณ์ ผู้ใช้ หรือวัตถุประสงค์..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm sm:text-base lg:text-lg"
@@ -504,13 +504,13 @@ const AdminBorrowRequests = () => {
             {dataLoading ? (
               <div className="p-12 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-                <p className="text-gray-600 text-xl">Loading requests...</p>
+                <p className="text-gray-600 text-xl">กำลังโหลดคำขอ...</p>
               </div>
             ) : filteredRequests.length === 0 ? (
               <div className="p-8 sm:p-12 text-center">
                 <Package className="mx-auto mb-3 sm:mb-4 text-gray-400" size={40} />
                 <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-1 sm:mb-2">
-                  No Requests Found
+                  ไม่พบคำขอ
                 </h3>
                 <p className="text-gray-600 text-sm sm:text-base lg:text-lg">
                   There are currently no requests with status "{getStatusText(selectedStatus)}"
@@ -569,7 +569,7 @@ const AdminBorrowRequests = () => {
                               <button
                                 onClick={() => setSelectedRequest(request)}
                                 className="text-red-600 hover:text-red-700 p-2 touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
-                                title="View Details"
+                                title="ดูรายละเอียด"
                               >
                                 <Eye size={16} className="sm:w-5 sm:h-5" />
                               </button>

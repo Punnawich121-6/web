@@ -181,7 +181,7 @@ export default function Borrow_Equipment() {
             </div>
 
             <div onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6 sm:space-y-8">
-              {/* Personal Information */}
+              {/* ข้อมูลผู้ยืม */}
               <div>
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
                   <User className="mr-2 w-5 h-5 sm:w-6 sm:h-6" size={20} />

@@ -52,13 +52,13 @@ function AuthForm() {
     switch (strength) {
       case 0:
       case 1:
-        return { text: "Weak", color: "bg-red-500", textColor: "text-red-600" };
+        return { text: "อ่อนแอ", color: "bg-red-500", textColor: "text-red-600" };
       case 2:
-        return { text: "Fair", color: "bg-yellow-500", textColor: "text-yellow-600" };
+        return { text: "พอใช้", color: "bg-yellow-500", textColor: "text-yellow-600" };
       case 3:
-        return { text: "Good", color: "bg-blue-500", textColor: "text-blue-600" };
+        return { text: "ดี", color: "bg-blue-500", textColor: "text-blue-600" };
       case 4:
-        return { text: "Strong", color: "bg-green-500", textColor: "text-green-600" };
+        return { text: "แข็งแรง", color: "bg-green-500", textColor: "text-green-600" };
       default:
         return { text: "", color: "", textColor: "" };
     }
@@ -96,11 +96,11 @@ function AuthForm() {
 
       // Check max length (RFC 5321 standard)
       if (sanitizedValue.length > 254) {
-        newFieldErrors.email = "Email is too long (max 254 characters)";
+        newFieldErrors.email = "อีเมลยาวเกินไป (สูงสุด 254 ตัวอักษร)";
       }
       // Real-time email validation
       else if (sanitizedValue && !isValidEmail(sanitizedValue)) {
-        newFieldErrors.email = "Invalid email format";
+        newFieldErrors.email = "รูปแบบอีเมลไม่ถูกต้อง";
       } else {
         delete newFieldErrors.email;
       }
@@ -110,9 +110,9 @@ function AuthForm() {
     if (name === 'password') {
       // Check max length for security
       if (value.length > 128) {
-        newFieldErrors.password = "Password is too long (max 128 characters)";
+        newFieldErrors.password = "รหัสผ่านยาวเกินไป (สูงสุด 128 ตัวอักษร)";
       } else if (value && value.length < 6) {
-        newFieldErrors.password = "Password must be at least 6 characters";
+        newFieldErrors.password = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
       } else {
         delete newFieldErrors.password;
       }
@@ -122,7 +122,7 @@ function AuthForm() {
 
       // Check confirm password match
       if (formData.confirmPassword && value !== formData.confirmPassword) {
-        newFieldErrors.confirmPassword = "Passwords do not match";
+        newFieldErrors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
       } else {
         delete newFieldErrors.confirmPassword;
       }
@@ -131,9 +131,9 @@ function AuthForm() {
     // Confirm password validation
     if (name === 'confirmPassword') {
       if (value.length > 128) {
-        newFieldErrors.confirmPassword = "Password is too long";
+        newFieldErrors.confirmPassword = "รหัสผ่านยาวเกินไป";
       } else if (value && value !== formData.password) {
-        newFieldErrors.confirmPassword = "Passwords do not match";
+        newFieldErrors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
       } else {
         delete newFieldErrors.confirmPassword;
       }
@@ -145,13 +145,13 @@ function AuthForm() {
       sanitizedValue = value.replace(/\s+/g, ' ');
 
       if (sanitizedValue.length > 100) {
-        newFieldErrors.name = "Name is too long (max 100 characters)";
+        newFieldErrors.name = "ชื่อยาวเกินไป (สูงสุด 100 ตัวอักษร)";
       } else if (!isLogin && sanitizedValue && sanitizedValue.trim().length < 2) {
-        newFieldErrors.name = "Name must be at least 2 characters";
+        newFieldErrors.name = "ชื่อต้องมีอย่างน้อย 2 ตัวอักษร";
       }
       // Check for invalid characters (allow Thai, English, space, and basic punctuation)
       else if (sanitizedValue && !/^[\u0E00-\u0E7Fa-zA-Z\s.'-]+$/.test(sanitizedValue)) {
-        newFieldErrors.name = "Name contains invalid characters (use letters and . ' - only)";
+        newFieldErrors.name = "ชื่อมีตัวอักษรที่ไม่ถูกต้อง (ใช้เฉพาะตัวอักษรและ . ' - เท่านั้น)";
       } else {
         delete newFieldErrors.name;
       }
@@ -275,50 +275,50 @@ function AuthForm() {
 
     // Email validation
     if (!formData.email) {
-      errors.email = "Please enter your email";
+      errors.email = "กรุณากรอกอีเมล";
     } else if (formData.email.length > 254) {
-      errors.email = "Email is too long (max 254 characters)";
+      errors.email = "อีเมลยาวเกินไป (สูงสุด 254 ตัวอักษร)";
     } else if (!isValidEmail(formData.email)) {
-      errors.email = "Invalid email format";
+      errors.email = "รูปแบบอีเมลไม่ถูกต้อง";
     }
 
     // Password validation
     if (!formData.password) {
-      errors.password = "Please enter your password";
+      errors.password = "กรุณากรอกรหัสผ่าน";
     } else if (formData.password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
+      errors.password = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
     } else if (formData.password.length > 128) {
-      errors.password = "Password is too long (max 128 characters)";
+      errors.password = "รหัสผ่านยาวเกินไป (สูงสุด 128 ตัวอักษร)";
     }
 
     // Register-specific validation
     if (!isLogin) {
       if (!formData.name || formData.name.trim().length < 2) {
-        errors.name = "Please enter your full name (at least 2 characters)";
+        errors.name = "กรุณากรอกชื่อเต็ม (อย่างน้อย 2 ตัวอักษร)";
       } else if (formData.name.length > 100) {
-        errors.name = "Name is too long (max 100 characters)";
+        errors.name = "ชื่อยาวเกินไป (สูงสุด 100 ตัวอักษร)";
       } else if (!/^[\u0E00-\u0E7Fa-zA-Z\s.'-]+$/.test(formData.name)) {
-        errors.name = "Name contains invalid characters";
+        errors.name = "ชื่อมีตัวอักษรที่ไม่ถูกต้อง";
       }
 
       if (!formData.confirmPassword) {
-        errors.confirmPassword = "Please confirm your password";
+        errors.confirmPassword = "กรุณายืนยันรหัสผ่าน";
       } else if (formData.password !== formData.confirmPassword) {
-        errors.confirmPassword = "Passwords do not match";
+        errors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
       } else if (formData.confirmPassword.length > 128) {
-        errors.confirmPassword = "Password is too long";
+        errors.confirmPassword = "รหัสผ่านยาวเกินไป";
       }
 
       // Warn about weak password
       if (passwordStrength < 2 && formData.password.length >= 6) {
-        setError("⚠️ Your password is quite weak. We recommend using a stronger password");
+        setError("⚠️ รหัสผ่านของคุณค่อนข้างอ่อนแอ แนะนำให้ใช้รหัสผ่านที่แข็งแรงกว่านี้");
       }
     }
 
     // If there are validation errors, stop submission
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      setError("❌ Please check your information and try again");
+      setError("❌ กรุณาตรวจสอบข้อมูลและลองอีกครั้ง");
       setIsLoading(false);
       return;
     }
@@ -352,7 +352,7 @@ function AuthForm() {
         if (error) throw error;
 
         // Show success message and switch to login
-        alert("Registration successful! Please check your email to verify your account before logging in.");
+        alert("ลงทะเบียนสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชีก่อนเข้าสู่ระบบ");
         setIsLogin(true);
         setFormData({
           email: formData.email, // Keep email for convenience
@@ -424,11 +424,11 @@ function AuthForm() {
           </div>
           <h2 className="text-4xl font-bold mb-3">
             <span className="bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent">
-              {isLogin ? "Sign In" : "Sign Up"}
+              {isLogin ? "เข้าสู่ระบบ" : "สมัครสมาชิก"}
             </span>
           </h2>
           <p className="text-lg text-gray-600">
-            {isLogin ? "Welcome back!" : "Get started with us!"}
+            {isLogin ? "ยินดีต้อนรับกลับมา!" : "เริ่มต้นกับเรา!"}
           </p>
         </div>
 
@@ -436,12 +436,12 @@ function AuthForm() {
           {!isLogin && (
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Full Name
+                ชื่อเต็ม
               </label>
               <input
                 type="text"
                 name="name"
-                placeholder="Enter your full name"
+                placeholder="กรอกชื่อเต็มของคุณ"
                 value={formData.name}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
@@ -462,12 +462,12 @@ function AuthForm() {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Email
+              อีเมล
             </label>
             <input
               type="email"
               name="email"
-              placeholder="Enter your email (e.g., example@email.com)"
+              placeholder="กรอกอีเมลของคุณ (เช่น example@email.com)"
               value={formData.email}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
@@ -487,19 +487,19 @@ function AuthForm() {
             )}
             {formData.email && !fieldErrors.email && (
               <p className="mt-2 text-sm text-green-600 flex items-center gap-1.5 font-medium">
-                <span>✓</span> Valid email
+                <span>✓</span> อีเมลถูกต้อง
               </p>
             )}
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Password
+              รหัสผ่าน
             </label>
             <input
               type="password"
               name="password"
-              placeholder="Enter your password (at least 6 characters)"
+              placeholder="กรอกรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)"
               value={formData.password}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
@@ -520,7 +520,7 @@ function AuthForm() {
             {!isLogin && formData.password && !fieldErrors.password && (
               <div className="mt-2">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-gray-600">Password strength:</span>
+                  <span className="text-xs text-gray-600">ความแข็งแรงของรหัสผ่าน:</span>
                   <span className={`text-xs font-medium ${getPasswordStrengthInfo(passwordStrength).textColor}`}>
                     {getPasswordStrengthInfo(passwordStrength).text}
                   </span>
@@ -532,7 +532,7 @@ function AuthForm() {
                   />
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
-                  💡 Tip: Use uppercase, lowercase, numbers, and symbols for better security
+                  💡 เคล็ดลับ: ใช้ตัวพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และสัญลักษณ์เพื่อความปลอดภัยที่ดีขึ้น
                 </p>
               </div>
             )}
@@ -541,12 +541,12 @@ function AuthForm() {
           {!isLogin && (
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Confirm Password
+                ยืนยันรหัสผ่าน
               </label>
               <input
                 type="password"
                 name="confirmPassword"
-                placeholder="Confirm your password"
+                placeholder="ยืนยันรหัสผ่านของคุณ"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
@@ -566,7 +566,7 @@ function AuthForm() {
               )}
               {formData.confirmPassword && formData.password === formData.confirmPassword && !fieldErrors.confirmPassword && (
                 <p className="mt-2 text-sm text-green-600 flex items-center gap-1.5 font-medium">
-                  <span>✓</span> Passwords match
+                  <span>✓</span> รหัสผ่านตรงกัน
                 </p>
               )}
             </div>
@@ -590,22 +590,22 @@ function AuthForm() {
               type = "submit"
             >
               {isLoading
-                ? "Processing..."
+                ? "กำลังดำเนินการ..."
                 : isLogin
-                ? "Sign In"
-                : "Sign Up"}
+                ? "เข้าสู่ระบบ"
+                : "สมัครสมาชิก"}
             </button>
           </div>
         </div>
 
         <div className="mt-8 text-center">
           <p className="text-gray-600 text-base">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}
+            {isLogin ? "ยังไม่มีบัญชี?" : "มีบัญชีอยู่แล้ว?"}
             <button
               onClick={switchMode}
               className="ml-2 text-red-600 hover:text-red-700 font-semibold hover:underline transition-all"
             >
-              {isLogin ? "Sign Up" : "Sign In"}
+              {isLogin ? "สมัครสมาชิก" : "เข้าสู่ระบบ"}
             </button>
           </p>
         </div>
@@ -619,7 +619,7 @@ function AuthForm() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Home
+            กลับสู่หน้าหลัก
           </a>
         </div>
       </div>
