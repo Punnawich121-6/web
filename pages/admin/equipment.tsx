@@ -54,24 +54,53 @@ const AdminEquipmentPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('🔍 Admin Equipment: Component mounted');
+
     const checkSession = async () => {
+      console.log('🔍 Checking session...');
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        console.log('🔍 Session:', session ? 'Found' : 'Not found');
         setUser(session?.user || null);
 
         if (session?.user) {
-          // Fetch user data and equipment in parallel
-          const userDataPromise = fetchUserData(session.user);
-          userDataPromise.then((userData) => {
-            if (userData?.role === "ADMIN") {
-              fetchEquipment();
+          console.log('🔍 User found, fetching user data...');
+          // ⚡ PERFORMANCE: Add timeout and better error handling
+          const userData = await fetchUserData(session.user);
+          console.log('🔍 User data:', userData);
+
+          if (userData?.role === "ADMIN") {
+            console.log('✅ User is ADMIN, fetching equipment...');
+            // Fetch equipment with timeout
+            try {
+              await fetchEquipment();
+            } catch (err) {
+              console.error('❌ Failed to fetch equipment:', err);
+              setError('Failed to load equipment. Please refresh the page.');
+              setLoading(false);
             }
-          });
+          } else {
+            console.log('❌ User is NOT admin. Role:', userData?.role);
+            setLoading(false);
+          }
+        } else {
+          console.log('❌ No user session found');
+          setLoading(false);
         }
-      } finally {
+      } catch (error) {
+        console.error('❌ Session check error:', error);
+        setError('Failed to verify session. Please login again.');
         setLoading(false);
       }
     };
+
+    // Set timeout to prevent infinite loading
+    const loadTimeout = setTimeout(() => {
+      if (loading) {
+        setError('Loading timeout. Please refresh the page.');
+        setLoading(false);
+      }
+    }, 15000); // 15 second timeout
 
     checkSession();
 
@@ -89,13 +118,20 @@ const AdminEquipmentPage = () => {
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(loadTimeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchUserData = async (currentUser: User): Promise<UserData | null> => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return null;
+
+      // ⚡ PERFORMANCE: Add timeout to user fetch
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
       const token = session.access_token;
       const response = await fetch('/api/user', {
@@ -105,35 +141,68 @@ const AdminEquipmentPage = () => {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ token }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const result = await response.json();
         setUserData(result.data);
         return result.data;
       }
+
+      console.warn('User fetch failed:', response.status);
       return null;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching user data:', error);
+
+      if (error.name === 'AbortError') {
+        setError('⏱️ User verification timeout. Please refresh the page.');
+      }
+
       return null;
     }
   };
 
   const fetchEquipment = async () => {
     setEquipmentLoading(true);
+    setError(null);
+
     try {
-      // ⚡ PERFORMANCE: Limit to 200 most recent items for faster loading
-      const response = await fetch('/api/equipment?limit=200');
+      // ⚡ PERFORMANCE: Add timeout to fetch with AbortController
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch('/api/equipment?limit=200', {
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const result = await response.json();
 
       if (result.success) {
-        setEquipment(result.data);
+        setEquipment(result.data || []);
+        console.log('Loaded equipment:', result.data?.length || 0, 'items');
       } else {
-        setError(result.error || 'Failed to fetch equipment');
+        throw new Error(result.error || 'Failed to fetch equipment');
       }
-    } catch (err) {
-      setError('Failed to fetch equipment');
+    } catch (err: any) {
       console.error('Error fetching equipment:', err);
+
+      if (err.name === 'AbortError') {
+        setError('⏱️ Request timeout. The server is taking too long to respond. Please try again.');
+      } else {
+        setError(`❌ Failed to load equipment: ${err.message}`);
+      }
+
+      // Set empty array so UI doesn't break
+      setEquipment([]);
     } finally {
       setEquipmentLoading(false);
     }
@@ -299,18 +368,52 @@ const AdminEquipmentPage = () => {
     return matchesSearch && matchesCategory;
   });
 
+  console.log('🔍 Render state:', { loading, user: !!user, userRole: userData?.role, equipmentCount: equipment.length, error });
+
   if (loading) {
+    console.log('🔄 Rendering loading state...');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-xl">Loading...</p>
+        <LibraryNavbar />
+        <div className="text-center mt-20">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-xl font-semibold">Loading Admin Panel...</p>
+          <p className="text-gray-500 text-sm mt-2">Please wait while we verify your access</p>
         </div>
       </div>
     );
   }
 
-  if (!user || userData?.role !== "ADMIN") {
+  if (!user) {
+    console.log('❌ No user - redirecting to login...');
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
+        <LibraryNavbar />
+        <div className="container mx-auto px-4 py-8 pt-32">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-center">
+              <AlertCircle className="mx-auto mb-4 text-yellow-600" size={48} />
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Please Login
+              </h2>
+              <p className="text-gray-600 mb-4">
+                You need to be logged in to access this page.
+              </p>
+              <a
+                href="/auth"
+                className="inline-block px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Go to Login
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (userData?.role !== "ADMIN") {
+    console.log('❌ User is not admin - showing access denied');
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
         <LibraryNavbar />
@@ -321,7 +424,7 @@ const AdminEquipmentPage = () => {
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
                 Access Denied
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 mb-2">
                 This page is for administrators only.
               </p>
             </div>
@@ -330,6 +433,8 @@ const AdminEquipmentPage = () => {
       </div>
     );
   }
+
+  console.log('✅ Rendering main admin equipment page');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
@@ -365,14 +470,28 @@ const AdminEquipmentPage = () => {
           </motion.div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-              {error}
-              <button
-                onClick={() => setError(null)}
-                className="ml-2 text-red-600 hover:text-red-800"
-              >
-                ✕
-              </button>
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-start justify-between">
+              <div className="flex-1">
+                <p className="font-semibold mb-2">⚠️ Error Loading Equipment</p>
+                <p className="text-sm">{error}</p>
+              </div>
+              <div className="flex gap-2 ml-4">
+                <button
+                  onClick={() => {
+                    setError(null);
+                    fetchEquipment();
+                  }}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium whitespace-nowrap"
+                >
+                  🔄 Retry
+                </button>
+                <button
+                  onClick={() => setError(null)}
+                  className="px-3 py-2 text-red-600 hover:text-red-800 text-lg"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           )}
 
