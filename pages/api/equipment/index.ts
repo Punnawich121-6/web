@@ -13,29 +13,9 @@ export default async function handler(
 ) {
   try {
     if (req.method === 'GET') {
-      // ✅ PERFORMANCE FIX: Optimized query with minimal data
-      // - No borrowings join (saves significant data transfer)
-      // - No creator join for list view (only needed for detail view)
-      // - Only essential fields selected
       const { data: equipment, error } = await supabaseAdmin
         .from('equipment')
-        .select(`
-          id,
-          name,
-          category,
-          description,
-          image,
-          status,
-          total_quantity,
-          available_quantity,
-          specifications,
-          location,
-          serial_number,
-          condition,
-          created_at,
-          updated_at,
-          created_by
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -60,12 +40,7 @@ export default async function handler(
         createdAt: item.created_at,
         updatedAt: item.updated_at,
         createdBy: item.created_by,
-        // Creator info removed from list view for better performance
-        // If needed, fetch it separately or in detail view
       }));
-
-      // Add HTTP caching header (2 minutes for fresher data, 10 minutes stale-while-revalidate)
-      res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=120, stale-while-revalidate=600');
 
       res.status(200).json({ success: true, data: filteredEquipment || [] });
     } else if (req.method === 'POST') {
