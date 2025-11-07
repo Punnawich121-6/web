@@ -13,10 +13,20 @@ export default async function handler(
 ) {
   try {
     if (req.method === 'GET') {
-      const { data: equipment, error } = await supabaseAdmin
+      // ⚡ PERFORMANCE: Support limit parameter for pagination
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+
+      let query = supabaseAdmin
         .from('equipment')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // Apply limit if provided
+      if (limit && limit > 0) {
+        query = query.limit(limit);
+      }
+
+      const { data: equipment, error } = await query;
 
       if (error) {
         console.error('Error fetching equipment:', error);
@@ -41,6 +51,9 @@ export default async function handler(
         updatedAt: item.updated_at,
         createdBy: item.created_by,
       }));
+
+      // ⚡ PERFORMANCE: Add cache headers (2 min cache, 5 min stale-while-revalidate)
+      res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=120, stale-while-revalidate=300');
 
       res.status(200).json({ success: true, data: filteredEquipment || [] });
     } else if (req.method === 'POST') {

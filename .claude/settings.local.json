@@ -17,7 +17,8 @@
       "WebSearch",
       "Bash(for file in /Users/dolpeeradol/Documents/CoE/Webapp/web/pages/api/*.ts /Users/dolpeeradol/Documents/CoE/Webapp/web/pages/api/**/*.ts)",
       "Bash(do echo \"=== $file ===\" head -30 \"$file\")",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

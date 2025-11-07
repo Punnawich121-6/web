@@ -122,7 +122,8 @@ const AdminEquipmentPage = () => {
   const fetchEquipment = async () => {
     setEquipmentLoading(true);
     try {
-      const response = await fetch('/api/equipment');
+      // ⚡ PERFORMANCE: Limit to 200 most recent items for faster loading
+      const response = await fetch('/api/equipment?limit=200');
       const result = await response.json();
 
       if (result.success) {
